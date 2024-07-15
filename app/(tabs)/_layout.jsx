@@ -34,14 +34,14 @@ const TabLayout = () => {
     <>
       <Tabs
         screenOptions={{
-          tabBarActiveTintColor: "#EA661C",
-          tabBarInactiveTintColor: "#CECECE",
+          tabBarActiveTintColor: "#FFA001",
+          tabBarInactiveTintColor: "#CDCDE0",
           tabBarShowLabel: false,
           tabBarStyle: {
-            backgroundColor: "#FBFBFB",
+            backgroundColor: "#161622",
             borderTopWidth: 1,
-            // borderTopColor: "#232533",
-            height: 78,
+            borderTopColor: "#232533",
+            height: 84,
           },
         }}
       >
@@ -61,15 +61,15 @@ const TabLayout = () => {
           }}
         />
         <Tabs.Screen
-          name="farvorite"
+          name="bookmark"
           options={{
-            title: "Farvorite",
+            title: "Bookmark",
             headerShown: false,
             tabBarIcon: ({ color, focused }) => (
               <TabIcon
-                icon={icons.farvorite}
+                icon={icons.bookmark}
                 color={color}
-                name="Farvorite"
+                name="Bookmark"
                 focused={focused}
               />
             ),
@@ -77,15 +77,15 @@ const TabLayout = () => {
         />
 
         <Tabs.Screen
-          name="gift"
+          name="create"
           options={{
-            title: "Gift",
+            title: "Create",
             headerShown: false,
             tabBarIcon: ({ color, focused }) => (
               <TabIcon
                 icon={icons.plus}
                 color={color}
-                name="Gift"
+                name="Create"
                 focused={focused}
               />
             ),

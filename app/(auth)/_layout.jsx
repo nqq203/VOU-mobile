@@ -1,20 +1,35 @@
-import React, { Component } from 'react';
-import { View, Text } from 'react-native';
+import { Redirect, Stack } from "expo-router";
+import { StatusBar } from "expo-status-bar";
 
-class AuthLayout extends Component {
-  constructor(props) {
-    super(props);
-    this.state = {
-    };
-  }
+import { Loader } from "../../components";
+import { useGlobalContext } from "../../context/GlobalProvider";
 
-  render() {
-    return (
-      <View>
-        <Text> _layout </Text>
-      </View>
-    );
-  }
-}
+const AuthLayout = () => {
+  const { loading, isLogged } = useGlobalContext();
+
+  if (!loading && isLogged) return <Redirect href="/home" />;
+
+  return (
+    <>
+      <Stack>
+        <Stack.Screen
+          name="sign-in"
+          options={{
+            headerShown: false,
+          }}
+        />
+        <Stack.Screen
+          name="sign-up"
+          options={{
+            headerShown: false,
+          }}
+        />
+      </Stack>
+
+      {/* <Loader isLoading={loading} />s */}
+      <StatusBar backgroundColor="#161622" style="light" />
+    </>
+  );
+};
 
 export default AuthLayout;
