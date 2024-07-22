@@ -21,7 +21,7 @@ const Welcome = () => {
     },
     safeArea: {
       flex: 1,
-      backgroundColor: 'rgba(0, 0, 0, 0.5)', // Optional overlay to make text readable
+      backgroundColor: 'rgba(0, 0, 0, 0.5)', 
     },
     scrollView: {
       flex: 1,
@@ -66,3 +66,4 @@ const Welcome = () => {
 };
 
 export default Welcome;
+

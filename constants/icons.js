@@ -13,7 +13,8 @@ import eye from "../assets/icons/eye.png";
 import play from "../assets/icons/play.png";
 import email from "../assets/icons/mail.png";
 import lock from "../assets/icons/lock.png";
-
+import success from "../assets/icons/success.png";
+import error from "../assets/icons/error.png";
 export default {
   play,
   bookmark,
@@ -29,5 +30,7 @@ export default {
   eyeHide,
   eye,
   email,
-  lock
+  lock,
+  success,
+  error,
 };

@@ -6,7 +6,9 @@ import Loader from "./Loader";
 // import Trending from "./Trending";
 import SearchInput from "./SearchInput";
 import EmptyState from "./EmptyState";
-
+import FooterAuth from "./FooterAuth";
+import HeaderAuth from "./HeaderAuth";
+import Notification from "./Notification";
 export {
   VideoCard,
   FormField,
@@ -16,4 +18,7 @@ export {
   // Trending,
   SearchInput,
   EmptyState,
+  FooterAuth,
+  HeaderAuth,
+  Notification
 };
