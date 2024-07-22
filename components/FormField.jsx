@@ -4,6 +4,7 @@ import { View, Text, TextInput, TouchableOpacity, Image,StyleSheet } from "react
 import { Icons, icons } from "../constants";
 
 import Ionicons from 'react-native-vector-icons/Ionicons';
+import Icon from 'react-native-vector-icons/FontAwesome';
 const styles = StyleSheet.create({
   
   input: {
@@ -35,36 +36,42 @@ const FormField = ({
   ...props
 }) => {
   const [showPassword, setShowPassword] = useState(false);
+  const useIcon = ['user-o','phone']
 
   return (
     <View className={` ${otherStyles}`}>
       <Text className="text-base text-gray-100 font-pmedium">{title}</Text>
 
       <View className={`w-full bg-white h-14 px-4 bg-black-100 rounded-lg border-b mr-1 border-grey-100 flex flex-row items-center `}>
-      <Ionicons name={icon} size={20} color="#BCBCBC" style={{ marginRight: 10 }} />
+        {useIcon.includes(icon) ? (
+        <Icon name={icon} size={20} color="#BCBCBC" style={{ marginRight: 10 }} />
+      ) : (
+        <Ionicons name={icon} size={20} color="#BCBCBC" style={{ marginRight: 10 }} />
+      )}
         <View style={styles.line}></View>
-        <TextInput
-          className={`flex-1 text-gray-950 font-psemibold text-base ml-2`}
-          value={value}
-          placeholder={placeholder}
-          style={styles.input}
-          placeholderTextColor="#BCBCBC"
-          placeholderStyle="font-plight"
-          onChangeText={handleChangeText}
-          secureTextEntry={placeholder === "Password" && !showPassword}
-          {...props}
-        />
+          <TextInput
+            className={`flex-1 text-gray-950 font-psemibold text-base ml-2`}
+            value={value}
+            placeholder={placeholder}
+            style={styles.input}
+            placeholderTextColor="#BCBCBC"
+            placeholderStyle="font-plight"
+            onChangeText={handleChangeText}
+            secureTextEntry={(placeholder === "Password" ||placeholder === "Confirm password")&& !showPassword}
+            {...props}
+          />
 
-        {placeholder === "Password" && (
-          <TouchableOpacity onPress={() => setShowPassword(!showPassword)}>
-            <Ionicons
-              name={!showPassword ? 'eye-outline' : 'eye-off-outline'} 
-              size={20}
-              color="#BCBCBC"
-            />
+          {(placeholder 
+          === "Password" ||placeholder === "Confirm password") && (
+            <TouchableOpacity onPress={() => setShowPassword(!showPassword)}>
+              <Ionicons
+                name={!showPassword ? 'eye-outline' : 'eye-off-outline'} 
+                size={20}
+                color="#BCBCBC"
+              />
 
-          </TouchableOpacity>
-        )}
+            </TouchableOpacity>
+          )}
       </View>
     </View>
   );

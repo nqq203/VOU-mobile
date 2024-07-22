@@ -1,7 +1,9 @@
 import React from 'react';
 import { View, Text, TouchableOpacity } from 'react-native';
 import Ionicons from 'react-native-vector-icons/Ionicons';
+import { useNavigation } from '@react-navigation/native';
 const HeaderAuth = ({text}) => {
+  const navigation = useNavigation();
   return (
     <View className = 'flex-row items-center justify-center'>
     <TouchableOpacity className = 'items-center justify-center bg-white w-12 h-12 rounded-xl absolute left-0' onPress={() => navigation.goBack()}>

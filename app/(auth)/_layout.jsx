@@ -25,7 +25,19 @@ const AuthLayout = () => {
           }}
         />
         <Stack.Screen
-          name="verify"
+          name="verify-otp"
+          options={{
+            headerShown: false,
+          }}
+        />
+         <Stack.Screen
+          name="forgot-password"
+          options={{
+            headerShown: false,
+          }}
+        />
+         <Stack.Screen
+          name="reset-password"
           options={{
             headerShown: false,
           }}

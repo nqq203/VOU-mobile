@@ -8,11 +8,11 @@ import { useGlobalContext } from "../../context/GlobalProvider";
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import { apiCall } from "../../lib/callAPI";
 
-const SignIn = () => {
+const ForgotPassword = () => {
   const navigation = useNavigation();
   const { setUser, setIsLogged } = useGlobalContext();
   const [isSubmitting, setSubmitting] = useState(false);
-  const [form, setForm] = useState({ email: '', password: '' });
+  const [form, setForm] = useState({ email: '' });
   const [dialogVisible, setDialogVisible] = useState(false);
   const [dialogTitle, setDialogTitle] = useState('');
   const [dialogMessage, setDialogMessage] = useState('');
@@ -30,7 +30,7 @@ const SignIn = () => {
     setDialogVisible(true);
   };
   const submit = async () => {
-    // if (form.email === "" || form.password === "") {
+    // if (form.email === "") {
     //   showDialog(false, 'Please fill in all fields', () => {});
     // }
     // if (!validateEmail(form.email)) {
@@ -58,7 +58,7 @@ const SignIn = () => {
       // navigation.navigate('auth/verify');
       // return <Link href="/sign-up" />;
     } catch (error) {
-      showDialog(false, error.message, () => {});
+      Alert.alert("Error", error.message);
     } finally {
       setSubmitting(false);
     }
@@ -76,45 +76,27 @@ const SignIn = () => {
         >
 
           <HeaderAuth />
-          <View className='mt-32 mx-6'>
+          <View className='mt-20 mx-6'>
 
             <Text className={`text-lg text-black font-pbold leading-8`}>
-            Sign in
+            Forgot password
             </Text>
             <Text className="text-md border-spacing-1 font-pregular text-gray-500 mt-1 ">
-            Welcome back
+            Enter your email address
             </Text>
-            <View className = 'mt-3'>
-              <FormField
-                value={form.email}
-                handleChangeText={(e) => setForm({ ...form, email: e })}
-                placeholder={"Email"}
-                keyboardType="email-address"
-                icon="mail-outline"
-              />
-
-              <FormField
-                value={form.password}
-                handleChangeText={(e) => setForm({ ...form, password: e })}
-                placeholder={"Password"}
-                icon="lock-closed-outline"
-              />
-            </View>
-
-            <View className="flex pt-5 flex-column  ">
-              <Text className="text-sm underline font-pmedium text-grey-900 text-center" style = {{  alignItems: 'center',justifyContent: 'center', }}>
-                Forgot Password?
-              </Text>
-              <Link
-                href="/forgot-password"
-                className="text-lg font-psemibold text-secondary" ></Link>
-
-              <TouchableOpacity className = 'flex-col items-center justify-center text-white w-16 rounded-full h-16 bg-primary self-end' onPress={submit}>
+            <FormField
+            value={form.email}
+            handleChangeText={(e) => setForm({ ...form, email: e })}
+            placeholder={"Email"}
+            keyboardType="email-address"
+            icon="mail-outline"
+            otherStyles='mt-14'
+            />
+            <TouchableOpacity className = 'flex-col items-center justify-center text-white w-16 rounded-full h-16 bg-primary self-end mt-8' onPress={submit}>
                 <Ionicons name="chevron-forward" size={24} color="#fff" />
-              </TouchableOpacity>
-            </View>
+            </TouchableOpacity>
           </View>
-          <FooterAuth text="New member?" textLink="Sign up" url="/sign-up" />
+          <FooterAuth url="/sign-up" />
         </View>
       </ScrollView>
       <Notification
@@ -131,4 +113,4 @@ const SignIn = () => {
 
 
 
-export default SignIn;
+export default ForgotPassword;
