@@ -5,16 +5,17 @@ import { Image, Text, View } from "react-native";
 import { icons } from "../../constants";
 import { Loader } from "../../components";
 import { useGlobalContext } from "../../context/GlobalProvider";
-
+import Ionicons from 'react-native-vector-icons/Ionicons';
 const TabIcon = ({ icon, color, name, focused }) => {
   return (
-    <View className="flex items-center justify-center gap-2">
+    <View className="flex items-center justify-center">
       <Image
         source={icon}
         resizeMode="contain"
         tintColor={color}
-        className="w-6 h-6"
+        style={{ width: 24 }}
       />
+      {/* <Ionicons name={icon} size={20} resizeMode="contain" col  className="w-6 h-6" /> */}
       <Text
         className={`${focused ? "font-psemibold" : "font-pregular"} text-xs`}
         style={{ color: color }}
@@ -34,19 +35,24 @@ const TabLayout = () => {
     <>
       <Tabs
         screenOptions={{
-          tabBarActiveTintColor: "#FFA001",
-          tabBarInactiveTintColor: "#CDCDE0",
+          tabBarActiveTintColor: "#EA661C",
+          tabBarInactiveTintColor: "#CECECE",
           tabBarShowLabel: false,
           tabBarStyle: {
-            backgroundColor: "#161622",
-            borderTopWidth: 1,
-            borderTopColor: "#232533",
-            height: 84,
+            backgroundColor: "#FBFBFB",
+            height: 78,
+            justifyContent: "center",
+            borderRadius: 20,
+            alignContent: "center",
+            flexDirection: "row",
+            alignItems: "center",
+            alignSelf: "center",
+
           },
         }}
       >
         <Tabs.Screen
-          name="home"
+          name="(home)" 
           options={{
             title: "Home",
             headerShown: false,
@@ -54,22 +60,20 @@ const TabLayout = () => {
               <TabIcon
                 icon={icons.home}
                 color={color}
-                name="Home"
                 focused={focused}
               />
             ),
           }}
         />
         <Tabs.Screen
-          name="bookmark"
+          name="favorite"
           options={{
-            title: "Bookmark",
+            title: "Favorite",
             headerShown: false,
             tabBarIcon: ({ color, focused }) => (
               <TabIcon
-                icon={icons.bookmark}
+                icon={icons.fav}
                 color={color}
-                name="Bookmark"
                 focused={focused}
               />
             ),
@@ -77,15 +81,14 @@ const TabLayout = () => {
         />
 
         <Tabs.Screen
-          name="create"
+          name="gift"
           options={{
-            title: "Create",
+            title: "Gift",
             headerShown: false,
             tabBarIcon: ({ color, focused }) => (
               <TabIcon
-                icon={icons.plus}
+                icon={icons.gift}
                 color={color}
-                name="Create"
                 focused={focused}
               />
             ),
@@ -100,7 +103,6 @@ const TabLayout = () => {
               <TabIcon
                 icon={icons.profile}
                 color={color}
-                name="Profile"
                 focused={focused}
               />
             ),
@@ -108,7 +110,7 @@ const TabLayout = () => {
         />
       </Tabs>
 
-      <Loader isLoading={loading} />
+      {/* <Loader isLoading={loading} /> */}
       <StatusBar backgroundColor="#161622" style="light" />
     </>
   );
