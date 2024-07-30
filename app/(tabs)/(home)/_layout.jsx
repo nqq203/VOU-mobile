@@ -6,7 +6,7 @@ export default function HomeLayout() {
       screenOptions={{
         headerShown: false,
       }}>
-      <Stack.Screen name="index"  options={{ headerShown: false }}/>
+      <Stack.Screen name="home"  options={{ headerShown: false }}/>
       <Stack.Screen name="details/[id]"  options={{ headerShown: false }}/>
     </Stack>
   );
