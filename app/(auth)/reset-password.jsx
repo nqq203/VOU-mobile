@@ -6,7 +6,6 @@ import { useNavigation } from '@react-navigation/native';
 import { FooterAuth, FormField ,HeaderAuth,Notification} from "../../components";
 import { useGlobalContext } from "../../context/GlobalProvider";
 import Ionicons from 'react-native-vector-icons/Ionicons';
-import { apiCall } from "../../lib/callAPI";
 
 const ResetPassword = () => {
   const navigation = useNavigation();

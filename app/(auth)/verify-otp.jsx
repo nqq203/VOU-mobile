@@ -6,7 +6,6 @@ import { useNavigation } from '@react-navigation/native';
 import { CustomButton, FooterAuth, FormField ,HeaderAuth,Notification} from "../../components";
 import { useGlobalContext } from "../../context/GlobalProvider";
 import Ionicons from 'react-native-vector-icons/Ionicons';
-import { apiCall } from "../../lib/callAPI";
 import { OtpInput } from "react-native-otp-entry";
 const Verify = () => {
   const navigation = useNavigation();

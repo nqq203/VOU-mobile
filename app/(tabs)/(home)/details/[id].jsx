@@ -15,10 +15,13 @@ import {
 } from "react-native";
 import { CustomButton, HeaderAuth } from "../../../../components";
 import { icons } from "../../../../constants";
+import { useNavigation } from '@react-navigation/native';
+import { router } from "expo-router";
+
 const Details = () => {
   const {id} = useLocalSearchParams();
   const [expanded, setExpanded] = useState(false);
-
+  const navigation = useNavigation();
   const handleToggle = () => {
     setExpanded(!expanded);
   };
@@ -86,6 +89,7 @@ const Details = () => {
                   title="Chơi ngay" 
                   containerStyles="h-10 w-28 p-2 justify-center" 
                   textStyles='text-sm' 
+                  handlePress={() => router.push("/games/quizz")}
                 />
               </View>
 

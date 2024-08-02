@@ -1,12 +1,14 @@
 import { useState } from "react";
-import { Link, router } from "expo-router";
+import { router } from "expo-router";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { View, Text, ScrollView, Dimensions, Alert, Image,TouchableOpacity } from "react-native";
+import { View, Text, ScrollView, Dimensions, Alert,TouchableOpacity } from "react-native";
 import Ionicons from 'react-native-vector-icons/Ionicons';
-import { createUser } from "../../lib/appwrite";
 import { useNavigation } from '@react-navigation/native';
 import { useGlobalContext } from "../../context/GlobalProvider";
 import { FooterAuth, FormField ,HeaderAuth,Notification} from "../../components";
+import { callApiCreateAccount } from "../../api/user";
+// import Notification from "../../components/Notification";
+
 const SignUp = () => {
   const { setUser, setIsLogged } = useGlobalContext();
   const navigation = useNavigation();
@@ -21,14 +23,37 @@ const SignUp = () => {
   const [dialogTitle, setDialogTitle] = useState('');
   const [dialogMessage, setDialogMessage] = useState('');
   const [onConfirm, setOnConfirm] = useState(() => () => {});
+
+  const showDialog = (title, message, onConfirmCallback) => {
+    setDialogTitle(title);
+    setDialogMessage(message);
+    setOnConfirm(() => onConfirmCallback);
+    setDialogVisible(true);
+  };
+  const validateEmail = (email) => {
+    // Simple regex for email validation
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return emailRegex.test(email);
+  };
+  
   const submit = async () => {
     if (form.fullName === "" || form.email === "" || form.password === ""|| form.phoneNumber === "") {
       Alert.alert("Error", "Please fill in all fields");
     }
+    if (!validateEmail(form.email)) {
+      showDialog(false, 'Invalid email format', () => {});
+      return; 
+    }
 
     setSubmitting(true);
     try {
-      const result = await createUser(form.email, form.password, form.fullName, form.phoneNumber);
+      const user ={
+        email: form.email,
+        password: form.password,
+        fullName: form.fullName,
+        phoneNumber: form.phoneNumber
+      }
+      const result = await callApiCreateAccount(user);
       setUser(result);
       setIsLogged(true);
 
@@ -104,13 +129,12 @@ const SignUp = () => {
         <FooterAuth text="Already a member?" textLink="Sign in" url="/sign-in" />
       </View>
     </ScrollView>
-    <Notification
+    {dialogVisible && <Notification
       visible={dialogVisible}
       onClose={() => setDialogVisible(false)}
       isSuccess={dialogTitle}
       message={dialogMessage}
-      
-  />
+    ></Notification>}
   </SafeAreaView>
   );
 };

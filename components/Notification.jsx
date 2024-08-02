@@ -1,8 +1,8 @@
 import React from 'react';
-import { View, Text ,StyleSheet,Image,Modal,TouchableOpacity} from 'react-native';
-import {CustomButton} from './CustomButton';
+import { View, Text ,StyleSheet,Image,Modal} from 'react-native';
+import { CustomButton } from './CustomButton';
 import Ionicons from 'react-native-vector-icons/Ionicons';
-import { icons} from '../constants';
+import { icons } from '../constants';
 const Notification = ({ isSuccess, message,visible,onClose }) => {
   const iconName = isSuccess ? "success" : "error";
   const color = isSuccess ? "green" : "red";
