@@ -1,6 +1,6 @@
 import React from 'react';
 import { View, Text ,StyleSheet,Image,Modal} from 'react-native';
-import { CustomButton } from './CustomButton';
+import CustomButton from './CustomButton';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import { icons } from '../constants';
 const Notification = ({ isSuccess, message,visible,onClose }) => {

@@ -59,7 +59,7 @@ const Details = () => {
               minHeight: Dimensions.get("window").height - 50,
             }}
           >
-            <HeaderAuth text="" otherStyle="absolute h-20 left-4 z-10" otherStyleIcon="rounded-full" />
+            <HeaderAuth text="" otherStyle="absolute top-4 left-4 z-10" otherStyleIcon="rounded-full" />
             
             <Image source={{ uri: post.image }} className="w-full h-52 rounded-lg px-0" />
        

@@ -57,6 +57,8 @@ const SignIn = () => {
       // navigation.navigate('verify');
       // navigation.navigate('auth/verify');
       // return <Link href="/sign-up" />;
+      router.push('/home');
+
     } catch (error) {
       showDialog(false, error.message, () => {});
     } finally {

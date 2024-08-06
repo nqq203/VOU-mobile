@@ -5,7 +5,7 @@ import { View, Text } from 'react-native';
 const Gift = () => {
     return (
         <View>
-            <Text>Gift</Text>
+            <Text className="text-black">Gift</Text>
         </View>
     );
 }
