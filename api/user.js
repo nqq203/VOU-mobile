@@ -82,3 +82,16 @@ export const callApiResendOTP = async (dataInput) => {
     return error.response.data;
   }
 }
+
+export const callApiGetUserByUsername = async (dataInput) => {
+  console.log('dataInput: ', dataInput);
+  try {
+    const response = await api.get(`/api/v1/user/by-username/${dataInput?.username}`);
+    console.log('response: ', response.data);
+    return response.data;
+  } catch (error) {
+    console.log('Response data:', error.response.data);
+    console.log('Response status:', error.response.status);
+    return error.response.data;
+  }
+}
