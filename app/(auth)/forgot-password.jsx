@@ -22,33 +22,27 @@ const ForgotPassword = () => {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     return emailRegex.test(email);
   };
-  const showDialog = (title, message, onConfirmCallback) => {
-    setDialogTitle(title);
-    setDialogMessage(message);
-    setOnConfirm(() => onConfirmCallback);
-    setDialogVisible(true);
-  };
+  // const showDialog = (title, message, onConfirmCallback) => {
+  //   setDialogTitle(title);
+  //   setDialogMessage(message);
+  //   setOnConfirm(() => onConfirmCallback);
+  //   setDialogVisible(true);
+  // };
   const submit = async () => {
-    // if (form.email === "") {
-    //   showDialog(false, 'Please fill in all fields', () => {});
-    // }
-    // if (!validateEmail(form.email)) {
-    //   showDialog(false, 'Invalid email format', () => {});
-    //   return; 
-    // }
+    if (form.email === "") {
+      // showDialog(false, 'Please fill in all fields', () => {});
+      Alert.alert("Error", "Please fill in all fields");
+      return;
+    }
+    if (!validateEmail(form.email)) {
+      // showDialog(false, 'Invalid email format', () => {});
+      Alert.alert("Error", "Invalid email format");
+      return; 
+    }
     setSubmitting(true);
 
     try {
-      // await apiCall('auth/signin', {
-      //   method: 'POST',
-      //   headers: {
-      //     'Content-Type': 'application/json',
-      //   },
-      //   body: JSON.stringify({
-      //     email: form.email,
-      //     password: form.password,
-      //   }),
-      // });
+      
       // const result = await apiCall('user/me');
       // setUser(result);
       setIsLogged(true);

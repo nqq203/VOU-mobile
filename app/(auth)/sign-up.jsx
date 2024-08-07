@@ -11,9 +11,9 @@ import { callApiCreateAccount } from "../../api/user";
 
 const SignUp = () => {
   const { setUser, setIsLogged } = useGlobalContext();
-  const navigation = useNavigation();
   const [isSubmitting, setSubmitting] = useState(false);
   const [form, setForm] = useState({
+    username : "",
     fullName: "",
     email: "",
     password: "",
@@ -28,7 +28,7 @@ const SignUp = () => {
     setDialogTitle(title);
     setDialogMessage(message);
     setOnConfirm(() => onConfirmCallback);
-    setDialogVisible(true);
+    // setDialogVisible(true);
   };
   const validateEmail = (email) => {
     // Simple regex for email validation
@@ -37,11 +37,13 @@ const SignUp = () => {
   };
   
   const submit = async () => {
-    if (form.fullName === "" || form.email === "" || form.password === ""|| form.phoneNumber === "") {
+    if (form.fullName === "" || form.email === "" || form.password === ""|| form.phoneNumber === "" || form.username === "") {
       Alert.alert("Error", "Please fill in all fields");
     }
     if (!validateEmail(form.email)) {
-      showDialog(false, 'Invalid email format', () => {});
+      // showDialog(false, 'Invalid email format', () => {});
+      
+      Alert.alert("Error", "Invalid email format");
       return; 
     }
 
@@ -51,15 +53,23 @@ const SignUp = () => {
         email: form.email,
         password: form.password,
         fullName: form.fullName,
-        phoneNumber: form.phoneNumber
+        phoneNumber: form.phoneNumber,
+        username: form.username,
+        role: 'PLAYER'
       }
+      
       const result = await callApiCreateAccount(user);
+      if (result.success === false){
+        Alert.alert("Error", result.message);
+        return;
+      }
       setUser(result);
       setIsLogged(true);
-
-      router.replace("/home");
+      router.replace("/verify-otp", { username: form.username });
     } catch (error) {
-      showDialog(false, error.message, () => {});    
+      // showDialog(false, error.message, () => {});    
+      console.log(error);
+      Alert.alert("Error", error.message);
     } finally {
       setSubmitting(false);
     }
@@ -92,6 +102,13 @@ const SignUp = () => {
               keyboardType=""
               icon="user-o"
               
+            />
+            <FormField
+              value={form.username}
+              handleChangeText={(e) => setForm({ ...form, username: e })}
+              placeholder={"username"}
+              keyboardType=""
+              icon="user-o"
             />
             <FormField
               value={form.phoneNumber}

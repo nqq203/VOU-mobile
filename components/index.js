@@ -1,3 +1,4 @@
+/* eslint-disable import/no-anonymous-default-export */
 import VideoCard from "./VideoCard";
 import FormField from "./FormField";
 import CustomButton from "./CustomButton";
