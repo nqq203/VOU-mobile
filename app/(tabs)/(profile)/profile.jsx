@@ -14,21 +14,21 @@ const Profile = () => {
         facebook: "link",
     });
 
-    const defaultImage = "https://api.dicebear.com/9.x/micah/svg?seed=Boots"
+    const defaultImage = "https://reactjs.org/logo-og.png"
 
     return (
         <SafeAreaView className="bg-bg h-full">
         <ScrollView>
             <View
-                className="bg-bg w-full flex-col space-y-4 px-4 my-4"
+                className="bg-bg w-full flex-col space-y-2 px-4 my-8"
                 style={{
                     minHeight: Dimensions.get("window").height - 50,
                 }}
             >
-                <View className="justify-center items-center flex-1 my-4">
+                <View className="justify-center items-center flex-1 mb-2">
                     <View className="h-[200px] justify-center align-middle">
                         <View className="w-[170px] h-[170px] rounded-full bg-primary border border-orange-900 overflow-hidden">
-                            <Image source={{uri: 'https://reactjs.org/logo-og.png'}}
+                            <Image source={{uri: defaultImage}}
                             className="w-full h-full " />
                         </View>
                     </View>
@@ -46,7 +46,7 @@ const Profile = () => {
                         </Text>
 
                         <Link href={'/editProfile'}>
-                            <Text className={`text-lg text-primary font-pbold leading-8 underline`}>
+                            <Text className={`text-md text-primary font-psemibold leading-8 underline`}>
                                 Edit
                             </Text>
                         </Link>
@@ -110,7 +110,7 @@ const Profile = () => {
 
                     <View>
                         <CustomButton title={"Offline Vouchers"} containerStyles={'border border-brown-900 bg-white'}
-                            textStyles={'text-brown-900 font-psemibold'} />
+                            textStyles={'text-brown-900 font-psemibold'} handlePress={() => {router.push('/offlineVouchers');}} />
                     </View>
                 </View>
 

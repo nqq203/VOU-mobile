@@ -3,7 +3,7 @@ import { SafeAreaView, View, Text, Dimensions} from 'react-native'
 import { HeaderAuth } from '../../../components'
 import Voucher from '../../../components/Voucher'
 
-const OnlineVouchers = () => {
+const OfflineVouchers = () => {
 
   return (
     <SafeAreaView className="bg-bg h-full"> 
@@ -18,14 +18,14 @@ const OnlineVouchers = () => {
           <View className=''>
             <Text className="text-[28px] w-full text-center text-black font-pbold leading-8 
               mt-3 ml-3">
-              Online Vouchers
+              Offline Vouchers
             </Text>
           </View>
         </View>
 
         <View className="flex flex-col items-center justify-center">
-          <Voucher isOnline={true} title={"Giảm 20% cho đơn trên 50KKKKKKKvvv"} dueDay={"31/7/2024"}></Voucher>
-          <Voucher isOnline={true} title={"Giảm 20% cho đơn trên 50KKKKKKKvvv"} dueDay={"31/7/2024"}></Voucher>
+          <Voucher isOnline={false} title={"Giảm 10% khi gọi BE"} dueDay={"1/7/2024"}></Voucher>
+          <Voucher isOnline={false} title={"Giảm 20% "} dueDay={"31/7/2024"}></Voucher>
         </View>
         
 
@@ -34,4 +34,4 @@ const OnlineVouchers = () => {
   )
 }
 
-export default OnlineVouchers
+export default OfflineVouchers

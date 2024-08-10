@@ -4,6 +4,7 @@ import { FormField, HeaderAuth } from '../../../components'
 import { useState } from 'react'
 import CustomButton from "../../../components/CustomButton";
 import { Dimensions } from 'react-native';
+import { router } from 'expo-router';
 
 const EditProfile = () => {
   const [form, setForm] = useState({
@@ -75,8 +76,8 @@ const EditProfile = () => {
             </View>
             
             <View>
-              <CustomButton title={"Save changes"}  />
-            </View>
+              <CustomButton title={"Save"} handlePress={() => {router.push('/profile')}} />
+            </View> 
 
           </View>
         </View>
