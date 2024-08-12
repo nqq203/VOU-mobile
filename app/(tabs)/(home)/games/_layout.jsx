@@ -7,6 +7,7 @@ export default function GameLayout() {
         headerShown: false,
       }}>
       <Stack.Screen name="quizz"  options={{ headerShown: false }}/>
+      <Stack.Screen name="shakeGame"  options={{ headerShown: false }}/>
     </Stack>
   );
 }

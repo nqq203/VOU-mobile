@@ -87,7 +87,7 @@ const Favorite = () => {
                 <NotiButton />
             </View>
 
-          <View className={`w-full mt-4`}>
+          <View className={`w-full my-3`}>
             <SearchInput />
           </View>
           <View className="flex-col w-full space-y-4">
