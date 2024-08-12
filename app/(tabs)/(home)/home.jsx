@@ -99,7 +99,7 @@ const Home = () => {
     <SafeAreaView className="bg-bg w-full">
       <ScrollView>
         <View
-          className="bg-bg w-full flex-col space-y-4 px-4"
+          className="bg-bg w-full flex-col space-y-2 px-4 my-3"
           style={{
             minHeight: Dimensions.get("window").height - 50,
           }}

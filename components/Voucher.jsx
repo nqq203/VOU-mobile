@@ -5,8 +5,8 @@ import { SafeAreaView, View, Text,Image, Dimensions} from 'react-native'
 
 const Voucher = ({
     isOnline,
-    title,
-    dueDay,
+    name,
+    expirationDay,
     ...props
 }) => {
   return (
@@ -24,9 +24,9 @@ const Voucher = ({
         <View className="flex flex-col justify-center"
             style={{width: Dimensions.get("window").width - 128}}
         >
-            <Text className="text-lg font-psemibold">{title}</Text>
+            <Text className="text-lg font-psemibold">{name}</Text>
             <View className="flex flex-row justify-between p-1">
-                <Text className="text-base font-pregular">HSD: {dueDay}</Text>
+                <Text className="text-base font-pregular">HSD: {expirationDay}</Text>
                 {isOnline ? (
                     <Link href={'/'}>
                         <Text className="text-primary text-md font-psemibold underline">Áp dụng</Text>

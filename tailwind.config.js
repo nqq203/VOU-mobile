@@ -12,6 +12,7 @@ module.exports = {
         pending: '#F1C232', // Yellow 
         active: '#56CC56',  // green 
         infoBlue: '#2196F3',   // Info
+        blurBg: 'rgba(253, 253, 253, 0.05)',
         yellow: {
           50: '#FFF5D9',
           100: '#56CC56',

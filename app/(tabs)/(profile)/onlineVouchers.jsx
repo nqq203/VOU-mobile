@@ -24,8 +24,8 @@ const OnlineVouchers = () => {
         </View>
 
         <View className="flex flex-col items-center justify-center">
-          <Voucher isOnline={true} title={"Giảm 20% cho đơn trên 50KKKKKKKvvv"} dueDay={"31/7/2024"}></Voucher>
-          <Voucher isOnline={true} title={"Giảm 20% cho đơn trên 50KKKKKKKvvv"} dueDay={"31/7/2024"}></Voucher>
+          <Voucher isOnline={true} name={"Giảm 20% cho đơn trên 50KKKKKKKvvv"} expirationDay={"31/7/2024"}></Voucher>
+          <Voucher isOnline={true} name={"Giảm 20% cho đơn trên 50KKKKKKKvvv"} expirationDay={"31/7/2024"}></Voucher>
         </View>
         
 

@@ -4,6 +4,7 @@ import { View, Text,SafeAreaView, ScrollView, Dimensions } from 'react-native';
 import { FormField } from "../../../components";
 import { Image } from "react-native";
 import CustomButton from "../../../components/CustomButton";
+import Notification from "../../../components/Notification";
 
 const Profile = () => {
     const [form, setForm] = useState({
@@ -13,11 +14,20 @@ const Profile = () => {
         phoneNumber: "0933322323",
         facebook: "link",
     });
-
     const defaultImage = "https://reactjs.org/logo-og.png"
+
+    const [dialogVisible, setDialogVisible] = useState(true);
+    const [dialogTitle, setDialogTitle] = useState("");
+    const [dialogMessage, setDialogMessage] = useState('Số điện thoại không hợp lệ');
 
     return (
         <SafeAreaView className="bg-bg h-full">
+        <Notification
+            visible={dialogVisible}
+            onClose={() => setDialogVisible(false)}
+            isSuccess={dialogTitle}
+            message={dialogMessage}
+        />
         <ScrollView>
             <View
                 className="bg-bg w-full flex-col space-y-2 px-4 my-8"
