@@ -7,6 +7,7 @@ import GiftHistory from '../../components/GiftHistory';
 import Dropdown from '../../components/Dropdown';
 import FormField from '../../components/FormField';
 import { Notification } from '../../components';
+import NotiButton from '../../components/NotiButton';
 
 
 import { useState } from 'react';
@@ -88,13 +89,13 @@ const Gift = () => {
                         placeholderTextColor={'#949494'}
                         value={form.info}
                         onChange={(e) => setForm({...form, info: e.nativeEvent.text})}
-                        className="h-[48px] mb-4 p-2 rounded-md border border-gray-200 w-full text-base font-pmedium "
+                        className="h-[48px] mt-2 mb-6 p-2 rounded-md border border-gray-200 w-full text-base font-pmedium "
                     />
 
                     <View className='relative w-full h-[76px] '>
                         <View className='absolute z-10 w-full h-full'>
                             <Text className='text-base font-pmedium'>Vật phẩm</Text>
-                            <Dropdown listItems={listItems} setItem={setItem} customStyle={'mt-1'}/>
+                            <Dropdown listItems={listItems} setItem={setItem} customStyle={'mt-2'}/>
                         </View>
                     </View>
                     <TextInput
@@ -103,7 +104,7 @@ const Gift = () => {
                         value={form.amount}
                         keyboardType="numeric"
                         onChange={(e) => setForm({...form, amount: e.nativeEvent.text})}
-                        className="h-[48px] mt-1 mb-4 p-2 rounded-md border border-gray-200 w-full text-base font-pmedium "
+                        className="h-[48px] mt-4 mb-6 p-2 rounded-md border border-gray-200 w-full text-base font-pmedium "
                     />
 
                     <CustomButton title={"TẶNG"}  containerStyles={'w-full'} handlePress={submit}/>
@@ -133,9 +134,7 @@ const Gift = () => {
                         </Text>
                     </View>
 
-                    <TouchableOpacity className="flex-row items-center justify-center bg-white p-3 rounded-2xl w-12 h-12 self-center">
-                        <Icon name="bell-outline" size={25} color="#3D3D3D" />
-                    </TouchableOpacity>
+                    <NotiButton />
                 </View>
 
                 <View className="flex flex-row flex-wrap bg-white rounded-md shadow-lg mb-4">

@@ -5,6 +5,7 @@ import { useState } from 'react'
 import CustomButton from "../../../components/CustomButton";
 import { Dimensions } from 'react-native';
 import { router } from 'expo-router';
+import Notification from '../../../components/Notification';
 
 const EditProfile = () => {
   const [form, setForm] = useState({
@@ -15,8 +16,18 @@ const EditProfile = () => {
     facebook: "link",
   });
 
+  const [dialogVisible, setDialogVisible] = useState(false);
+  const [dialogTitle, setDialogTitle] = useState("success");
+  const [dialogMessage, setDialogMessage] = useState('Đổi thông tin thành công');
+
   return (
     <SafeAreaView className="bg-bg h-full"> 
+        <Notification
+            visible={dialogVisible}
+            onClose={() => setDialogVisible(false)}
+            isSuccess={dialogTitle}
+            message={dialogMessage}
+        />
         <View
           className="bg-bg w-full flex-col py-8 px-4"
           style={{
@@ -39,7 +50,6 @@ const EditProfile = () => {
               placeholder={"FulName"}
               keyboardType=""
               icon="user-o"
-              autoFocus={true}
               />
 
               <FormField

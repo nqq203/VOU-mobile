@@ -7,7 +7,7 @@ import {icons} from '../constants';
 const Notification = ({ isSuccess, message,visible,onClose }) => {
   const iconName = isSuccess ? "success" : "error";
   const color = isSuccess ? "green" : "red";
-  const backgroundColor = isSuccess ? "bg-green-500" : "bg-red-500";
+  const backgroundColor = isSuccess ? "bg-active" : "bg-red";
   const styles = StyleSheet.create({
     overlay: {
       flex: 1,

@@ -1,7 +1,5 @@
 import { Link } from 'expo-router'
-import React from 'react'
 import { SafeAreaView, View, Text,Image, Dimensions} from 'react-native'
-
 
 const Voucher = ({
     isOnline,

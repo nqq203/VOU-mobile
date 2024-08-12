@@ -1,12 +1,14 @@
-import { Link, router,Redirect } from "expo-router";
+import { Link, } from "expo-router";
 import { useState } from 'react';
-import { View, Text,SafeAreaView, ScrollView, Dimensions } from 'react-native';
+import { View, Text,SafeAreaView, ScrollView, Dimensions, TouchableOpacity } from 'react-native';
 import { FormField } from "../../../components";
 import { Image } from "react-native";
 import CustomButton from "../../../components/CustomButton";
 import Notification from "../../../components/Notification";
+import { useRouter } from "expo-router";
 
 const Profile = () => {
+    const router = useRouter();
     const [form, setForm] = useState({
         fullName: "Nguyễn Thị Mĩ Diệu",
         email: "email@gmail.com",
@@ -16,7 +18,7 @@ const Profile = () => {
     });
     const defaultImage = "https://reactjs.org/logo-og.png"
 
-    const [dialogVisible, setDialogVisible] = useState(true);
+    const [dialogVisible, setDialogVisible] = useState(false);
     const [dialogTitle, setDialogTitle] = useState("");
     const [dialogMessage, setDialogMessage] = useState('Số điện thoại không hợp lệ');
 
@@ -49,17 +51,17 @@ const Profile = () => {
                 </View>
 
 
-                <View >
+                <View>
                     <View className="flex-row align-items justify-between">
                         <Text className={`text-lg text-black font-pbold leading-8`}>
                             Account Settings
                         </Text>
 
-                        <Link href={'/editProfile'}>
-                            <Text className={`text-md text-primary font-psemibold leading-8 underline`}>
+                        <TouchableOpacity onPress={() => {router.push('/editProfile')}}>
+                            <Text className={`text-base text-primary font-psemibold leading-8 underline`}>
                                 Edit
                             </Text>
-                        </Link>
+                        </TouchableOpacity>
                     </View>
 
                     <FormField
@@ -125,13 +127,13 @@ const Profile = () => {
                 </View>
 
 
-                <View>
+                <View className='flex gap-2 mt-6'>
                     <Text className={`text-lg text-black font-pbold leading-8`}>
                         History
                     </Text>
                     <View>
                         <CustomButton title={"Gift history"} containerStyles={'border border-brown-900 bg-white'}
-                            textStyles={'text-brown-900 font-psemibold'} />
+                            textStyles={'text-brown-900 font-psemibold'} handlePress={() => {router.push('/history');}}/>
                     </View>
                 </View>
 
@@ -141,12 +143,7 @@ const Profile = () => {
                     </Text>
                     <View>
                         <CustomButton title={"Sign out"} containerStyles={'bg-red'}
-                            textStyles={'text-white font-psemibold'} />
-                    </View>
-
-                    <View>
-                        <CustomButton title={"Lock account"} containerStyles={'border border-red bg-white'}
-                            textStyles={'text-red font-psemibold'} />
+                            textStyles={'text-white font-psemibold'} handlePress={() => {router.replace('/');}}/>
                     </View>
                 </View>               
 
