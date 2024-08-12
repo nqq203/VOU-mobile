@@ -16,7 +16,7 @@ const OnlineVouchers = () => {
         <View className="flex-col justify-center my-4 gap-4">
           <HeaderAuth otherStyle="absolute top-5 left-4 z-10"></HeaderAuth>
           <View className=''>
-            <Text className="text-2xl w-full text-center text-black font-pbold leading-8 
+            <Text className="text-xl w-full text-center text-black font-pbold leading-8 
               mt-3 ml-3">
               Online Vouchers
             </Text>

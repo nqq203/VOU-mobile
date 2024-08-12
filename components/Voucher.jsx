@@ -22,7 +22,7 @@ const Voucher = ({
         <View className="flex flex-col justify-center"
             style={{width: Dimensions.get("window").width - 128}}
         >
-            <Text className="text-lg font-psemibold">{name}</Text>
+            <Text className="text-base font-psemibold">{name}</Text>
             <View className="flex flex-row justify-between p-1">
                 <Text className="text-base font-pregular">HSD: {expirationDay}</Text>
                 {isOnline ? (

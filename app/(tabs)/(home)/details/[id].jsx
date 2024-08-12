@@ -64,73 +64,83 @@ const Details = () => {
             <Image source={{ uri: post.image }} className="w-full h-52 rounded-lg px-0" />
        
             <View className="flex flex-col px-4 ">
-              <View className = 'flex-col space-y-1 my-2 mb-2'>
-                <Text className = 'text-black text-xl font-semibold'>{post.title}</Text>
+              <View className = 'flex-col space-y-1 my-2'>
+                <Text className = 'text-black text-2xl font-psemibold'>{post.title}</Text>
                   <View className = 'flex-row items-center pl-2'>
-                    <Ionicons name = 'calendar-clear-outline' size ={16} color = '#515151'/>
-                    <Text className = 'text-grey-700 font-pregular text-xs'>  Thời gian: {post.startDate} - {post.endDate}</Text>
+                    <Ionicons name = 'calendar-clear-outline' size ={20} color = '#515151'/>
+                    <Text className = 'text-grey-700 font-pregular text-base ml-2'>{post.startDate} - {post.endDate}</Text>
                   </View>
                   <View className = 'flex-row items-center justify-between  pl-2'>
                     <View className = 'flex-row items-center'>
-                      <Ionicons name = 'play-circle-sharp' size ={16 } color = '#515151'/>
-                      <Text className = 'text-grey-700 font-pregular text-xs'>  Lượt chơi: {post.turns}</Text>
+                      <Ionicons name = 'play-circle-sharp' size ={20 } color = '#515151'/>
+                      <Text className = 'text-grey-700 font-pregular text-base ml-2'>Lượt chơi: {post.turns}</Text>
                     </View>
-                    <Text className = 'text-primary font-bold text-xs underline '>Thêm lượt</Text>
+                    <Text className = 'text-primary font-psemibold text-base underline'>Thêm lượt</Text>
                   </View>
               </View>
 
-              <View className = 'border-grey-200' style={{borderWidth:0.3, borderStyle:'dashed', borderRadius:1}}></View>
-              <View className='flex-row space-y-1 my-2 justify-between'>
-                <View className='flex-row items-center space-x-2'>
-                  <Image source={{ uri: post.avt }} className="w-10 h-10 rounded-lg" />
-                  <Text className='text-black font-pmedium text-base'>{post.brand}</Text>
+              <View className='my-4'>
+                <View className = 'border-grey-200' style={{borderWidth:0.3, borderStyle:'dashed', borderRadius:1}}></View>
+                <View className='flex-row space-y-1 my-2 justify-between'>
+                  <View className='flex-row items-center space-x-2'>
+                    <Image source={{ uri: post.avt }} className="w-10 h-10 rounded-lg" />
+                    <Text className='text-black font-psemibold text-lg'>{post.brand}</Text>
+                  </View>
                 </View>
-                <CustomButton 
-                  title="Chơi ngay" 
-                  containerStyles="h-10 w-28 p-2 justify-center" 
-                  textStyles='text-sm' 
-                  handlePress={() => router.push("/games/quizz")}
-                />
+                <View 
+                  className='border-grey-200 ' 
+                  style={{ borderWidth: 0.3, borderStyle: 'dashed', borderRadius: 1 }}
+                ></View>
               </View>
 
-              <View 
-                className='border-grey-200' 
-                style={{ borderWidth: 0.3, borderStyle: 'dashed', borderRadius: 1 }}
-              ></View>
-
-              <View className='flex-col space-y-1 my-2'>
-                <Text className='font-semibold text-base leading-6 text-grey-800 tracking-wide'>
+              {/* Noi dung game */}
+              <View className='flex-col space-y-1'>
+                <Text className='font-psemibold text-lg leading-6  tracking-wide text-primary'>
                   Trò chơi Quizz
                 </Text>
-                <Text className='text-grey-700 font-regular text-xs leading-5 tracking-wide'>
+                <TouchableOpacity onPress={handleToggle}>
+                <Text className=' font-pegular text-base leading-5 tracking-wide'>
                   {expanded 
                     ? 'Lorem ipsum dolor sit amet consectetur. Massa nulla ipsum adipiscing orci donec et augue. Praesent dictum vivamus mauris tempus egestas nisi. Pretium integer non ut ornare mi vel sociis. Nec arcu quis risus quis arcu dapibus. Lacus diam quisque aliquam. Praesent dictum.'
                     : 'Lorem ipsum dolor sit amet consectetur. Massa nulla ipsum adipiscing orci donec et augue. Praesent dictum vivamus mauris tempus egestas nisi. Pretium integer non ut ornare mi vel sociis...'}
                 </Text>
-                <TouchableOpacity onPress={handleToggle}>
-                  <Text className='text-grey-700 font-regular text-xs leading-6 underline tracking-wide'>
+                  <Text className='text-grey-500 text-right font-pregular text-sm leading-6 underline tracking-wide'>
                     {expanded ? 'Thu gọn' : 'Xem thêm'}
                   </Text>
                 </TouchableOpacity>
               </View>
 
               <View className='flex-col space-y-1 my-2'>
-                <Text className='text-black font-semibold text-base leading-6 tracking-wide'>
+                <Text className='font-psemibold text-lg leading-6 tracking-wide text-primary'>
                   Phần thưởng
                 </Text>
                 <View className ='flex-row space-x-2 items-center'>
-                  <Image source={icons.voucher} resizeMode="contain" className ='h-8 w-8' />
-                  <Text className ='text-black font-pmedium text-xs leading-4 tracking-wide '>Voucher trị giá 200.000 đồng</Text>
+                  <Image source={icons.voucher} resizeMode="contain" className ='h-8 w-8 mt-1' />
+                  <Text className ='font-psemibold text-base'>Trị giá 200.000 đồng</Text>
                 </View> 
-                <Text className ='text-black font-regular text-xs leading-4 tracking-wide '>Chỗ này thông tin voucher: mô tả, ngày hết hạn, trạng thái. </Text>
-                <Text className='text-black font-regular text-xs leading-4 tracking-wide'>
-                  Bạn cần đạt được <Text className='font-bold'>100 Xu hoặc các mảnh ghép sau</Text> để đủ điều kiện đổi thưởng.
-                </Text>
-                <CustomButton 
-                  title="Đổi thưởng" 
-                  containerStyles="h-10 w-28 justify-center rounded-lg" 
-                  textStyles='text-sm leading-4 tracking-wide' 
-                />
+
+                <View className='flex gap-2'>
+                  <Text className='font-pregular text-base'>Voucher được dùng khi mua hàng tại các chi nhánh của Brand trên khắp TP HCM</Text>
+                  <Text className='font-pregular text-base'><Text className='font-psemibold'>Số lượng:</Text> 1000 vouchers</Text>
+                  <Text className='font-pregular text-base'>
+                    Bạn cần đạt được <Text className='font-psemibold'>100 Xu hoặc các mảnh ghép sau</Text> để đủ điều kiện đổi thưởng.
+                  </Text>
+                </View>
+
+                <View className='flex-row'>
+                  <CustomButton 
+                    title="Chơi ngay" 
+                    containerStyles="justify-center my-4 flex-grow mr-4"
+                    textStyles='' 
+                    handlePress={() => router.push("/games/quizz")}
+                  />
+
+                  <CustomButton 
+                    title="Đổi thưởng" 
+                    containerStyles="justify-center my-4 bg-white border border-primary flex-grow"
+                    textStyles='text-primary' 
+                  />
+                </View>
               </View>
             </View>
           </View>

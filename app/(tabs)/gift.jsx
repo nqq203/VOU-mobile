@@ -73,7 +73,7 @@ const Gift = () => {
                     <TouchableOpacity className='flex-row-reverse w-full pr-2' onPress={() => setModalVisible(false)}>
                         <Ionicons name='close' size={28} color={'gray'} />
                     </TouchableOpacity>
-                    <Text className="text-[24px] font-psemibold">Thông tin bạn bè</Text>
+                    <Text className="text-2xl font-psemibold">Thông tin bạn bè</Text>
                     <Text className="text-base text-gray-500 text-center">Chọn mã ID/Email/Số điện thoại và điền thông tin tương ứng để gửi đến đúng người nhé</Text>
                     {isError ? (
                         <Text className="text-base text-red text-center mt-3">Thông tin chưa hợp lệ. Vui lòng kiểm tra lại</Text>
@@ -141,7 +141,7 @@ const Gift = () => {
                     {listItems.map(item  => {
                         return (
                             <View key={item} className="w-1/4 p-2">
-                                <Item imageUrl={"https://placehold.co/76x76"} amount={item} />
+                                <Item imageUrl={"https://placehold.co/76x76"} amount={`1 ${item}`} />
                             </View>
                         )
                     })}
