@@ -1,4 +1,5 @@
-import { View, Text,SafeAreaView,ScrollView, Dimensions, TouchableOpacity, Modal, TextInput } from 'react-native';
+import { View, Text,SafeAreaView,ScrollView, Dimensions, TouchableOpacity, 
+    Modal, TextInput, StyleSheet } from 'react-native';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import CustomButton from '../../components/CustomButton';
@@ -13,6 +14,19 @@ import NotiButton from '../../components/NotiButton';
 import { useState } from 'react';
 
 const Gift = () => {
+    const styles = StyleSheet.create({
+        customShadow: {
+          shadowColor: '#AA7373', // The color of the shadow
+          shadowOffset: {
+            width: 0, // x: 0
+            height: 6, // y: 6
+          },
+          shadowOpacity: 0.1, // 10% opacity
+          shadowRadius: 47.38, // blur 47.38
+          elevation: 6, // This is for Android, approximate value to match shadowOffset
+        },
+    });
+
     const listItems = ['Xu','Gà','Thỏ','Mèo','Vịt','Cá']
     const listOptions = ['Mã ID', 'Email', 'Số điện thoại']
     const [item, setItem] = useState('');
@@ -137,7 +151,8 @@ const Gift = () => {
                     <NotiButton />
                 </View>
 
-                <View className="flex flex-row flex-wrap bg-white rounded-md shadow-lg mb-4">
+                <View className="flex flex-row flex-wrap bg-white rounded-md shadow-lg mb-4" 
+                    style={[styles.customShadow]} >
                     {listItems.map(item  => {
                         return (
                             <View key={item} className="w-1/4 p-2">
@@ -152,7 +167,7 @@ const Gift = () => {
                     handlePress={() => setModalVisible(true)}
                 />
 
-                <View className="flex bg-white rounded-md shadow-lg my-4 p-2">
+                <View className="flex bg-white rounded-md shadow-lg my-4 p-2" style={[styles.customShadow]}>
                     <Text className={`text-lg text-black font-bold leading-8`}>
                         Lịch sử trao đổi
                     </Text>

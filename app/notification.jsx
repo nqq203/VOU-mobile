@@ -25,15 +25,13 @@ const Notification = () => {
       <View className="flex flex-col items-center justify-center">
         <EventNotification title={'Sự kiện 10 năm sắp kết thúc'} 
           description={"Sự kiện sinh nhật 10 năm của Grab sắp kết thúc rồi. Hãy nhanh tay chơi ngay để nhận những phần thưởng cuối cùng nhé!"} 
-          time={"20 phút trước"}
-          isSeen={true} />
+          time={"20 phút trước"} isSeen={false} />
         <EventNotification title={'Sự kiện 10 năm sắp kết thúc 2'} 
           description={"Sự kiện sinh nhật 10 năm của Grab sắp kết thúc rồi. Hãy nhanh tay chơi ngay để nhận những phần thưởng cuối cùng nhé!!!!"} 
-          time={"20 phút trước"}
-          isSeen={true} />
+          time={"20 phút trước"} isSeen={false}/>
         <EventNotification title={'Sự kiện 10 năm sắp kết thúc 3'} 
           description={"Sự kiện sinh nhật 10 năm của Grab sắp kết thúc rồi. Hãy nhanh tay chơi ngay để nhận những phần thưởng cuối cùng nhé!!!!"} 
-          time={"1 ngày trước"} />
+          time={"1 ngày trước"}  />
         <EventNotification title={'Sự kiện 10 năm sắp kết thúc 3'} 
           description={"Sự kiện sinh nhật 10 năm của Grab sắp kết thúc rồi. Hãy nhanh tay chơi ngay để nhận những phần thưởng cuối cùng nhé!!!!"} 
           time={"1 ngày trước"} />

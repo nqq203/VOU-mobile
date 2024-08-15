@@ -1,26 +1,38 @@
 import { Link } from 'expo-router'
 import React from 'react'
-import { SafeAreaView, View, Text,Image, Dimensions} from 'react-native'
+import { SafeAreaView, View, Text,Image, Dimensions, StyleSheet} from 'react-native'
 
 const EventNotification = ({
     title,
     description,
     time,
-    isSeen = false,
+    isSeen = true,
     ...props
 }) => {
+    const styles = StyleSheet.create({
+        customShadow: {
+          shadowColor: '#AA7373', // The color of the shadow
+          shadowOffset: {
+            width: 0, // x: 0
+            height: 6, // y: 6
+          },
+          shadowOpacity: 0.1, // 10% opacity
+          shadowRadius: 47.38, // blur 47.38
+          elevation: 6, // This is for Android, approximate value to match shadowOffset
+        },
+      });
+
   return (
-    <View className="flex flex-row align-middle justify-center my-1 p-2
-         bg-white rounded-md shadow-xl border border-gray-100" 
+    <View className={`flex flex-row align-middle justify-center my-1 p-2
+         bg-gray-100 rounded-lg border border-gray-100  ${isSeen ? '' : 'bg-white'}`}
         {...props}
 
-        style={{minWidth: "500px"}}
+        style={[{minWidth: "500px"}, styles.customShadow]}
     >
-        {isSeen ? (
+        {isSeen ? null : (
             <View className='absolute top-2 left-2 w-2 h-2 rounded-full bg-red ' />
-
-        ) : null}
-        <View className="w-[80px] h-[80px] rounded-full bg-gray-100 mx-2 mt-1 overflow-hidden">
+        )}
+        <View className="w-[80px] h-[80px] rounded-full bg-active mx-2 mt-1 overflow-hidden">
             <Image source={{uri: 'https://placehold.co/80x80'}}
             className="w-full h-full " />
         </View>

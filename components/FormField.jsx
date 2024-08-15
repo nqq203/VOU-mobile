@@ -23,6 +23,16 @@ const styles = StyleSheet.create({
     height: 24,            
     backgroundColor: '#BCBCBC', 
   },
+  customShadow: {
+    shadowColor: '#AA7373', // The color of the shadow
+    shadowOffset: {
+      width: 0, // x: 0
+      height: 6, // y: 6
+    },
+    shadowOpacity: 0.1, // 10% opacity
+    shadowRadius: 47.38, // blur 47.38
+    elevation: 6, // This is for Android, approximate value to match shadowOffset
+  },
 
 });
 const FormField = ({
@@ -38,10 +48,11 @@ const FormField = ({
   const useIcon = ['user-o','phone']
 
   return (
-    <View className={` ${otherStyles}`}>
+    <View className={` ${otherStyles}`} >
       <Text className="text-base text-gray-100 font-pmedium">{title}</Text>
 
-      <View className={`w-full bg-white h-14 px-4 bg-black-100 rounded-lg border-b mr-1 border-grey-100 flex flex-row items-center `}>
+      <View className={`w-full bg-white h-14 px-4 bg-black-100 rounded-lg border-b mr-1 border-grey-100 flex flex-row items-center `}
+        style={[styles.customShadow]} >
         {useIcon.includes(icon) ? (
             <Icon name={icon} size={20} color={'#622B0C'} style={{ marginRight: 10 }} />
         ) : (

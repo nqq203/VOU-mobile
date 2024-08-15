@@ -1,4 +1,4 @@
-import { TouchableOpacity, View, Image, Text, } from 'react-native';
+import { TouchableOpacity, View, Image, Text, StyleSheet } from 'react-native';
 import { router, usePathname } from "expo-router";
 import Ionicons from "react-native-vector-icons/Ionicons";
 import { useState } from 'react';
@@ -17,9 +17,23 @@ const CardEvent = ({
     setisFavorite(value);
   };
 
+  const styles = StyleSheet.create({
+    customShadow: {
+      shadowColor: '#AA7373', // The color of the shadow
+      shadowOffset: {
+        width: 0, // x: 0
+        height: 6, // y: 6
+      },
+      shadowOpacity: 0.1, // 10% opacity
+      shadowRadius: 47.38, // blur 47.38
+      elevation: 6, // This is for Android, approximate value to match shadowOffset
+    },
+  });
+
   return (
     <TouchableOpacity key={item.id} 
      className={customStyle}
+     
      {...props}
      onPress={() => {
         if (item?.id === "")
@@ -31,7 +45,7 @@ const CardEvent = ({
         if (pathname.startsWith("/details")) router.setParams({key});
         else router.push(`/details/${item?.id}`);}}
     >
-        <View className="bg-white rounded-lg pb-4">
+        <View className="bg-white rounded-lg pb-4" style={[styles.customShadow]}>
           <Image
             source={{ uri: item.image }}
             className="w-full h-36 rounded-t-lg"

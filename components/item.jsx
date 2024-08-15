@@ -3,7 +3,7 @@ import { Text, View, Image } from 'react-native'
 
 const Item = ({
     imageUrl,
-    amount
+    amount='',
 }) => {
   return (
     <View className='flex-col items-center'>

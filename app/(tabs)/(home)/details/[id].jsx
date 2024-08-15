@@ -20,6 +20,8 @@ import { useNavigation } from '@react-navigation/native';
 import { router } from "expo-router";
 import Item from "../../../../components/item";
 import Voucher from "../../../../components/Voucher";
+import {images} from "../../../../constants";
+import Dropdown from "../../../../components/Dropdown";
 
 
 
@@ -58,11 +60,58 @@ const Details = () => {
   const listItems = ['Xu','Gà','Thỏ','Mèo','Vịt','Cá']
   const [canExchangeVoucher, setCanExchangeVoucher] = useState(false)
   const [modalVisible, setModalVisible] = useState(false)
-  const [isError, setIsError] = useState(false);
+  const [isExchangeError, setIsExchangeError] = useState(false);
 
+  const [modalTurnVisible, setModalTurnVisible] = useState(false);
+  const [modalAskForTurnVisible, setModalAskForTurnVisible] = useState(false);
+  const [isTurnError, setIsTurnError] = useState(false);
+  const listOptions = ['Mã ID', 'Email', 'Số điện thoại']
+  const [option, setOption] = useState('')
+  const [form, setForm] = useState({
+    typeOfInfo: '',
+    info:'',
+  })
+
+  // Exchange gift form
   const submit = () => {
-      // setIsError(true);
+      // setIsExchangeError(true);
       setCanExchangeVoucher(true);
+  }
+
+  
+  const askForTurnFacebook = () => {
+    console.log("Facebook")
+  }
+
+  const askForTurnFromFriend = () => {
+    setModalTurnVisible(false);
+    setModalAskForTurnVisible(true);
+  }
+
+  const sendRequestTurn = () => {
+    if(option === 'Mã ID') {
+        form.typeOfInfo = 'id'
+    } else if(option === 'Email'){
+        form.typeOfInfo = 'email'
+    } else if(option === 'Số điện thoại'){
+        form.typeOfInfo = 'phone'
+    }
+
+    if( form.info === '' || form.typeOfInfo === ''){
+        setIsTurnError(true);
+        return;
+    }
+
+    console.log(form);
+    setModalAskForTurnVisible(false);
+    setModalTurnVisible(true);
+    setForm({
+        typeOfInfo: '',
+        info:'',
+        itemName: '',
+        amount: '',
+    })    
+    setIsTurnError(false);
   }
 
 
@@ -92,7 +141,7 @@ const Details = () => {
                         </TouchableOpacity>
                         <Text className="text-2xl font-psemibold text-center">Đổi thưởng lấy quà</Text>
                         <Text className="text-base text-gray-500 text-center">Cần đạt đủ các vật phẩm sau để đổi thưởng</Text>
-                        {isError ? (
+                        {isExchangeError ? (
                             <Text className="text-base text-red text-center mt-3">Bạn chưa đạt điều kiện đổi thưởng</Text>
                         ) : null}
 
@@ -114,6 +163,70 @@ const Details = () => {
                 
                 </View>
 
+            </View>
+        </Modal>
+
+        {/* Modal Turn */}
+        <Modal 
+            visible={modalTurnVisible} 
+            transparent={true}
+            onRequestClose={() => {console.log("Close")}}
+        >
+            <View className="bg-gray-500/[0.5] flex-1 items-center justify-center">
+                <View className='flex bg-white px-3 pb-4 pt-3 w-[360px] items-center rounded-md'>
+                    <TouchableOpacity className='flex-row-reverse w-full pr-2' onPress={() => setModalTurnVisible(false)}>
+                        <Ionicons name='close' size={28} color={'gray'} />
+                    </TouchableOpacity>
+                    <Text className="text-2xl font-psemibold">Thêm lượt chơi</Text>
+                    
+                    <View className='flex-row gap-3 my-4 items-center'>
+                        <Image className='w-14 h-14 resize' source={images.turn1}/>
+                        <Image className='w-16 h-16 resize' source={images.turn2}/>
+                        <Image className='w-16 h-16 resize' source={images.turn3}/>
+                    </View>
+
+                    <CustomButton title={"Xin lượt từ bạn bè"}  containerStyles={'w-full bg-white border border-primary my-2'} textStyles={'text-black font-pmedium'}
+                        handlePress={askForTurnFromFriend} icon={"friends"} iconStyle={'w-8 h-6'}/>
+                    <CustomButton title={"Chia sẻ Facebook"}  containerStyles={'w-full bg-white border border-primary my-2'} textStyles={'text-black font-pmedium'}
+                        handlePress={askForTurnFacebook} icon={"facebook"}/>
+                    
+                </View>
+            </View>
+        </Modal>
+
+        {/* Modal ask for turn  from friends */}
+        <Modal 
+            visible={modalAskForTurnVisible} 
+            transparent={true}
+            onRequestClose={() => {console.log("Close")}}
+        >
+            <View className="bg-gray-500/[0.5] flex-1 items-center justify-center">
+                <View className='flex  bg-white px-3 pb-4 pt-3 w-[360px] items-center rounded-md'>
+                    <TouchableOpacity className='flex-row-reverse w-full pr-2' onPress={() => setModalAskForTurnVisible(false)}>
+                        <Ionicons name='close' size={28} color={'gray'} />
+                    </TouchableOpacity>
+                    <Text className="text-2xl font-psemibold">Thông tin bạn bè</Text>
+                    <Text className="text-base text-gray-500 text-center">Chọn mã ID/Email/Số điện thoại và điền thông tin tương ứng để gửi đến đúng người nhé</Text>
+                    {isTurnError ? (
+                        <Text className="text-base text-red text-center mt-3">Thông tin chưa hợp lệ. Vui lòng kiểm tra lại</Text>
+                    ) : null}
+
+                    <View className='relative w-full h-[72px]'>
+                        <View className='absolute z-20 w-full h-full'>
+                            <Dropdown listItems={listOptions} setItem={setOption} customStyle={'mt-5'}/>
+                        </View>
+                    </View>
+                    <TextInput
+                        placeholder='Nhập nội dung'
+                        placeholderTextColor={'#949494'}
+                        value={form.info}
+                        onChange={(e) => setForm({...form, info: e.nativeEvent.text})}
+                        className="h-[48px] mt-2 mb-6 p-2 rounded-md border border-gray-200 w-full text-base font-pmedium "
+                    />
+
+                    <CustomButton title={"GỬI"}  containerStyles={'w-full'} handlePress={sendRequestTurn}/>
+                
+                </View>
             </View>
         </Modal>
         <ScrollView>
@@ -139,7 +252,7 @@ const Details = () => {
                       <Ionicons name = 'play-circle-sharp' size ={20 } color = '#515151'/>
                       <Text className = 'text-grey-700 font-pregular text-base ml-2'>Lượt chơi: {post.turns}</Text>
                     </View>
-                    <TouchableOpacity>
+                    <TouchableOpacity onPress={() => {setModalTurnVisible(true)}}>
                       <Text className = 'text-primary font-psemibold text-base underline'>Thêm lượt</Text>
                     </TouchableOpacity>
                   </View>
