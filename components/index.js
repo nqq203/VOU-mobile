@@ -10,6 +10,7 @@ import EmptyState from "./EmptyState";
 import FooterAuth from "./FooterAuth";
 import HeaderAuth from "./HeaderAuth";
 import Notification from "./Notification";
+import AnimatedImage from "./AnimatedImage";
 export {
   VideoCard,
   FormField,
@@ -21,5 +22,6 @@ export {
   EmptyState,
   FooterAuth,
   HeaderAuth,
+  AnimatedImage,
   Notification
 };

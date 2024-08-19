@@ -3,13 +3,10 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { useLocalSearchParams } from "expo-router";
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import {
-  FlatList,
   Image,
-  RefreshControl,
   Text,
   View,
   Dimensions,
-  TextInput,
   ScrollView,
   TouchableOpacity
 } from "react-native";
@@ -25,18 +22,7 @@ const Details = () => {
   const handleToggle = () => {
     setExpanded(!expanded);
   };
-  // const { data: posts, refetch } = {
-
-  //   data:  {
-  //     id: 1,
-  //     title: "Kỷ niệm sinh nhật thành lập 10 10 năm thành lập 1",
-  //     image: "https://via.placeholder.com/150",
-  //     avt: "https://via.placeholder.com/150",
-  //     startDate: "2021/10/10",
-  //     endDate: "2021/10/10",
-  //     isFavorite: false,
-  //   },
-  // }
+  // const user = await AsyncStorage.getItem('user');
   const post = {
     id: 1,
     title: "Kỷ niệm sinh nhật thành lập 10 10 năm thành lập 1",
@@ -89,7 +75,10 @@ const Details = () => {
                   title="Chơi ngay" 
                   containerStyles="h-10 w-28 p-2 justify-center" 
                   textStyles='text-sm' 
-                  handlePress={() => router.push("/games/quizz")}
+                  handlePress={() => router.push({
+                      pathname: "/games/waiting-room",
+                      params: { room: post.id, username: "ahihi" },
+                    })}
                 />
               </View>
 

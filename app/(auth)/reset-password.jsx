@@ -8,7 +8,6 @@ import { useGlobalContext } from "../../context/GlobalProvider";
 import Ionicons from 'react-native-vector-icons/Ionicons';
 
 const ResetPassword = () => {
-  const navigation = useNavigation();
   const { setUser, setIsLogged } = useGlobalContext();
   const [isSubmitting, setSubmitting] = useState(false);
   const [form, setForm] = useState({ password1: '', password2: '' });

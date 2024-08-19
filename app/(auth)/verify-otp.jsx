@@ -1,9 +1,8 @@
 import { useState } from "react";
-import {AsyncStorage} from 'react-native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Link, router } from "expo-router";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { View, Text, ScrollView, Dimensions, Alert,} from "react-native";
-import { useNavigation } from '@react-navigation/native';
 import { CustomButton, FooterAuth ,HeaderAuth,Notification} from "../../components";
 import { useGlobalContext } from "../../context/GlobalProvider";
 import { OtpInput } from "react-native-otp-entry";

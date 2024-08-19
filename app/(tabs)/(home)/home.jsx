@@ -3,7 +3,7 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import {
   FlatList,
   Image,
-  RefreshControl,
+  Alert,
   Text,
   View,
   Dimensions,
@@ -17,7 +17,6 @@ import { FormField, SearchInput } from "../../../components";
 import { useNavigation } from '@react-navigation/native';
 import { router, usePathname } from "expo-router";
 const Home = () => {
-  const navigation = useNavigation();
   const [posts, setPosts] = useState([
     {
       id: 1,
@@ -59,11 +58,7 @@ const Home = () => {
   const [loading, setLoading] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
   const pathname = usePathname();
-  const onRefresh = async () => {
-    setRefreshing(true);
-    await refetch();
-    setRefreshing(false);
-  };
+
 
   const handleFavoritePress = async (id) => {
     // Cập nhật trạng thái local trước khi gửi API
@@ -132,7 +127,7 @@ const Home = () => {
                 );
             
     
-              if (pathname.startsWith("/details")) router.setParams({key  });
+              if (pathname.startsWith("/details")) router.setParams({key: item?.id});
               else router.push(`/details/${item?.id}`);}}>
                 <View className="bg-white rounded-lg pb-4">
                   <Image

@@ -1,5 +1,4 @@
-/* eslint-disable import/no-anonymous-default-export */
-export default [
+const questions = [
   {
     question: 'In what contintent is Indonesia?',
     options: [
@@ -17,11 +16,6 @@ export default [
         id: '2',
         options: 'C',
         answer: 'Asia',
-      },
-      {
-        id: '0',
-        options: 'D',
-        answer: 'India',
       },
     ],
     correctAnswerIndex: 2,
@@ -131,3 +125,6 @@ export default [
     correctAnswerIndex: 2,
   },
 ];
+
+
+export default {questions};

@@ -1,299 +1,224 @@
-import { Pressable, Text, SafeAreaView, View, Dimensions } from "react-native";
 import React, { useState, useEffect } from "react";
-import questions from "../../../../questions";
+import { Pressable, Text, SafeAreaView, View, Dimensions, StyleSheet,ActivityIndicator } from "react-native";
 import { useNavigation } from "@react-navigation/native";
-import { AntDesign } from "@expo/vector-icons";
-import { HeaderAuth,Notification} from "../../../../components";
+import { HeaderAuth } from "../../../../components";
+import { useSocket } from "../../../../hooks/useSocket";
+import { useLocalSearchParams } from "expo-router";
+import { CountdownCircleTimer } from 'react-countdown-circle-timer';
+import {AnimatedImage} from '../../../../components';
+import { images } from "../../../../constants";
+
+const questions = [
+  {
+    question: 'In what contintent is Indonesia?',
+    options: [
+      { id: '0', options: 'A', answer: 'South America' },
+      { id: '1', options: 'B', answer: 'Europe' },
+      { id: '2', options: 'C', answer: 'Asia' },
+    ],
+    correctAnswerIndex: 2,
+  },
+  {
+    question: 'Which continent has the highest population density? ',
+    options: [
+      { id: '0', options: 'A', answer: 'Asia' },
+      { id: '1', options: 'B', answer: 'South Africa' },
+      { id: '2', options: 'C', answer: 'Australia' },
+      { id: '3', options: 'D', answer: 'Antarctica' },
+    ],
+    correctAnswerIndex: 0,
+  },
+  {
+    question: 'what is 5X5',
+    options: [
+      { id: '0', options: 'A', answer: '20' },
+      { id: '1', options: 'B', answer: '25' },
+      { id: '2', options: 'C', answer: '10' },
+      { id: '3', options: 'D', answer: '30' },
+    ],
+    correctAnswerIndex: 1,
+  },
+  {
+    question: 'what is the square root of 169',
+    options: [
+      { id: '0', options: 'A', answer: '20' },
+      { id: '1', options: 'B', answer: '23' },
+      { id: '2', options: 'C', answer: '13' },
+      { id: '3', options: 'D', answer: '23' },
+    ],
+    correctAnswerIndex: 2,
+  },
+  {
+    question: 'What is the Smallest Ocean?',
+    options: [
+      { id: '0', options: 'A', answer: 'Atlantic Ocean' },
+      { id: '1', options: 'B', answer: 'Pacific Ocean' },
+      { id: '2', options: 'C', answer: 'Arctic Ocean' },
+      { id: '3', options: 'D', answer: 'Indian Ocean' },
+    ],
+    correctAnswerIndex: 2,
+  },
+];
+
 
 const QuizScreen = () => {
   const navigation = useNavigation();
-  const data = questions;
-  const totalQuestions = data.length;
-  // points
-  const [points, setPoints] = useState(0);
+  const { room, username } = useLocalSearchParams();
+  const { sendData, question, result } = useSocket(room, username);
 
-  // index of the question
-  const [index, setIndex] = useState(0);
-
-  // answer Status (true or false)
-  const [answerStatus, setAnswerStatus] = useState(null);
-
-  // answers
-  const [answers, setAnswers] = useState([]);
-
-  // selected answer
+  const [currentQuestion, setCurrentQuestion] = useState(null);
   const [selectedAnswerIndex, setSelectedAnswerIndex] = useState(null);
+  const [timeStartQuestion, setTimeStartQuestion] = useState(null);
 
-  // Counter
-  const [counter, setCounter] = useState(15);
-
-  // interval
-  let interval = null;
-
-  // progress bar
-  const progressPercentage = Math.floor((index/totalQuestions) * 100);
   useEffect(() => {
-    if (selectedAnswerIndex !== null) {
-      if (selectedAnswerIndex === currentQuestion?.correctAnswerIndex) {
-        setPoints((points) => points + 10);
-        setAnswerStatus(true);
-        answers.push({ question: index + 1, answer: true });
-      } else {
-        setAnswerStatus(false);
-        answers.push({ question: index + 1, answer: false });
-      }
+    if (question) {
+      console.log("Received question:", question);
+      setTimeStartQuestion(new Date());
+      
+      setSelectedAnswerIndex(null);
     }
-  }, [selectedAnswerIndex]);
 
-  useEffect(() => {
-    setSelectedAnswerIndex(null);
-    setAnswerStatus(null);
-  }, [index]);
+    if (result) {
+      console.log("Received result:", result);
+      navigation.navigate("leaderboard", { result });
+    }
+  }, [question, result, navigation]);
 
-  useEffect(() => {
-    const myInterval = () => {
-      if (counter >= 1) {
-        setCounter((state) => state - 1);
-      }
-      if (counter === 0) {
-        setIndex(index + 1);
-        setCounter(15);
-      }
-    };
+  const handleAnswerSelection = (index) => {
+    if (selectedAnswerIndex === null) {
+      setSelectedAnswerIndex(index);
 
-    interval = setTimeout(myInterval, 1000);
-
-    // clean up
-    return () => {
-      clearTimeout(interval);
-    };
-  }, [counter]);
-
-  useEffect(() => {
-    if (index + 1 > data.length) {
-      clearTimeout(interval)
-      navigation.navigate("Results", {
-        answers: answers,
-        points: points,
+      const correctAnswerIndex = currentQuestion.correctAnswerIndex;
+      const isCorrect = index === correctAnswerIndex;
+      const timer = timeStartQuestion ? 15000 - (new Date() - timeStartQuestion) : 0;
+      const data = {
+        isCorrect,
+        timer
+      };
+      
+      sendData({
+        room,
+        username,
+        content: JSON.stringify(data),
+        messageType: "ANSWER_QUIZ",
       });
     }
-  }, [index]);
+  };
 
-  useEffect(() => {
-    if (!interval) {
-      setCounter(15);
-    }
-  }, [index]);
-
-  const currentQuestion = data[index];
-  console.log(answerStatus)
-
-  return (
-    <SafeAreaView>
-      <View 
-          className="bg-bg w-full flex px-4 pt-8"
-          style={{
-            minHeight: Dimensions.get("window").height -200
-          }}
-        >
-
-
-      <HeaderAuth text ='Kỷ niệm sinh nhật 10 năm thành lập'/>
-      <View
-      style={{
-        backgroundColor: "white",
-        width: "100%",
-        flexDirection: "row",
-        alignItems: "center",
-        height: 10,
-        borderRadius: 30,
-        justifyContent: "center",
-        marginTop: 20,
-        marginHorizontal: 10,
-        }}
+  const TimerComponent = () => (
+    <View style={styles.timerContainer}>
+      <CountdownCircleTimer
+        isPlaying
+        duration={15}
+        colors={['#004777', '#F7B801', '#A30000', '#A30000']}
+        colorsTime={[15, 10, 5, 0]}
+        onComplete={() => handleAnswerSelection(-1)}
       >
-          <Text
-            style={{
-              backgroundColor: "#EA661C",
-              borderRadius: 12,
-              position: "absolute",
-              left: 0,
-              height: 10,
-              right: 0,
-              width: `${progressPercentage}%`,
-              marginTop: 20,
-            }}
-          ></Text>
-        </View>
-        <View
-        style={{
-          marginTop: 30,
-          backgroundColor: "#F0F8FF",
-          padding: 10,
-          borderRadius: 6,
-        }}
-      >
-        <Text style={{ fontSize: 18, fontWeight: "bold" }}>
-          {currentQuestion?.question}
-        </Text>
-        <View style={{ marginTop: 12 }}>
-          {currentQuestion?.options.map((item, index) => (
-            <Pressable
-              onPress={() =>
-                selectedAnswerIndex === null && setSelectedAnswerIndex(index)
-              }
-              style={
-                selectedAnswerIndex === index &&
-              index === currentQuestion.correctAnswerIndex
-                  ? {
-                      flexDirection: "row",
-                      alignItems: "center",
-                      borderWidth: 0.5,
-                      borderColor: "#00FFFF",
-                      marginVertical: 10,
-                      backgroundColor: "green",
-                      borderRadius: 20,
-                    }
-                  : selectedAnswerIndex != null && selectedAnswerIndex === index
-                  ? {
-                      flexDirection: "row",
-                      alignItems: "center",
-                      borderWidth: 0.5,
-                      borderColor: "#00FFFF",
-                      marginVertical: 10,
-                      backgroundColor: "red",
-                      borderRadius: 20,
-                    }
-                  : {
-                      flexDirection: "row",
-                      alignItems: "center",
-                      borderWidth: 0.5,
-                      borderColor: "#00FFFF",
-                      marginVertical: 10,
-                      borderRadius: 20,
-                    }
-              }
-            >
-              {selectedAnswerIndex === index &&
-            index === currentQuestion.correctAnswerIndex ? (
-              <AntDesign
-              style={{
-                borderColor: "#00FFFF",
-                textAlign: "center",
-                borderWidth: 0.5,
-                width: 40,
-                height: 40,
-                borderRadius: 20,
-                padding: 10,
-              }}
-              name="check"
-              size={20}
-              color="white"
-            />
-              ) : selectedAnswerIndex != null &&
-                selectedAnswerIndex === index ? (
-                <AntDesign
-                  style={{
-                    borderColor: "#00FFFF",
-                    textAlign: "center",
-                    borderWidth: 0.5,
-                    width: 40,
-                    height: 40,
-
-                    padding: 10,
-                    borderRadius: 20,
-                  }}
-                  name="closecircle"
-                  size={20}
-                  color="white"
-                />
-              ) : (
-                <Text
-                  style={{
-                    borderColor: "#00FFFF",
-                    textAlign: "center",
-                    borderWidth: 0.5,
-                    width: 40,
-                    height: 40,
-                    borderRadius: 20,
-                    padding: 10,
-                  }}
-                >
-                  {item.options}
-                </Text>
-              )}
-
-              <Text style={{ marginLeft: 10 }}>{item.answer}</Text>
-            </Pressable>
-          ))}
-        </View>
-      </View>
-
-      <View
-        style={
-          answerStatus === null
-            ? null
-            : {
-                marginTop: 45,
-                backgroundColor: "#F0F8FF",
-                padding: 10,
-                borderRadius: 7,
-                height: 120,
-              }
-        }
-      >
-        {answerStatus === null ? null : (
-          <Text
-            style={
-              answerStatus == null
-                ? null
-                : { fontSize: 17, textAlign: "center", fontWeight: "bold" }
-            }
-          >
-            {!!answerStatus ? "Correct Answer" : "Wrong Answer"}
+        {({ remainingTime }) => (
+          <Text style={styles.timerText}>
+            {remainingTime}
           </Text>
         )}
+      </CountdownCircleTimer>
+    </View>
+  );
 
-        {index + 1 >= questions.length ? (
-          <Pressable
-            onPress={() =>
-              navigation.navigate("Results", {
-                points: points,
+  return (
+    <SafeAreaView style={styles.container}>
+      <HeaderAuth text="Kỷ niệm sinh nhật 10 năm thành lập" />
+      
+      {/* {!currentQuestion ? (
+        <View style={styles.loadingContainer}>
+          <Text style={styles.loadingText}>Waiting for question...</Text>
+        </View>
+      ) : (
+        <>
+          <View style={styles.questionContainer}>
+            <Text style={styles.questionText}>{currentQuestion.question}</Text>
+            <TimerComponent />
+          </View>
 
-                answers: answers,
-              })
-            }
-            style={{
-              backgroundColor: "green",
-              padding: 10,
-              marginLeft: "auto",
-              marginRight: "auto",
-              marginTop: 20,
-              borderRadius: 6,
-            }}
-          >
-            <Text style={{ color: "white" }}>Done</Text>
-          </Pressable>
-        ) : answerStatus === null ? null : (
-          <Pressable
-            onPress={() => setIndex(index + 1)}
-            style={{
-              backgroundColor: "green",
-              padding: 10,
-              marginLeft: "auto",
-              marginRight: "auto",
-              marginTop: 20,
-              borderRadius: 6,
-            }}
-          >
-            <Text style={{ color: "white" }}>Next Question</Text>
-          </Pressable>
-        )}
-      </View>
-      </View>
-    </SafeAreaView> )
+          <View style={styles.optionsContainer}>
+            {currentQuestion.options.map((option, index) => (
+              <Pressable
+                key={option.id}
+                onPress={() => handleAnswerSelection(index)}
+                style={[
+                  styles.optionButton,
+                  selectedAnswerIndex === index && styles.selectedOption,
+                ]}
+              >
+                <Text style={styles.optionText}>{option.options}</Text>
+                <Text style={styles.optionValue}>{option.answer}</Text>
+              </Pressable>
+            ))}
+          </View>
+        </>
+      )} */}
+
+      <View className="bg-bg w-full flex-col space-y-4 px-4"
+          style={{
+            minHeight: Dimensions.get("window").height - 50,
+          }}
+        >
+          <AnimatedImage source={images.robot} />
+        </View>
+    </SafeAreaView>
+  );
+};
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: '#fff',
+    padding: 20,
+  },
+  timerContainer: {
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginTop: 20,
+  },
+  timerText: {
+    fontSize: 40,
+    color: '#000',
+  },
+  questionContainer: {
+    backgroundColor: '#F0F8FF',
+    padding: 20,
+    borderRadius: 10,
+    marginTop: 20,
+  },
+  questionText: {
+    fontSize: 18,
+    fontWeight: "bold",
+  },
+  optionsContainer: {
+    marginTop: 30,
+  },
+  optionButton: {
+    flexDirection: "row",
+    alignItems: "center",
+    borderWidth: 0.5,
+    borderColor: "#00FFFF",
+    marginVertical: 10,
+    borderRadius: 20,
+    padding: 10,
+  },
+  selectedOption: {
+    backgroundColor: "#00BFFF",
+  },
+  optionText: {
+    borderColor: "#00FFFF",
+    textAlign: "center",
+    borderWidth: 0.5,
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    padding: 10,
+  },
+  optionValue: {
+    marginLeft: 10,
+  },
+});
 
 
-  }
-
-export default QuizScreen
+export default QuizScreen;

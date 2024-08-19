@@ -1,5 +1,5 @@
 import { useState } from "react";
-import {AsyncStorage} from 'react-native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Link, router,Redirect } from "expo-router";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { View, Text, ScrollView, Dimensions, Alert, Image, StyleSheet,TouchableOpacity } from "react-native";
@@ -44,16 +44,16 @@ const SignIn = () => {
       if (result.message === "Unverified account, please verify OTP") {
         navigation.navigate('verify-otp',{ username: form.username });
       }
-      else if (result.success !== true) {
-        Alert.alert("Error", result.message);
-      }
-      else 
+     if (result.success === true)
       {
         await AsyncStorage.setItem('user', JSON.stringify(result.metadata.user));
         await AsyncStorage.setItem('token', result.metadata.token);
         setUser(result.data);
         setIsLogged(true);
         router.push('/home');
+      }
+      else{
+        Alert.alert("Error", result.message);
       }
     } catch (error) {
       // showDialog(false, error.message, () => {});

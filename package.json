@@ -9,6 +9,7 @@
     "web": "expo start --web"
   },
   "dependencies": {
+    "@react-native-async-storage/async-storage": "^1.24.0",
     "@react-navigation/native-stack": "^6.10.1",
     "axios": "^1.7.3",
     "dotenv-cli": "^7.4.2",
@@ -19,13 +20,16 @@
     "jwt-decode": "^4.0.0",
     "nativewind": "^2.0.11",
     "react": "18.2.0",
+    "react-countdown-circle-timer": "^3.2.1",
     "react-native": "0.74.2",
     "react-native-appwrite": "^0.4.0",
     "react-native-otp-entry": "^1.7.0",
     "react-native-otp-textinput": "^1.1.6",
     "react-native-reanimated": "^3.13.0",
+    "react-native-svg": "^15.5.0",
     "react-native-url-polyfill": "^2.0.0",
-    "react-native-vector-icons": "^10.1.0"
+    "react-native-vector-icons": "^10.1.0",
+    "socket.io-client": "^4.7.5"
   },
   "devDependencies": {
     "@babel/core": "^7.20.0",
