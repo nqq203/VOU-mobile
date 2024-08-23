@@ -1,7 +1,7 @@
 import React, { useEffect, useState,useRef } from "react";
 import { Animated, Easing } from "react-native";
 
-const AnimatedImage = ({ source }) => {
+const AnimatedImage = ({ source, containerStyle }) => {
   const tiltAnimation = useRef(new Animated.Value(0)).current;
 
   useEffect(() => {
@@ -38,11 +38,9 @@ const AnimatedImage = ({ source }) => {
       style={{
         width: 170,
         height: 187,
-        position: "absolute",
-        left: 52,
-        top: 144,
         transform: [{ rotate }],
       }}
+      className = {containerStyle}
       resizeMode="contain"
     />
   );

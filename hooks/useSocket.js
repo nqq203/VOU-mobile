@@ -3,8 +3,9 @@ import { Alert } from "react-native";
 import io from "socket.io-client";
 
 // const SOCKET_BASE_URL = "http://10.124.6.59:8085";
-// const SOCKET_BASE_URL = "http://10.8.20.66:8085";
-const SOCKET_BASE_URL = "http://192.168.1.5:8085";
+const SOCKET_BASE_URL = "http://10.8.20.66:8085";
+// const SOCKET_BASE_URL = "http://192.168.1.4:8085";
+
 
 
 export const useSocket = (room, username) => {
@@ -61,20 +62,24 @@ export const useSocket = (room, username) => {
       try {
         console.log("Question: ", res);
         res = res
-          .replace(/(\w+)=/g, '"$1":')    // Add double quotes around keys
-          .replace(/'/g, '"')              // Replace single quotes with double quotes
-          .replace(/Option\{/g, '{')       // Remove the 'Option' label but keep the object structure
-          .replace(/\},/g, '},');          // Ensure proper closing of objects with commas (optional, only if needed)
+          .replace(/(\w+)=/g, '"$1":')  
+          .replace(/'/g, '"')
+          .replace(/Option\{/g, '{')
+          .replace(/\},/g, '},'); 
     
         let jsonObject = JSON.parse(res);  // Parse the string into a JSON object
-        console.log("Question: ", jsonObject);
         setQuestion(jsonObject);           // Set the question using the parsed JSON object
       } catch (error) {
         console.error("Failed to parse question:", error);
       }
     });
-    s.on("result", (res) => {
-      console.log("result");
+    s.on("results", (res) => {
+      res = res
+      .replace(/(\w+)=/g, '"$1":')  
+      .replace(/'/g, '"')
+      .replace(/Option\{/g, '{')
+      .replace(/\},/g, '},'); 
+      console.log(res);
       setResult(res);
     });
     return () => {

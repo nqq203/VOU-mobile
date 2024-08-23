@@ -17,7 +17,6 @@ export {
   CustomButton,
   InfoBox,
   Loader,
-  // Trending,
   SearchInput,
   EmptyState,
   FooterAuth,

@@ -3,7 +3,7 @@ import React, { useState, useEffect, useRef } from "react";
 import { useSocket } from "../../../../hooks/useSocket";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { CustomButton, HeaderAuth } from "../../../../components";
+import { HeaderAuth } from "../../../../components";
 import { images } from "../../../../constants";
 import {AnimatedImage} from '../../../../components';
 const WaitingRoom = () => {
@@ -18,11 +18,11 @@ const WaitingRoom = () => {
     if (countdown > 0) {
       timer = setInterval(() => setCountdown(countdown - 1), 1000);
     } else {
-      
-    }
-    if (!gameStarted) {
+      if (!gameStarted) {
       setShowWaitingScreen(true);
     }
+    }
+    
     return () => clearInterval(timer);
   }, [countdown, gameStarted]);
 
@@ -38,29 +38,25 @@ const WaitingRoom = () => {
     }
   }, [gameStarted, router]);
 
-  const sendMessage = () => {
-    sendData({ content: "Hello from WaitingRoom button" });
-  };
-
   const formatTime = (seconds) => {
     const mins = Math.floor((seconds % 3600) / 60);
     const secs = seconds % 60;
     return `${mins.toString().padStart(2, '0')} : ${secs.toString().padStart(2, '0')}`;
   };
 
-  // if (showWaitingScreen) {
-  //   return (
-  //     <SafeAreaView style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-  //       <ActivityIndicator size="large" color="#0000ff" />
-  //       <Text style={{ marginTop: 20 }}>Waiting for the game to start...</Text>
-  //     </SafeAreaView>
-  //   );
-  // }
+  if (showWaitingScreen) {
+    return (
+      <SafeAreaView style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+        <ActivityIndicator size="large" color="#EA661C" />
+        <Text style={{ marginTop: 20 }}>Waiting for the game to start...</Text>
+      </SafeAreaView>
+    );
+  }
   
   if (!isConnected){
     return (
       <SafeAreaView style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-        <ActivityIndicator size="large" color="#0000ff" />
+        <ActivityIndicator size="large" color="#EA661C" />
         <Text style={{ marginTop: 20 }}>Connect to the game...</Text>
       </SafeAreaView>
     );
@@ -78,8 +74,7 @@ const WaitingRoom = () => {
           }}
         >
           <HeaderAuth />
-          <AnimatedImage source={images.robot} />
-          
+          <AnimatedImage source={images.robot} containerStyle = 'absolute top-[144px] left-[52px]' />
           <View className="self-center items-center" style={{ position: "absolute", top: 377 }}>
             <Text className="text-primary text-[48px] font-pbold self-center items-center pb-[17px]">
               {formatTime(countdown)}
