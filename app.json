@@ -1,7 +1,7 @@
 {
   "expo": {
     "name": "VOU-mobile",
-    "schema": "vou-mobile",
+    "scheme": "vou-mobile",
     "slug": "VOU-mobile",
     "version": "1.0.0",
     "orientation": "portrait",

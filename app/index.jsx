@@ -38,6 +38,7 @@ const Welcome = () => {
     },
   });
 
+
   return (
     <ImageBackground source={image} style={styles.backgroundImage}>
       <SafeAreaView style={styles.safeArea}>
@@ -53,7 +54,7 @@ const Welcome = () => {
 
             <CustomButton
               title="Let's go"
-              handlePress={() => router.push("/sign-up")}
+              handlePress={() => router.push("/home")}
               containerStyles="absolute bottom-20 px-20"
             />
           </View>

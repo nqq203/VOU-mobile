@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { router, usePathname } from "expo-router";
 import { View, TouchableOpacity, Image, TextInput, Alert } from "react-native";
-
+import Ionicons from "react-native-vector-icons/Ionicons";
 import { icons } from "../constants";
 
 const SearchInput = ({ initialQuery }) => {
@@ -9,11 +9,12 @@ const SearchInput = ({ initialQuery }) => {
   const [query, setQuery] = useState(initialQuery || "");
 
   return (
-    <View className="flex flex-row items-center space-x-4 w-full h-16 px-4 bg-black-100 rounded-2xl border-2 border-black-200 focus:border-secondary">
+    <View className="flex flex-row items-center space-x-4 w-full h-12 px-4 bg-white rounded-lg border border-grey-200 focus:border-grey-900">
+      
       <TextInput
-        className="text-base mt-0.5 text-white flex-1 font-pregular"
+        className="text-base mt-0.5 text-grey-900 flex-1 font-pregular"
         value={query}
-        placeholder="Search a video topic"
+        placeholder="Search"
         placeholderTextColor="#CDCDE0"
         onChangeText={(e) => setQuery(e)}
       />
@@ -30,7 +31,7 @@ const SearchInput = ({ initialQuery }) => {
           else router.push(`/search/${query}`);
         }}
       >
-        <Image source={icons.search} className="w-5 h-5" resizeMode="contain" />
+        <Ionicons name='search' size={24} color="#BCBCBC"/>
       </TouchableOpacity>
     </View>
   );

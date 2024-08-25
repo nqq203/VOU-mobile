@@ -6,10 +6,8 @@ import { useNavigation } from '@react-navigation/native';
 import { FooterAuth, FormField ,HeaderAuth,Notification} from "../../components";
 import { useGlobalContext } from "../../context/GlobalProvider";
 import Ionicons from 'react-native-vector-icons/Ionicons';
-import { apiCall } from "../../lib/callAPI";
 
 const ResetPassword = () => {
-  const navigation = useNavigation();
   const { setUser, setIsLogged } = useGlobalContext();
   const [isSubmitting, setSubmitting] = useState(false);
   const [form, setForm] = useState({ password1: '', password2: '' });

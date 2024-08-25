@@ -15,6 +15,9 @@ import email from "../assets/icons/mail.png";
 import lock from "../assets/icons/lock.png";
 import success from "../assets/icons/success.png";
 import error from "../assets/icons/error.png";
+import fav from "../assets/icons/fav.png";
+import gift from "../assets/icons/gift.png";
+import voucher from "../assets/icons/voucher.png"
 export default {
   play,
   bookmark,
@@ -33,4 +36,7 @@ export default {
   lock,
   success,
   error,
+  fav,
+  gift,
+  voucher
 };

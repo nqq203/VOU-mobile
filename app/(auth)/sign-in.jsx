@@ -1,64 +1,65 @@
 import { useState } from "react";
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Link, router,Redirect } from "expo-router";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { View, Text, ScrollView, Dimensions, Alert, Image, StyleSheet,TouchableOpacity } from "react-native";
 import { useNavigation } from '@react-navigation/native';
-import { FooterAuth, FormField ,HeaderAuth,Notification} from "../../components";
+import { FooterAuth, FormField ,HeaderAuth, Notification} from "../../components";
 import { useGlobalContext } from "../../context/GlobalProvider";
 import Ionicons from 'react-native-vector-icons/Ionicons';
-import { apiCall } from "../../lib/callAPI";
+import { callApiLogin } from "../../api/user";
 
 const SignIn = () => {
   const navigation = useNavigation();
   const { setUser, setIsLogged } = useGlobalContext();
   const [isSubmitting, setSubmitting] = useState(false);
-  const [form, setForm] = useState({ email: '', password: '' });
+  const [form, setForm] = useState({ username: '', password: '' });
   const [dialogVisible, setDialogVisible] = useState(false);
   const [dialogTitle, setDialogTitle] = useState('');
   const [dialogMessage, setDialogMessage] = useState('');
   const [onConfirm, setOnConfirm] = useState(() => () => {});
 
-  const validateEmail = (email) => {
-    // Simple regex for email validation
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    return emailRegex.test(email);
-  };
-  const showDialog = (title, message, onConfirmCallback) => {
-    setDialogTitle(title);
-    setDialogMessage(message);
-    setOnConfirm(() => onConfirmCallback);
-    setDialogVisible(true);
-  };
+  
+  // const showDialog = (title, message, onConfirmCallback) => {
+  //   setDialogTitle(title);
+  //   setDialogMessage(message);
+  //   setOnConfirm(() => onConfirmCallback);
+  //   setDialogVisible(true);
+  // };
   const submit = async () => {
-    // if (form.email === "" || form.password === "") {
-    //   showDialog(false, 'Please fill in all fields', () => {});
-    // }
-    // if (!validateEmail(form.email)) {
-    //   showDialog(false, 'Invalid email format', () => {});
-    //   return; 
-    // }
+    if (form.username === "" || form.password === "") {
+      // showDialog(false, 'Please fill in all fields', () => {});
+    }
+
     setSubmitting(true);
-
+    let result = null;
     try {
-      // await apiCall('auth/signin', {
-      //   method: 'POST',
-      //   headers: {
-      //     'Content-Type': 'application/json',
-      //   },
-      //   body: JSON.stringify({
-      //     email: form.email,
-      //     password: form.password,
-      //   }),
-      // });
-      // const result = await apiCall('user/me');
-      // setUser(result);
-      setIsLogged(true);
+      const data = {
+        username: form.username,
+        password: form.password
+      }
+      result = await callApiLogin(data);
 
-      // navigation.navigate('verify');
-      // navigation.navigate('auth/verify');
-      // return <Link href="/sign-up" />;
+      setIsLogged(true);
+      if (result.message === "Unverified account, please verify OTP") {
+        navigation.navigate('verify-otp',{ username: form.username });
+      }
+     if (result.success === true)
+      {
+        await AsyncStorage.setItem('user', JSON.stringify(result.metadata.user));
+        await AsyncStorage.setItem('token', result.metadata.token);
+        setUser(result.data);
+        setIsLogged(true);
+        router.push('/home');
+      }
+      else{
+        Alert.alert("Error", result.message);
+      }
     } catch (error) {
-      showDialog(false, error.message, () => {});
+      // showDialog(false, error.message, () => {});
+      console.log("Result: ",error.code);
+     
+      
     } finally {
       setSubmitting(false);
     }
@@ -86,11 +87,11 @@ const SignIn = () => {
             </Text>
             <View className = 'mt-3'>
               <FormField
-                value={form.email}
-                handleChangeText={(e) => setForm({ ...form, email: e })}
-                placeholder={"Email"}
-                keyboardType="email-address"
-                icon="mail-outline"
+                value={form.username}
+                handleChangeText={(e) => setForm({ ...form, username: e })}
+                placeholder={"Username"}
+                keyboardType="username-address"
+                icon="user-o"
               />
 
               <FormField
@@ -102,12 +103,13 @@ const SignIn = () => {
             </View>
 
             <View className="flex pt-5 flex-column  ">
+            <Link
+                href="/forgot-password"
+                className="text-lg font-psemibold text-secondary" >
               <Text className="text-sm underline font-pmedium text-grey-900 text-center" style = {{  alignItems: 'center',justifyContent: 'center', }}>
                 Forgot Password?
               </Text>
-              <Link
-                href="/forgot-password"
-                className="text-lg font-psemibold text-secondary" ></Link>
+              </Link>
 
               <TouchableOpacity className = 'flex-col items-center justify-center text-white w-16 rounded-full h-16 bg-primary self-end' onPress={submit}>
                 <Ionicons name="chevron-forward" size={24} color="#fff" />
@@ -117,13 +119,13 @@ const SignIn = () => {
           <FooterAuth text="New member?" textLink="Sign up" url="/sign-up" />
         </View>
       </ScrollView>
-      <Notification
+      {/* <Notification
         visible={dialogVisible}
         onClose={() => setDialogVisible(false)}
         isSuccess={dialogTitle}
         message={dialogMessage}
         
-    />
+    /> */}
     </SafeAreaView>
   );
 };

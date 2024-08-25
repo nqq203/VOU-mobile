@@ -1,17 +1,19 @@
 import { useState } from "react";
-import { Link, router } from "expo-router";
+import { router } from "expo-router";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { View, Text, ScrollView, Dimensions, Alert, Image,TouchableOpacity } from "react-native";
+import { View, Text, ScrollView, Dimensions, Alert,TouchableOpacity } from "react-native";
 import Ionicons from 'react-native-vector-icons/Ionicons';
-import { createUser } from "../../lib/appwrite";
 import { useNavigation } from '@react-navigation/native';
 import { useGlobalContext } from "../../context/GlobalProvider";
 import { FooterAuth, FormField ,HeaderAuth,Notification} from "../../components";
+import { callApiCreateAccount } from "../../api/user";
+// import Notification from "../../components/Notification";
+
 const SignUp = () => {
   const { setUser, setIsLogged } = useGlobalContext();
-  const navigation = useNavigation();
   const [isSubmitting, setSubmitting] = useState(false);
   const [form, setForm] = useState({
+    username : "",
     fullName: "",
     email: "",
     password: "",
@@ -21,20 +23,53 @@ const SignUp = () => {
   const [dialogTitle, setDialogTitle] = useState('');
   const [dialogMessage, setDialogMessage] = useState('');
   const [onConfirm, setOnConfirm] = useState(() => () => {});
+
+  const showDialog = (title, message, onConfirmCallback) => {
+    setDialogTitle(title);
+    setDialogMessage(message);
+    setOnConfirm(() => onConfirmCallback);
+    // setDialogVisible(true);
+  };
+  const validateEmail = (email) => {
+    // Simple regex for email validation
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return emailRegex.test(email);
+  };
+  
   const submit = async () => {
-    if (form.fullName === "" || form.email === "" || form.password === ""|| form.phoneNumber === "") {
+    if (form.fullName === "" || form.email === "" || form.password === ""|| form.phoneNumber === "" || form.username === "") {
       Alert.alert("Error", "Please fill in all fields");
+    }
+    if (!validateEmail(form.email)) {
+      // showDialog(false, 'Invalid email format', () => {});
+      
+      Alert.alert("Error", "Invalid email format");
+      return; 
     }
 
     setSubmitting(true);
     try {
-      const result = await createUser(form.email, form.password, form.fullName, form.phoneNumber);
+      const user ={
+        email: form.email,
+        password: form.password,
+        fullName: form.fullName,
+        phoneNumber: form.phoneNumber,
+        username: form.username,
+        role: 'PLAYER'
+      }
+      
+      const result = await callApiCreateAccount(user);
+      if (result.success === false){
+        Alert.alert("Error", result.message);
+        return;
+      }
       setUser(result);
       setIsLogged(true);
-
-      router.replace("/home");
+      router.replace("/verify-otp", { username: form.username });
     } catch (error) {
-      showDialog(false, error.message, () => {});    
+      // showDialog(false, error.message, () => {});    
+      console.log(error);
+      Alert.alert("Error", error.message);
     } finally {
       setSubmitting(false);
     }
@@ -67,6 +102,13 @@ const SignUp = () => {
               keyboardType=""
               icon="user-o"
               
+            />
+            <FormField
+              value={form.username}
+              handleChangeText={(e) => setForm({ ...form, username: e })}
+              placeholder={"username"}
+              keyboardType=""
+              icon="user-o"
             />
             <FormField
               value={form.phoneNumber}
@@ -104,13 +146,12 @@ const SignUp = () => {
         <FooterAuth text="Already a member?" textLink="Sign in" url="/sign-in" />
       </View>
     </ScrollView>
-    <Notification
+    {dialogVisible && <Notification
       visible={dialogVisible}
       onClose={() => setDialogVisible(false)}
       isSuccess={dialogTitle}
       message={dialogMessage}
-      
-  />
+    ></Notification>}
   </SafeAreaView>
   );
 };
