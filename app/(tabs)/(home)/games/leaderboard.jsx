@@ -2,7 +2,6 @@ import React, { useState, useEffect } from "react";
 import { View, Text, Image, ScrollView, SafeAreaView, Dimensions } from 'react-native';
 import { HeaderAuth } from '../../../../components';
 import { useLocalSearchParams, useRouter } from "expo-router";
-import { useSocket } from "../../../../hooks/useSocket";
 
 // Leaderboard item component
 const LeaderboardItem = ({ rank, name, points, avatar }) => (
@@ -63,17 +62,15 @@ const Podium = ({ users }) => (
 
 const Leaderboard = () => {
   const router = useRouter()
-  const { result, username, room } = useLocalSearchParams();
+  const { username, room } = useLocalSearchParams();
   const [podiumUsers, setPodiumUsers] = useState([]);
   const [otherUsers, setOtherUsers] = useState([]);
-
-  const { question } = useSocket(room, username);
+  const {result}  = useLocalSearchParams();
   useEffect(() => {
     if (result) {
       // Parse and sort the result JSON data
       const users = JSON.parse(result).sort((a, b) => b.score - a.score);
 
-      // Get the top users for the podium (maximum 3)
       const topUsers = users.slice(0, 3).map((user, index) => ({
         name: user.userId,
         points: user.score,
@@ -91,16 +88,6 @@ const Leaderboard = () => {
     }
   }, [result]);
 
-  useEffect(() => {
-    if (question) {
-      router.push(
-        {
-          pathname: "/games/quizz",
-          params: {room, username },
-        }
-      ); 
-    }
-  }, [question]);
   return (
     <SafeAreaView>
       <ScrollView>
@@ -111,7 +98,7 @@ const Leaderboard = () => {
             padding: 20,
           }}
         >
-          <HeaderAuth text="Leaderboard" otherStyle='mb-6' />
+          <HeaderAuth otherStyleIcon = 'hidden' text="Leaderboard" otherStyle='mb-6' />
           {podiumUsers.length > 0 && <Podium users={podiumUsers} />}
           {otherUsers.length > 0 && (
             <View className='bg-brown-100 rounded-xl'>

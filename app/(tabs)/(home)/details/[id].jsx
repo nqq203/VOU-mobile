@@ -8,7 +8,8 @@ import {
   View,
   Dimensions,
   ScrollView,
-  TouchableOpacity
+  TouchableOpacity,
+  Pressable
 } from "react-native";
 import { CustomButton, HeaderAuth } from "../../../../components";
 import { icons } from "../../../../constants";
@@ -115,6 +116,24 @@ const Details = () => {
                 <Text className='text-black font-regular text-xs leading-4 tracking-wide'>
                   Bạn cần đạt được <Text className='font-bold'>100 Xu hoặc các mảnh ghép sau</Text> để đủ điều kiện đổi thưởng.
                 </Text>
+
+                {/* <Pressable
+                  key={option.key}
+                  className='flex-row space-x-2 bg-white'
+                  onPress={() => !showModalize && handleAnswerSelection(option.key)}
+                  style={[
+                    styles.optionButton,
+                    selectedAnswerIndex === option.key && styles.selectedOption,
+                    highlightedOption === option.key && (selectedAnswerIndex === option.key ? styles.wrongAnswer : styles.correctAnswer),
+                    (showModalize || selectedAnswerIndex !== null) && styles.disabledOption,
+                  ]}
+                >
+                  <Text style={[styles.optionText, selectedAnswerIndex === option.key && styles.selectedOptionText]}>
+                    {String.fromCharCode(65 + Number(option.key) - 1)}
+                  </Text>
+                  <Text className="font-medium text-base">{option.value}</Text>
+                </Pressable> */}
+
                 <CustomButton 
                   title="Đổi thưởng" 
                   containerStyles="h-10 w-28 justify-center rounded-lg" 

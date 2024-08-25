@@ -38,6 +38,7 @@ const Welcome = () => {
     },
   });
 
+
   return (
     <ImageBackground source={image} style={styles.backgroundImage}>
       <SafeAreaView style={styles.safeArea}>

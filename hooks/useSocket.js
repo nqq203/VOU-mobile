@@ -1,10 +1,9 @@
 import { useCallback, useEffect, useState } from "react";
-import { Alert } from "react-native";
 import io from "socket.io-client";
 
-// const SOCKET_BASE_URL = "http://10.124.6.59:8085";
-const SOCKET_BASE_URL = "http://10.8.20.66:8085";
-// const SOCKET_BASE_URL = "http://192.168.1.4:8085";
+const SOCKET_BASE_URL = "http://10.253.42.12:8085";
+// const SOCKET_BASE_URL = "http://10.8.20.66:8085";
+// const SOCKET_BASE_URL = "http://192.168.1.6:8085";
 
 
 
@@ -22,6 +21,8 @@ export const useSocket = (room, username) => {
   const [gameStarted, setGameStarted] = useState(false);
   const [question, setQuestion] = useState("");
   const [result, setResult] = useState("");
+  const [score, setScore] = useState("");
+  const [endGame, setEndGame] = useState(0);
 
   useEffect(() => {
     console.log('Info: ', username, room);
@@ -66,9 +67,8 @@ export const useSocket = (room, username) => {
           .replace(/'/g, '"')
           .replace(/Option\{/g, '{')
           .replace(/\},/g, '},'); 
-    
-        let jsonObject = JSON.parse(res);  // Parse the string into a JSON object
-        setQuestion(jsonObject);           // Set the question using the parsed JSON object
+        let jsonObject = JSON.parse(res);
+        setQuestion(jsonObject);
       } catch (error) {
         console.error("Failed to parse question:", error);
       }
@@ -79,13 +79,16 @@ export const useSocket = (room, username) => {
       .replace(/'/g, '"')
       .replace(/Option\{/g, '{')
       .replace(/\},/g, '},'); 
-      console.log(res);
       setResult(res);
     });
-    return () => {
-      s.disconnect();
-    };
+    s.on("score", (res) => {
+        setScore(res);
+    });
+    s.on("game_end", (res) => {
+      setEndGame(res);
+    });
   }, [room, username]);
+  
 
   const sendData = useCallback(
     (payload) => {
@@ -102,6 +105,5 @@ export const useSocket = (room, username) => {
     },
     [socket, isConnected, room, username]
   );
-
-  return { socketResponse, isConnected, sendData, allUsers ,gameStarted, question, result};
+  return { socketResponse, isConnected, sendData, allUsers ,gameStarted, question, result, score, endGame };
 };
