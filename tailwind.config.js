@@ -6,6 +6,30 @@ module.exports = {
       colors: {
         primary: "#EA661C",
         bg: "#FFFBF8",
+        black: '#0F0F0F',
+        white: '#FDFDFD',
+        red: '#FF4C4C',    // Error
+        pending: '#F1C232', // Yellow 
+        active: '#56CC56',  // green 
+        infoBlue: '#2196F3',   // Info
+        blurBg: 'rgba(253, 253, 253, 0.05)',
+        yellow: {
+          50: '#FFF5D9',
+          100: '#56CC56',
+        },
+        blue: {
+          50: '#E7EDFF',
+          100: '#396AFF',
+          200: '#718EBF',
+        },
+        pink: {
+          50: '#FFE0EB',
+          100: '#FF82AC',
+        },
+        green: {
+          50: '#DCFAF8',
+          100: '#16DBCC',
+        },
         
         grey:{
           50: "#F4F4F4",
@@ -46,6 +70,8 @@ module.exports = {
       },
     },
   },
-  plugins: [],
+  plugins: [
+
+  ],
 }
 

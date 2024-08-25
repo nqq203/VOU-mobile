@@ -9,10 +9,10 @@ const SearchInput = ({ initialQuery }) => {
   const [query, setQuery] = useState(initialQuery || "");
 
   return (
-    <View className="flex flex-row items-center space-x-4 w-full h-12 px-4 bg-white rounded-xl border border-grey-200 focus:border-grey-900">
+    <View className="flex flex-row items-center space-x-4 w-full h-12 px-4 bg-white rounded-lg border border-grey-200 focus:border-grey-900">
       
       <TextInput
-        className="text-sm mt-0.5 text-grey-900 flex-1 font-pregular"
+        className="text-base mt-0.5 text-grey-900 flex-1 font-pregular"
         value={query}
         placeholder="Search"
         placeholderTextColor="#CDCDE0"
@@ -31,7 +31,7 @@ const SearchInput = ({ initialQuery }) => {
           else router.push(`/search/${query}`);
         }}
       >
-        <Ionicons name='search' size={20} color="#BCBCBC"/>
+        <Ionicons name='search' size={24} color="#BCBCBC"/>
       </TouchableOpacity>
     </View>
   );
