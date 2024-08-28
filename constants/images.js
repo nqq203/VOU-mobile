@@ -13,5 +13,5 @@ import friends from "../assets/images/user-friends.png"
 import facebook from "../assets/images/facebook.png"
 
 export default { profile,
-    logoBig,logoMedium, logoSmall, noItem,
+    logoBig,logoMedium, logoSmall, noItem,robot,
     turn1, turn2, turn3, friends,facebook };
