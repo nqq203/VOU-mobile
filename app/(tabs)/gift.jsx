@@ -12,9 +12,9 @@ import NotiButton from '../../components/NotiButton';
 import { callApiGetItems } from '../../api/item';
 import { useGlobalContext } from '../../context/GlobalProvider';
 import { useQuery } from 'react-query';
-
-
+import { useCallback } from 'react';
 import { useEffect, useState } from 'react';
+import { useFocusEffect } from '@react-navigation/native';
 
 
 const Gift = () => {
@@ -54,6 +54,18 @@ const Gift = () => {
             }
         }
     )
+
+    useFocusEffect(
+        useCallback(() => {
+          // Your refresh logic here
+          console.log('Screen is focused and refreshed');
+          refetch();
+    
+          return () => {
+            // Optional cleanup if needed when screen loses focus
+          };
+        }, [])
+    );
 
     const submit = () => {
         form.itemName = item;
@@ -171,7 +183,7 @@ const Gift = () => {
                     {listItems.map(item  => {
                         return (
                             <View key={item.idItem} className="w-1/4 p-2">
-                                <Item imageUrl={item.imageUrl} amount={`1 ${item.amount}`} />
+                                <Item imageUrl={item.imageUrl} amount={`${item.amount}`} />
                             </View>
                         )
                     })}

@@ -31,13 +31,13 @@ const OnlineVouchers = () => {
     () => callApiGetUserVouchers(request),
     {
       onSuccess: (result) => {
-          console.log("SUc: ",result)
-          if(result.success === true){
-            console.log("Sus: ",result);
-            setListVouchers(result.metadata);
-          } else{
-            console.log(result.message);
-          }
+        console.log("SUc: ",result)
+        if(result.success === true){
+          console.log("Sus: ",result);
+          setListVouchers(result.metadata);
+        } else{
+          console.log(result.message);
+        }
       },
       onError: (error) => {
           console.log(error)

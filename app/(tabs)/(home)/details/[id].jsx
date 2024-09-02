@@ -20,10 +20,14 @@ import Item from "../../../../components/item";
 import Voucher from "../../../../components/Voucher";
 import {images} from "../../../../constants";
 import Dropdown from "../../../../components/Dropdown";
-
-
+import { useQuery } from "react-query";
+import { callApiGetEventDetail } from "../../../../api/event";
+import { callApiExchangeVoucher } from "../../../../api/voucher";
+import { convertDataToOutputString } from "../../../../utils/date";
+import { useGlobalContext } from "../../../../context/GlobalProvider";
 
 const Details = () => {
+  const {user} = useGlobalContext();
   const {id} = useLocalSearchParams();
   const [expanded, setExpanded] = useState(false);
   const navigation = useNavigation();
@@ -31,20 +35,44 @@ const Details = () => {
     setExpanded(!expanded);
   };
   // const user = await AsyncStorage.getItem('user');
-  const post = {
-    id: 1,
-    title: "Kỷ niệm sinh nhật thành lập 10 10 năm thành lập 1",
-    brand: 'Brand',
-    image: "https://via.placeholder.com/150",
-    avt: "https://via.placeholder.com/150",
-    startDate: "2021/10/10",
-    endDate: "2021/10/10",
-    isFavorite: false,
-    turns:1
-  };
+  const [post, setPost] = useState({});
+  // const post = {
+  //   id: 1,
+  //   title: "Kỷ niệm sinh nhật thành lập 10 10 năm thành lập 1",
+  //   brand: 'Brand',
+  //   image: "https://via.placeholder.com/150",
+  //   avt: "https://via.placeholder.com/150",
+  //   startDate: "2021/10/10",
+  //   endDate: "2021/10/10",
+  //   isFavorite: false,
+  //   turns:1
+  // };
+
+  const {isFetching, refetch} = useQuery(
+    "fetch-all-events",
+    () => callApiGetEventDetail(id),
+    {
+      onSuccess: (result) => {
+        console.log(result)
+        if(result.success === true){
+          console.log("Sus: ",result);
+          setPost(result.metadata);
+          setListItems(result.metadata.inventoryInfo.items)
+          setQrCode(result.metadata.inventoryInfo.voucher_code);
+        } else{
+          console.log(result.message);
+        }
+      },
+      onError: (error) => {
+        console.log(error)
+      }
+    }
+  )
 
   // Pop up Doi thuong
-  const listItems = ['Xu','Gà','Thỏ','Mèo','Vịt','Cá']
+  // const listItems = ['Xu','Gà','Thỏ','Mèo','Vịt','Cá']
+  const [listItems, setListItems] = useState([])
+  const [qrCode, setQrCode] = useState("")
   const [canExchangeVoucher, setCanExchangeVoucher] = useState(false)
   const [modalVisible, setModalVisible] = useState(false)
   const [isExchangeError, setIsExchangeError] = useState(false);
@@ -60,9 +88,22 @@ const Details = () => {
   })
 
   // Exchange gift form
-  const submit = () => {
-      // setIsExchangeError(true);
-      setCanExchangeVoucher(true);
+  const submit = async () => {
+      try {
+        const result = await callApiExchangeVoucher(qrCode,user.idUser);
+        console.log(result);
+        if (result.success === true){
+          setCanExchangeVoucher(true);
+        }
+        else{
+          // Alert.alert("Error", result.message);
+          setIsExchangeError(true);
+          console.log("Error",result.message);
+        }
+      } catch (error) {
+        setIsExchangeError(true);
+        console.log("Result: ",error);
+      }
   }
 
   
@@ -135,8 +176,8 @@ const Details = () => {
                         <View className="flex flex-row flex-wrap bg-white rounded-md shadow-lg my-6">
                         {listItems.map(item  => {
                                 return (
-                                    <View key={item} className="w-1/4 p-2">
-                                        <Item imageUrl={"https://placehold.co/76x76"} amount={`1 ${item}`} />
+                                    <View key={item.idItem} className="w-1/4 p-2">
+                                        <Item imageUrl={item.imageUrl} amount={`${item.itemName}`} />
                                     </View>
                                 )
                             })}
@@ -225,19 +266,20 @@ const Details = () => {
           >
             <HeaderAuth text="" otherStyle="absolute top-4 left-4 z-10" otherStyleIcon="rounded-full" />
             
-            <Image source={{ uri: post.image }} className="w-full h-52 rounded-lg px-0" />
+            <Image source={{ uri: post.imageUrl }} className="w-full h-52 rounded-lg px-0" />
        
             <View className="flex flex-col px-4 ">
               <View className = 'flex-col space-y-1 my-2'>
-                <Text className = 'text-black text-2xl font-psemibold'>{post.title}</Text>
+                <Text className = 'text-black text-2xl font-psemibold'>{post.eventName}</Text>
                   <View className = 'flex-row items-center pl-2'>
                     <Ionicons name = 'calendar-clear-outline' size ={20} color = '#515151'/>
-                    <Text className = 'text-grey-700 font-pregular text-base ml-2'>{post.startDate} - {post.endDate}</Text>
+                    <Text className = 'text-grey-700 font-pregular text-base ml-2'>
+                      {convertDataToOutputString(post.startDate) + " - " + convertDataToOutputString(post.endDate)}</Text>
                   </View>
                   <View className = 'flex-row items-center justify-between  pl-2'>
                     <View className = 'flex-row items-center'>
                       <Ionicons name = 'play-circle-sharp' size ={20 } color = '#515151'/>
-                      <Text className = 'text-grey-700 font-pregular text-base ml-2'>Lượt chơi: {post.turns}</Text>
+                      <Text className = 'text-grey-700 font-pregular text-base ml-2'>Lượt chơi: {post.turns || -1}</Text>
                     </View>
                     <TouchableOpacity onPress={() => {setModalTurnVisible(true)}}>
                       <Text className = 'text-primary font-psemibold text-base underline'>Thêm lượt</Text>
@@ -249,8 +291,8 @@ const Details = () => {
                 <View className = 'border-grey-200' style={{borderWidth:0.3, borderStyle:'dashed', borderRadius:1}}></View>
                 <View className='flex-row space-y-1 my-2 justify-between'>
                   <View className='flex-row items-center space-x-2'>
-                    <Image source={{ uri: post.avt }} className="w-10 h-10 rounded-lg" />
-                    <Text className='text-black font-psemibold text-lg'>{post.brand}</Text>
+                    <Image source={{ uri: post.brandLogo }} className="w-10 h-10 rounded-lg" />
+                    <Text className='text-black font-psemibold text-lg'>{"Brand name"}</Text>
                   </View>
                 </View>
                 <View 
@@ -262,7 +304,7 @@ const Details = () => {
               {/* Noi dung game */}
               <View className='flex-col space-y-1'>
                 <Text className='font-psemibold text-lg leading-6  tracking-wide text-primary'>
-                  Trò chơi Quizz
+                  Trò chơi {post.gameInfoDTO?.gameType}
                 </Text>
                 <TouchableOpacity onPress={handleToggle}>
                 <Text className=' font-pegular text-base leading-5 tracking-wide'>
@@ -282,14 +324,16 @@ const Details = () => {
                 </Text>
                 <View className ='flex-row space-x-2 items-center'>
                   <Image source={icons.voucher} resizeMode="contain" className ='h-8 w-8 mt-1' />
-                  <Text className ='font-psemibold text-base'>Trị giá 200.000 đồng</Text>
+                  <Text className ='font-psemibold text-base'>Trị giá {post.inventoryInfo?.voucher_price} đồng</Text>
                 </View> 
 
                 <View className='flex gap-2'>
-                  <Text className='font-pregular text-base'>Voucher được dùng khi mua hàng tại các chi nhánh của Brand trên khắp TP HCM</Text>
-                  <Text className='font-pregular text-base'><Text className='font-psemibold'>Số lượng:</Text> 1000 vouchers</Text>
+                  <Text className='font-pregular text-base'>{post.inventoryInfo?.voucher_description}</Text>
+                  <Text className='font-pregular text-base'><Text className='font-psemibold'>Số lượng:</Text> {post.numberOfVouchers} vouchers</Text>
                   <Text className='font-pregular text-base'>
-                    Bạn cần đạt được <Text className='font-psemibold'>100 Xu hoặc các mảnh ghép sau</Text> để đủ điều kiện đổi thưởng.
+                    Bạn cần đạt được <Text className='font-psemibold'>
+                      {post.inventoryInfo?.aim_coin != undefined ? (post.inventoryInfo?.aim_coin + " Xu hoặc ") : ""}các mảnh ghép sau
+                    </Text> để đủ điều kiện đổi thưởng.
                   </Text>
                 </View>
 

@@ -2,6 +2,7 @@ import React from 'react';
 import { View, Text, TouchableOpacity } from 'react-native';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import { useNavigation } from '@react-navigation/native';
+
 const HeaderAuth = ({text, otherStyle='', otherStyleIcon = ''}) => {
   const navigation = useNavigation();
   return (

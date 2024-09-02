@@ -18,6 +18,9 @@ import { router, usePathname } from "expo-router";
 import CardEvent from "../../../components/CardEvent";
 import NotiButton from "../../../components/NotiButton";
 import { useQuery } from "react-query";
+import { callApiGetEvents } from "../../../api/event";
+import { useCallback } from "react";
+import { useFocusEffect } from '@react-navigation/native';
 
 const Home = () => {
   const [posts, setPosts] = useState([
@@ -61,7 +64,37 @@ const Home = () => {
   const [loading, setLoading] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
   const pathname = usePathname();
-  
+
+
+  const {isFetching, refetch} = useQuery(
+    "fetch-all-events",
+    callApiGetEvents,
+    {
+      onSuccess: (result) => {
+        if(result.success === true){
+          console.log("Sus: ",result);
+          setPosts(result.metadata);
+        } else{
+          console.log(result.message);
+        }
+      },
+      onError: (error) => {
+        console.log(error)
+      }
+    }
+  )
+
+  useFocusEffect(
+    useCallback(() => {
+      // Your refresh logic here
+      console.log('Screen is focused and refreshed');
+      refetch();
+
+      return () => {
+        // Optional cleanup if needed when screen loses focus
+      };
+    }, [])
+  );
 
   return (
     <SafeAreaView className="bg-bg w-full">

@@ -9,6 +9,7 @@ import { useRouter } from "expo-router";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useGlobalContext } from "../../../context/GlobalProvider";
 import { images } from "../../../constants";
+import defaultAva from "../../../assets/images/defaultAva.jpg"
 
 const Profile = () => {
     const router = useRouter();
@@ -16,7 +17,7 @@ const Profile = () => {
     console.log("Here: ",user);
     const [form, setForm] = useState(user);
     const defaultImage = user?.avatarUrl || "https://reactjs.org/logo-og.png";
-    const [image, setImage] = useState(user?.avatarUrl || images.defaultAva)
+    const [image, setImage] = useState(user?.avatarUrl || "https://reactjs.org/logo-og.png")
 
     const [dialogVisible, setDialogVisible] = useState(false);
     const [dialogTitle, setDialogTitle] = useState("");
@@ -46,7 +47,7 @@ const Profile = () => {
                         <TouchableOpacity className="w-[170px] h-[170px] rounded-full  border border-gray-300 shadow-sm overflow-hidden"
                             onPress={handleChangeImage}
                         >
-                            <Image source={image}
+                            <Image source={{uri: image}}
                             className="w-full h-full " />
                         </TouchableOpacity>
                     </View>
