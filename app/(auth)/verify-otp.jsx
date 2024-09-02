@@ -11,7 +11,8 @@ const {callApiVerifyOTP, callApiResendOTP} = require("../../api/user");
 
 const Verify = () => {
   const route = useRoute();
-  const { setUser, setIsLogged } = useGlobalContext();
+  const { user, setUser, setIsLogged } = useGlobalContext();
+  console.log("user: ", user);
   const [isSubmitting, setSubmitting] = useState(false);
   const [otp, setOtp] = useState('');
   const [dialogVisible, setDialogVisible] = useState(false);
@@ -20,6 +21,7 @@ const Verify = () => {
   const [onConfirm, setOnConfirm] = useState(() => () => {});
   const [isSuccess, setIsSuccess] = useState(false);
   const { username ,email} = route.params; 
+
 // const showDialog = (title, message, onConfirmCallback) => {
 //   setDialogTitle(title);
 //   setDialogMessage(message);
@@ -35,15 +37,15 @@ const submit = async () => {
   setSubmitting(true);
 
   try {
-    console.log("otp", username);
+    const username = await AsyncStorage.getItem('username');
     const result = await callApiVerifyOTP({username: username, otp: otp});
     
     if (result.success === true && result.message) {
       Alert.alert("Success", "Account verified successfully");
-      await AsyncStorage.setItem('user', JSON.stringify(result.metadata.user));
-        await AsyncStorage.setItem('token', result.metadata.token);
-        setUser(result.data);
-      router.push('/home');
+      await AsyncStorage.setItem('user', JSON.stringify(result.metadata.account));
+      await AsyncStorage.setItem('token', result.metadata.token);
+      setUser(result.metadata.account);
+      router.replace('/home');
     }
     else Alert.alert("Error", result.message);
   } catch (error) {
@@ -52,6 +54,7 @@ const submit = async () => {
     setSubmitting(false);
   }
 }
+
 const resendOTP = async () => {
   try {
     const result = await callApiResendOTP({username: username});

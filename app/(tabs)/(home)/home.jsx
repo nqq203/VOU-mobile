@@ -17,6 +17,7 @@ import { FormField, SearchInput } from "../../../components";
 import { router, usePathname } from "expo-router";
 import CardEvent from "../../../components/CardEvent";
 import NotiButton from "../../../components/NotiButton";
+import { useQuery } from "react-query";
 
 const Home = () => {
   const [posts, setPosts] = useState([
@@ -60,7 +61,7 @@ const Home = () => {
   const [loading, setLoading] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
   const pathname = usePathname();
-
+  
 
   return (
     <SafeAreaView className="bg-bg w-full">

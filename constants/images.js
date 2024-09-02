@@ -11,7 +11,8 @@ import turn2 from "../assets/images/turn/turn2.png"
 import turn3 from "../assets/images/turn/turn3.png"
 import friends from "../assets/images/user-friends.png"
 import facebook from "../assets/images/facebook.png"
+import defaultAva from "../assets/images/defaultAva.jpg"
 
 export default { profile,
     logoBig,logoMedium, logoSmall, noItem,robot,
-    turn1, turn2, turn3, friends,facebook };
+    turn1, turn2, turn3, friends,facebook,defaultAva };

@@ -6,21 +6,25 @@ import { Image } from "react-native";
 import CustomButton from "../../../components/CustomButton";
 import Notification from "../../../components/Notification";
 import { useRouter } from "expo-router";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import { useGlobalContext } from "../../../context/GlobalProvider";
+import { images } from "../../../constants";
 
 const Profile = () => {
     const router = useRouter();
-    const [form, setForm] = useState({
-        fullName: "Nguyễn Thị Mĩ Diệu",
-        email: "email@gmail.com",
-        gender: "Female",
-        phoneNumber: "0933322323",
-        facebook: "link",
-    });
-    const defaultImage = "https://reactjs.org/logo-og.png"
+    const { user,setUser, setIsLogged } = useGlobalContext();
+    console.log("Here: ",user);
+    const [form, setForm] = useState(user);
+    const defaultImage = user?.avatarUrl || "https://reactjs.org/logo-og.png";
+    const [image, setImage] = useState(user?.avatarUrl || images.defaultAva)
 
     const [dialogVisible, setDialogVisible] = useState(false);
     const [dialogTitle, setDialogTitle] = useState("");
     const [dialogMessage, setDialogMessage] = useState('Số điện thoại không hợp lệ');
+
+    const handleChangeImage = () => {
+
+    }
 
     return (
         <SafeAreaView className="bg-bg h-full">
@@ -39,10 +43,12 @@ const Profile = () => {
             >
                 <View className="justify-center items-center flex-1 mb-2">
                     <View className="h-[200px] justify-center align-middle">
-                        <View className="w-[170px] h-[170px] rounded-full bg-primary border border-orange-900 overflow-hidden">
-                            <Image source={{uri: defaultImage}}
+                        <TouchableOpacity className="w-[170px] h-[170px] rounded-full  border border-gray-300 shadow-sm overflow-hidden"
+                            onPress={handleChangeImage}
+                        >
+                            <Image source={image}
                             className="w-full h-full " />
-                        </View>
+                        </TouchableOpacity>
                     </View>
 
                     <Text className={`text-[28px] text-black font-pbold leading-8`}>
@@ -65,7 +71,7 @@ const Profile = () => {
                     </View>
 
                     <FormField
-                    value={form.fullName}
+                    value={user.fullName || ""}
                     handleChangeText={(e) => setForm({ ...form, fullName: e })}
                     placeholder={"FulName"}
                     keyboardType=""
@@ -74,7 +80,7 @@ const Profile = () => {
                     />
 
                     <FormField
-                    value={form.gender}
+                    value={user.gender || ""}
                     handleChangeText={(e) => setForm({ ...form, gender: e })}
                     placeholder={"Gender"}
                     keyboardType=""
@@ -84,7 +90,7 @@ const Profile = () => {
 
 
                     <FormField
-                    value={form.email}
+                    value={user.email}
                     handleChangeText={(e) => setForm({ ...form, email: e })}
                     placeholder={"Email"}
                     keyboardType="email-address"
@@ -93,17 +99,25 @@ const Profile = () => {
                     />
 
                     <FormField
-                    value={form.phoneNumber}
+                    value={user.phoneNumber}
                     handleChangeText={(e) => setForm({ ...form, phoneNumber: e })}
                     placeholder={"Phone Number"}
-                    keyboardType="email-address"
+                    keyboardType="phone-pad"
                     icon="phone"
                     editable={false}
                     />
 
                     <FormField
-                    value={form.facebook}
-                    handleChangeText={(e) => setForm({ ...form, facebook: e })}
+                    value={user.address}
+                    handleChangeText={(e) => setForm({ ...form, address: e })}
+                    placeholder={"Address"}
+                    icon="card-outline"
+                    editable={false}
+                    />
+
+                    <FormField
+                    value={user.facebookUrl || ""}
+                    handleChangeText={(e) => setForm({ ...form, facebookUrl: e })}
                     placeholder={"Facebook"}
                     icon="logo-facebook"
                     editable={false}

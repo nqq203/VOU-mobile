@@ -6,19 +6,51 @@ import CustomButton from "../../../components/CustomButton";
 import { Dimensions } from 'react-native';
 import { router } from 'expo-router';
 import Notification from '../../../components/Notification';
+import { useGlobalContext } from '../../../context/GlobalProvider';
+import { callApiUpdateAccount,callApiUpdateAccountImage } from '../../../api/user';
+import { useMutation } from 'react-query';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const EditProfile = () => {
-  const [form, setForm] = useState({
-    fullName: "Nguyễn Thị Mĩ Diệu",
-    email: "email@gmail.com",
-    gender: "Female",
-    phoneNumber: "0933322323",
-    facebook: "link",
-  });
+  const { user,setUser } = useGlobalContext();
+  const [form, setForm] = useState(user);
 
   const [dialogVisible, setDialogVisible] = useState(false);
   const [dialogTitle, setDialogTitle] = useState("success");
   const [dialogMessage, setDialogMessage] = useState('Đổi thông tin thành công');
+
+
+  const handleSave = async () => {
+    const updatedData = {
+      fullName: form.fullName,
+      gender: form.gender,
+      email: form.email,
+      phoneNumber: form.phoneNumber,
+      address: form.address,
+      facebookUrl: form.facebookUrl
+    }
+    
+    // router.push('/profile')
+
+    try {
+      const result = await callApiUpdateAccount(user.idUser, updatedData);
+      if(result.success === true){
+        console.log("Sus: ",result);
+        await AsyncStorage.setItem('user', JSON.stringify(result.metadata));
+        setUser(result.metadata);
+        setDialogTitle("success");
+        setDialogMessage("Cập nhật thông tin thành công");
+        setDialogVisible(true);
+      } else{
+        setDialogTitle("");
+        setDialogMessage(result.message);
+        setDialogVisible(true);
+      }
+
+    } catch (error) {
+      console.log("Result: ",error);
+    }
+  }
 
   return (
     <SafeAreaView className="bg-bg h-full"> 
@@ -45,7 +77,7 @@ const EditProfile = () => {
             
             <View>
               <FormField
-              value={form.fullName}
+              value={form.fullName || ""}
               handleChangeText={(e) => setForm({ ...form, fullName: e })}
               placeholder={"FulName"}
               keyboardType=""
@@ -53,7 +85,7 @@ const EditProfile = () => {
               />
 
               <FormField
-              value={form.gender}
+              value={form.gender || ""}
               handleChangeText={(e) => setForm({ ...form, gender: e })}
               placeholder={"Gender"}
               keyboardType=""
@@ -62,7 +94,7 @@ const EditProfile = () => {
 
 
               <FormField
-              value={form.email}
+              value={form.email || ""}
               handleChangeText={(e) => setForm({ ...form, email: e })}
               placeholder={"Email"}
               keyboardType="email-address"
@@ -70,23 +102,29 @@ const EditProfile = () => {
               />
 
               <FormField
-              value={form.phoneNumber}
+              value={form.phoneNumber || ""}
               handleChangeText={(e) => setForm({ ...form, phoneNumber: e })}
               placeholder={"Phone Number"}
-              keyboardType="email-address"
+              keyboardType="phone-pad"
               icon="phone"
+              />
+              <FormField
+              value={form.address|| ""}
+              handleChangeText={(e) => setForm({ ...form, address: e })}
+              placeholder={"Address"}
+              icon="card-outline"
               />
 
               <FormField
-              value={form.facebook}
-              handleChangeText={(e) => setForm({ ...form, facebook: e })}
+              value={form.facebookUrl || ""}
+              handleChangeText={(e) => setForm({ ...form, facebookUrl: e })}
               placeholder={"Facebook"}
               icon="logo-facebook"
               />
             </View>
             
             <View>
-              <CustomButton title={"Save"} handlePress={() => {router.push('/profile')}} />
+              <CustomButton title={"Save"} handlePress={handleSave} />
             </View> 
 
           </View>

@@ -2,8 +2,17 @@ import { useEffect } from "react";
 import { useFonts } from "expo-font";
 import {GestureHandlerRootView} from "react-native-gesture-handler";
 import { SplashScreen, Stack } from "expo-router";
-
+import { QueryClient, QueryClientProvider } from 'react-query'
 import GlobalProvider from "../context/GlobalProvider";
+
+
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      refetchOnWindowFocus: false
+    }
+  }
+})
 
 // Prevent the splash screen from auto-hiding before asset loading is complete.
 SplashScreen.preventAutoHideAsync();
@@ -37,16 +46,18 @@ const RootLayout = () => {
   }
 
   return (
-    <GestureHandlerRootView style={{ flex: 1 }}>
-      <GlobalProvider>
-        <Stack>
-          <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-          <Stack.Screen name="(auth)" options={{ headerShown: false }} />
-          <Stack.Screen name="index" options={{ headerShown: false }} />
-          {/* <Stack.Screen name="search/[query]" options={{ headerShown: false }} /> */}
-        </Stack>
-      </GlobalProvider>
-     </GestureHandlerRootView>
+    <QueryClientProvider client={queryClient}>
+      <GestureHandlerRootView style={{ flex: 1 }}>
+        <GlobalProvider>
+          <Stack>
+            <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+            <Stack.Screen name="(auth)" options={{ headerShown: false }} />
+            <Stack.Screen name="index" options={{ headerShown: false }} />
+            {/* <Stack.Screen name="search/[query]" options={{ headerShown: false }} /> */}
+          </Stack>
+        </GlobalProvider>
+      </GestureHandlerRootView>
+    </QueryClientProvider>
   );
 };
 

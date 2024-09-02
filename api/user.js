@@ -5,12 +5,11 @@ export const callApiCreateAccount = async (userData) => {
   console.log("Data user: ", userData)
  
   try{
-    const data  = await api.post("/api/v1/auth/register", userData);
-    console.log('data: ', data);
+    const data = await api.post("/api/v1/auth/register", userData);
     return data.data;
   } catch (error) {
-    console.log(error);
-    return error.response.data
+    console.log("Error in API: ",error);
+    return error.response?.data
   }
 };
 
@@ -94,4 +93,30 @@ export const callApiGetUserByUsername = async (dataInput) => {
     console.log('Response status:', error.response.status);
     return error.response.data;
   }
+}
+
+export const callApiUpdateAccount = async (idUser,updatedData) => {
+  try{
+    const response = await api.put(`/api/v1/users/${idUser}`,updatedData);
+    return response.data;
+  } catch (error){
+    console.log('Response data:', error.response.data);
+    console.log('Response status:', error.response.status);
+    return error.response.data;
+  }
+}
+
+export const callApiUpdateAccountImage = async (idUser,avatar) => {
+  const formData = new FormData();
+  formData.append('avatar',avatar);
+
+  const {data} = await api.patch(`/api/v1/users/${idUser}/avatar`,
+      formData,
+      {
+          headers: {
+              'Content-Type': 'multipart/form-data', 
+          },
+      }
+  );
+  return data;
 }

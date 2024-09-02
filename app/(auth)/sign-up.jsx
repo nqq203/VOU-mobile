@@ -7,6 +7,9 @@ import { useNavigation } from '@react-navigation/native';
 import { useGlobalContext } from "../../context/GlobalProvider";
 import { FooterAuth, FormField ,HeaderAuth,Notification} from "../../components";
 import { callApiCreateAccount } from "../../api/user";
+import { useMutation } from "react-query";
+import AsyncStorage from '@react-native-async-storage/async-storage';
+
 // import Notification from "../../components/Notification";
 
 const SignUp = () => {
@@ -30,6 +33,24 @@ const SignUp = () => {
     setOnConfirm(() => onConfirmCallback);
     // setDialogVisible(true);
   };
+
+  const signUpMutation = useMutation(
+    (account) => callApiCreateAccount(account),
+    {
+      onSuccess: (data) => {
+        console.log("My data: ",data);
+        // setUser(result);
+        setIsLogged(true);
+        router.replace("/verify-otp", { username: form.username });
+        setSubmitting(false);
+      },
+      onError: (error) =>{
+          console.log("Fetch err: ", error);            
+      } 
+    }
+)
+
+
   const validateEmail = (email) => {
     // Simple regex for email validation
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -48,6 +69,20 @@ const SignUp = () => {
     }
 
     setSubmitting(true);
+
+
+  //   const user ={
+  //     email: form.email,
+  //     password: form.password,
+  //     fullName: form.fullName,
+  //     phoneNumber: form.phoneNumber,
+  //     username: form.username,
+  //     role: 'PLAYER'
+  //   }
+  //   signUpMutation.mutate(user);
+  
+  // }
+
     try {
       const user ={
         email: form.email,
@@ -59,12 +94,15 @@ const SignUp = () => {
       }
       
       const result = await callApiCreateAccount(user);
+      console.log("Ho: ",result);
       if (result.success === false){
         Alert.alert("Error", result.message);
         return;
       }
       setUser(result);
       setIsLogged(true);
+      await AsyncStorage.setItem('username', form.username);
+
       router.replace("/verify-otp", { username: form.username });
     } catch (error) {
       // showDialog(false, error.message, () => {});    
@@ -74,6 +112,8 @@ const SignUp = () => {
       setSubmitting(false);
     }
   };
+
+  
 
   return (
     <SafeAreaView className="bg-bg h-full">

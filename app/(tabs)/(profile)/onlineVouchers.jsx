@@ -5,11 +5,45 @@ import Voucher from '../../../components/Voucher'
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import CustomButton from '../../../components/CustomButton';
 import { useState } from 'react';
+import { callApiGetUserVouchers } from '../../../api/voucher';
+import { useGlobalContext } from '../../../context/GlobalProvider';
+import Notification from '../../../components/Notification';
+import { useQuery } from 'react-query';
 
 
 const OnlineVouchers = () => {
+  const { user } = useGlobalContext();
+  const [listVouchers, setListVouchers] = useState([])
   const [modalVisible, setModalVisible] = useState(false)
   const [isError, setIsError] = useState(false);
+
+  const [dialogVisible, setDialogVisible] = useState(false);
+  const [dialogTitle, setDialogTitle] = useState("success");
+  const [dialogMessage, setDialogMessage] = useState('');
+
+  const request = {
+    userId: user.idUser,
+    voucherType: "online",
+  }
+
+  const {isFetching, refetch} = useQuery(
+    "fetch-my-online-vouchers",
+    () => callApiGetUserVouchers(request),
+    {
+      onSuccess: (result) => {
+          console.log("SUc: ",result)
+          if(result.success === true){
+            console.log("Sus: ",result);
+            setListVouchers(result.metadata);
+          } else{
+            console.log(result.message);
+          }
+      },
+      onError: (error) => {
+          console.log(error)
+      }
+    }
+  )
 
   const handleVoucherClick = () => {
       setModalVisible(true)
@@ -20,7 +54,13 @@ const OnlineVouchers = () => {
   }
   return (
     <SafeAreaView className="bg-bg h-full"> 
-          <Modal 
+      <Notification
+          visible={dialogVisible}
+          onClose={() => setDialogVisible(false)}
+          isSuccess={dialogTitle}
+          message={dialogMessage}
+      />
+      <Modal 
         visible={modalVisible} 
         transparent={true}
         onRequestClose={() => {console.log("Close")}}
@@ -40,6 +80,7 @@ const OnlineVouchers = () => {
             </View>
         </View>
     </Modal>
+
     <ScrollView>
       <View
         className="bg-bg w-full flex-col py-8 px-4"
@@ -58,10 +99,18 @@ const OnlineVouchers = () => {
         </View>
 
         <View className="flex flex-col items-center justify-center">
-          <Voucher isOnline={true} name={"Giảm 20% cho đơn trên 50KKKKKKKvvv"} 
+          {listVouchers.length !== 0 ? (
+            listVouchers.map(voucher => (
+              <Voucher isOnline={true} name={"Giảm 20% cho đơn trên 50KKKKKKKvvv"} 
             expirationDay={"31/7/2024"} handlePres={handleVoucherClick}></Voucher>
-          <Voucher isOnline={true} name={"Giảm 20% cho đơn trên 50KKKKKKKvvv"} 
-            expirationDay={"31/7/2024"} handlePres={handleVoucherClick}></Voucher>
+            ))
+          ) : (
+            <Text className="text-base w-full text-center text-black font-pregular leading-8 
+              mt-3 ml-3">
+              Bạn chưa sở hữu vouchers nào
+            </Text>
+          )}
+          
         </View>
         
 

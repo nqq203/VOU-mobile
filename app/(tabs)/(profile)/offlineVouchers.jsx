@@ -4,11 +4,47 @@ import { SafeAreaView, View, Text, Dimensions,Modal,ScrollView, TouchableOpacity
 import { HeaderAuth } from '../../../components'
 import Voucher from '../../../components/Voucher'
 import { useState } from 'react'
+import { callApiGetUserVouchers } from '../../../api/voucher';
+import { useGlobalContext } from '../../../context/GlobalProvider';
+import Notification from '../../../components/Notification';
+import { useQuery } from 'react-query';
+
 
 
 const OfflineVouchers = () => {
+  const { user } = useGlobalContext();
+  const [listVouchers, setListVouchers] = useState([])
+
   const [modalVisible, setModalVisible] = useState(false)
   const [isError, setIsError] = useState(false);
+
+  const [dialogVisible, setDialogVisible] = useState(false);
+  const [dialogTitle, setDialogTitle] = useState("success");
+  const [dialogMessage, setDialogMessage] = useState('');
+
+  const request = {
+    userId: user.idUser,
+    voucherType: "offline",
+  }
+
+  const {isFetching, refetch} = useQuery(
+    "fetch-my-offline-vouchers",
+    () => callApiGetUserVouchers(request),
+    {
+      onSuccess: (result) => {
+          console.log("SUc: ",result)
+          if(result.success === true){
+            console.log("Sus: ",result);
+            setListVouchers(result.metadata);
+          } else{
+            console.log(result.message);
+          }
+      },
+      onError: (error) => {
+          console.log(error)
+      }
+    }
+  )
 
   const handleVoucherClick = () => {
       setModalVisible(true)
@@ -76,8 +112,17 @@ const OfflineVouchers = () => {
         </View>
 
         <View className="flex flex-col items-center justify-center">
-          <Voucher isOnline={false} name={"Giảm 10% khi gọi BE"} expirationDay={"1/7/2024"} handlePres={handleVoucherClick}></Voucher>
-          <Voucher isOnline={false} name={"Giảm 20% "} expirationDay={"31/7/2024"} handlePres={handleVoucherClick}></Voucher>
+          {listVouchers.length !== 0 ? (
+            listVouchers.map(voucher => (
+              <Voucher isOnline={false} name={"Giảm 10% khi gọi BE"} expirationDay={"1/7/2024"} 
+                handlePres={handleVoucherClick} />
+            ))
+          ) : (
+            <Text className="text-base w-full text-center text-black font-pregular leading-8 
+              mt-3 ml-3">
+              Bạn chưa sở hữu vouchers nào
+            </Text>
+          )}
         </View>
         
 

@@ -9,25 +9,18 @@ import Dropdown from '../../components/Dropdown';
 import FormField from '../../components/FormField';
 import { Notification } from '../../components';
 import NotiButton from '../../components/NotiButton';
+import { callApiGetItems } from '../../api/item';
+import { useGlobalContext } from '../../context/GlobalProvider';
+import { useQuery } from 'react-query';
 
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
+
 
 const Gift = () => {
-    const styles = StyleSheet.create({
-        customShadow: {
-          shadowColor: '#AA7373', // The color of the shadow
-          shadowOffset: {
-            width: 0, // x: 0
-            height: 6, // y: 6
-          },
-          shadowOpacity: 0.1, // 10% opacity
-          shadowRadius: 47.38, // blur 47.38
-          elevation: 6, // This is for Android, approximate value to match shadowOffset
-        },
-    });
-
-    const listItems = ['Xu','Gà','Thỏ','Mèo','Vịt','Cá']
+    const { user } = useGlobalContext();
+    const [listItems, setListItems] = useState([])
+    const listItemsText = ['Xu','Gà','Thỏ','Mèo','Vịt','Cá']
     const listOptions = ['Mã ID', 'Email', 'Số điện thoại']
     const [item, setItem] = useState('');
     const [option, setOption] = useState('')
@@ -39,6 +32,28 @@ const Gift = () => {
         amount: '',
     })
     const [isError, setIsError] = useState(false);
+
+
+    const {isFetching, refetch} = useQuery(
+        "fetch-my-items",
+        () => callApiGetItems(user.idUser),
+        {
+            onSuccess: (data) => {
+                console.log("SUc: ",data)
+                if(data.success === true){
+                    console.log("Sus: ",data);
+                    setListItems(data.metadata);
+                    
+                } else{
+                    console.log("Failed: ",data);
+                    setListItems(data.data)
+                }
+            },
+            onError: (error) => {
+                console.log(error)
+            }
+        }
+    )
 
     const submit = () => {
         form.itemName = item;
@@ -71,9 +86,9 @@ const Gift = () => {
 
     }
 
-    const [dialogVisible, setDialogVisible] = useState(true);
+    const [dialogVisible, setDialogVisible] = useState(false);
     const [dialogTitle, setDialogTitle] = useState("");
-    const [dialogMessage, setDialogMessage] = useState('Số điện thoại không hợp lệ');
+    const [dialogMessage, setDialogMessage] = useState('');
 
     return (
         <SafeAreaView className="bg-bg h-full">
@@ -109,7 +124,7 @@ const Gift = () => {
                     <View className='relative w-full h-[76px] '>
                         <View className='absolute z-10 w-full h-full'>
                             <Text className='text-base font-pmedium'>Vật phẩm</Text>
-                            <Dropdown listItems={listItems} setItem={setItem} customStyle={'mt-2'}/>
+                            <Dropdown listItems={listItemsText} setItem={setItem} customStyle={'mt-2'}/>
                         </View>
                     </View>
                     <TextInput
@@ -155,8 +170,8 @@ const Gift = () => {
                     style={[styles.customShadow]} >
                     {listItems.map(item  => {
                         return (
-                            <View key={item} className="w-1/4 p-2">
-                                <Item imageUrl={"https://placehold.co/76x76"} amount={`1 ${item}`} />
+                            <View key={item.idItem} className="w-1/4 p-2">
+                                <Item imageUrl={item.imageUrl} amount={`1 ${item.amount}`} />
                             </View>
                         )
                     })}
@@ -192,6 +207,21 @@ const Gift = () => {
         </ScrollView>
         </SafeAreaView>
     );
+
+    
 }
+
+const styles = StyleSheet.create({
+    customShadow: {
+      shadowColor: '#AA7373', // The color of the shadow
+      shadowOffset: {
+        width: 0, // x: 0
+        height: 6, // y: 6
+      },
+      shadowOpacity: 0.1, // 10% opacity
+      shadowRadius: 47.38, // blur 47.38
+      elevation: 6, // This is for Android, approximate value to match shadowOffset
+    },
+});
 
 export default Gift;

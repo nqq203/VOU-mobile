@@ -32,13 +32,13 @@ const SignIn = () => {
     }
 
     setSubmitting(true);
-    let result = null;
+    // let result = null;
     try {
       const data = {
         username: form.username,
         password: form.password
       }
-      result = await callApiLogin(data);
+      const result = await callApiLogin(data);
 
       setIsLogged(true);
       if (result.message === "Unverified account, please verify OTP") {
@@ -46,9 +46,9 @@ const SignIn = () => {
       }
      if (result.success === true)
       {
-        await AsyncStorage.setItem('user', JSON.stringify(result.metadata.user));
+        await AsyncStorage.setItem('user', JSON.stringify(result.metadata.account));
         await AsyncStorage.setItem('token', result.metadata.token);
-        setUser(result.data);
+        setUser(result.metadata.account);
         setIsLogged(true);
         router.push('/home');
       }
@@ -57,7 +57,7 @@ const SignIn = () => {
       }
     } catch (error) {
       // showDialog(false, error.message, () => {});
-      console.log("Result: ",error.code);
+      console.log("Result: ",error);
      
       
     } finally {
