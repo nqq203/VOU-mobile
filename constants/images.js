@@ -12,7 +12,9 @@ import turn3 from "../assets/images/turn/turn3.png"
 import friends from "../assets/images/user-friends.png"
 import facebook from "../assets/images/facebook.png"
 import defaultAva from "../assets/images/defaultAva.jpg"
+import shakeGame from "../assets/images/shakeGame.png"
+import landing from "../assets/images/landing.jpg"
 
 export default { profile,
     logoBig,logoMedium, logoSmall, noItem,robot,
-    turn1, turn2, turn3, friends,facebook,defaultAva };
+    turn1, turn2, turn3, friends,facebook,defaultAva,shakeGame,landing };

@@ -58,7 +58,7 @@ const CardEvent = ({
           />
           <View className="flex-row mx-3 mt-2 ml-2 justify-between">
             <Image
-              source={{uri: item.logoBrand || "https://via.placeholder.com/150"}}
+              source={{uri: item.logoBrand || "https://via.placeholder.com/12"}}
               className="w-12 h-12 rounded-lg mt-2"
               resizeMode="cover"
             />

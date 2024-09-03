@@ -122,9 +122,10 @@ const OnlineVouchers = () => {
 
         <View className="flex flex-col items-center justify-center">
           {listVouchers.length !== 0 ? (
-            listVouchers.map(voucher => (
-              <Voucher isOnline={true} name={"Giảm 20% cho đơn trên 50KKKKKKKvvv"} 
-            expirationDay={"31/7/2024"} handlePres={handleVoucherClick}></Voucher>
+            listVouchers.map((voucher,index) => (
+              <Voucher key={index} isOnline={true} voucherImg={voucher.voucher.imageUrl} 
+                voucherName={voucher.voucher.voucherName} voucherExpire={voucher.voucher.expirationDate}
+                handlePres={handleVoucherClick}></Voucher>
             ))
           ) : (
             <Text className="text-base w-full text-center text-black font-pregular leading-8 
@@ -133,8 +134,7 @@ const OnlineVouchers = () => {
             </Text>
           )}
           
-        </View>
-        
+        </View>    
 
       </View>
     </ScrollView>

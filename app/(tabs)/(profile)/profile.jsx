@@ -11,10 +11,12 @@ import { images } from "../../../constants";
 import * as SecureStore from 'expo-secure-store';
 import { useCallback } from 'react';
 import { useFocusEffect } from '@react-navigation/native';
+import { useNavigation } from '@react-navigation/native';
 
 
 const Profile = () => {
     const router = useRouter();
+    const navigation = useNavigation();
     const [form, setForm] = useState();
     const [image, setImage] = useState();
 
@@ -45,7 +47,7 @@ const Profile = () => {
             setUser(user1);
             console.log(user1);
             setForm(user1);
-            setImage(user1?.avatarUrl || "https://reactjs.org/logo-og.png");
+            setImage(user1?.avatarUrl || 'https://via.placeholder.com/200');
           }
         } catch (error) {
           console.log(error);
@@ -87,7 +89,7 @@ const Profile = () => {
                     </View>
 
                     <Text className={`text-[28px] text-black font-pbold leading-8`}>
-                        Nguyễn Thị Mĩ Diệu
+                        {user?.fullName}
                     </Text>
                 </View>
 
@@ -115,7 +117,7 @@ const Profile = () => {
                     />
 
                     <FormField
-                    value={user?.gender || ""}
+                    value={(user?.gender === "MALE" ? "Nam" : "Nữ") || ""}
                     handleChangeText={(e) => setForm({ ...form, gender: e })}
                     placeholder={"Gender"}
                     keyboardType=""
@@ -182,7 +184,7 @@ const Profile = () => {
                     </Text>
                     <View>
                         <CustomButton title={"Gift history"} containerStyles={'border border-brown-900 bg-white'}
-                            textStyles={'text-brown-900 font-psemibold'} handlePress={() => {router.push('/history');}}/>
+                            textStyles={'text-brown-900 font-psemibold'} handlePress={() => {navigation.navigate('history',{ userId: user.idUser});}}/>
                     </View>
                 </View>
 

@@ -94,7 +94,7 @@ const Details = () => {
         const result = await callApiExchangeVoucher(post?.inventoryInfo?.voucher_code,user.idUser);
         console.log(result);
         if (result.success === true){
-          setCanExchangeVoucher(true);
+          setCanExchangeVoucher(true)
         }
         else{
           // Alert.alert("Error", result.message);
@@ -158,10 +158,10 @@ const Details = () => {
                       <View className='w-full my-2 items-center'>
                         <Text className="text-xl font-pbold text-center text-primary">CHÚC MỪNG</Text>
                         <Text className="text-xl font-pbold text-center text-primary">BẠN ĐÃ NHẬN ĐƯỢC</Text>
-                        <Voucher isOnline={false} name={"Giảm 10% khi gọi BE"} expirationDay={"1/7/2024"} 
-                          containerStyle={'my-6'} />
+                        <Voucher isOnline={false} voucherImg={post?.inventoryInfo?.imageUrl} 
+                          voucherName={post?.inventoryInfo?.voucher_name} voucherExpire={post?.inventoryInfo?.expiration_date} />
                         <CustomButton title={"Nhận ngay"} containerStyles={'w-3/4'} 
-                          handlePress={() => {setCanExchangeVoucher(false); setModalVisible(false)}} />
+                          handlePress={() => { setCanExchangeVoucher(false); setModalVisible(false)}} />
                       </View>
                     ) : (
                       <View className='w-full my-2 items-center'>
@@ -279,7 +279,7 @@ const Details = () => {
                   <View className = 'flex-row items-center justify-between  pl-2'>
                     <View className = 'flex-row items-center'>
                       <Ionicons name = 'play-circle-sharp' size ={20 } color = '#515151'/>
-                      <Text className = 'text-grey-700 font-pregular text-base ml-2'>Lượt chơi: {post.turns || -1}</Text>
+                      <Text className = 'text-grey-700 font-pregular text-base ml-2'>Lượt chơi: {post.turns || 10}</Text>
                     </View>
                     <TouchableOpacity onPress={() => {setModalTurnVisible(true)}}>
                       <Text className = 'text-primary font-psemibold text-base underline'>Thêm lượt</Text>
@@ -291,7 +291,7 @@ const Details = () => {
                 <View className = 'border-grey-200' style={{borderWidth:0.3, borderStyle:'dashed', borderRadius:1}}></View>
                 <View className='flex-row space-y-1 my-2 justify-between'>
                   <View className='flex-row items-center space-x-2'>
-                    <Image source={{ uri: post.brandLogo }} className="w-10 h-10 rounded-lg" />
+                    <Image source={{ uri: post.brandLogo || "https://via.placeholder.com/10" }} className="w-10 h-10 rounded-lg" />
                     <Text className='text-black font-psemibold text-lg'>{post.brandId ? post.brandId[0]?.nameBrand : post.brandName}</Text>
                   </View>
                 </View>
@@ -338,7 +338,7 @@ const Details = () => {
                     </Text>
                     <View className="flex self-center flex-row flex-wrap bg-white rounded-md my-6 mb-2">
                       {listItems.map(item => (
-                        <View key={item} className="w-1/4 p-2">
+                        <View key={item.idItem} className="w-1/4 p-2">
                           <Item imageUrl={item?.imageUrl} amount={`1 ${item?.itemName}`} />
                         </View>
                       ))}

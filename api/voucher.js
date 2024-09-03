@@ -19,6 +19,7 @@ export const callApiGetVouchers = async (eventId) => {
 }
 
 export const callApiExchangeVoucher = async (code,userId) => {
+    console.log(code + " _ " + userId);
     try {
         const response = await api.post(`/api/v1/vouchers/${code}/users/${userId}`);
         return response.data;

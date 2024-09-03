@@ -51,8 +51,8 @@ const submit = async () => {
       await SecureStore.setItemAsync('token_expires_at', moment().add(10,'hours').toISOString());
       await SecureStore.setItemAsync('token', result.metadata.token);
       setUser(result.data);
-      // router.replace('/home');
-      navigation.navigate('home');
+      router.push('/home');
+      // navigation.navigate('home');
     }
     else Alert.alert("Error", result.message);
   } catch (error) {

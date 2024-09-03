@@ -14,6 +14,8 @@ import NotiButton from "../../../components/NotiButton";
 import { useQuery } from "react-query";
 import { callAPIGetEvents } from "../../../api/events";
 import { useNavigation } from '@react-navigation/native';
+import { useCallback } from 'react';
+import { useFocusEffect } from '@react-navigation/native';
 
 const Home = () => {
   const [posts, setPosts] = useState([]);
@@ -24,39 +26,54 @@ const Home = () => {
   const [user, setUser] = useState(null);
   const navigate = useNavigation();
 
-  useEffect(() => {
-    const fetchUser = async () => {
-      try {
-        let user = await SecureStore.getItemAsync("user");
-        if (user) {
-          user = JSON.parse(user);
-          setUser(user);
-        }
-      } catch (error) {
-        console.log(error);
-      }
-    };
-    fetchUser();
+  useFocusEffect(
+    useCallback(() => {
+      // Your refresh logic here
+      console.log('Screen is focused and refreshed');
+    //   console.log(user.idUser);
+      fetchPosts();
 
-    const fetchPosts = async () => {
-      try {
-        setLoading(true);
-        const res = await callAPIGetEvents();
-        if (res.success){
-          console.log(res);
-          setPosts(res.metadata);
-        }
-        if (res.code === 401) {
-          await SecureStore.deleteItemAsync("user");  
-          await SecureStore.deleteItemAsync("token");  
-          navigate("/login");
-        }
-      } catch (error) {
         
-      } finally {
-        setLoading(false);
+      return () => {
+        // Optional cleanup if needed when screen loses focus
+      };
+    }, [])
+);
+
+  const fetchUser = async () => {
+    try {
+      let user = await SecureStore.getItemAsync("user");
+      if (user) {
+        user = JSON.parse(user);
+        setUser(user);
       }
-    };
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  const fetchPosts = async () => {
+    try {
+      setLoading(true);
+      const res = await callAPIGetEvents();
+      if (res.success){
+        console.log(res);
+        setPosts(res.metadata);
+      }
+      if (res.code === 401) {
+        await SecureStore.deleteItemAsync("user");  
+        await SecureStore.deleteItemAsync("token");  
+        navigate("/login");
+      }
+    } catch (error) {
+      
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchUser();
     fetchPosts();
   }, [navigate]);
 

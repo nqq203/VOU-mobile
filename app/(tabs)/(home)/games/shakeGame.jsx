@@ -17,10 +17,9 @@ import {callApiShakeGame} from '../../../../api/games';
 
 const ShakeGame = () => {
     const { gameId, username } = useLocalSearchParams();
-  const image = { uri: 'https://legacy.reactjs.org/logo-og.png' };
   const [showResult, setShowResult] = useState(false);
   const [modalGameVisible, setModalGameVisible] = useState(8);
-  const [turn, setTurn] = useState(3);
+  const [turn, setTurn] = useState(10);
   const [hasTurnLeft, setHasTurnLeft] = useState(true);
   const [hasItem, setHasItem] = useState(false);
   const [isShaking, setIsShaking] = useState(false);
@@ -92,7 +91,7 @@ const ShakeGame = () => {
         console.log('Response:', response);
         if (response.success) {
           if (response?.metadata) {
-            setWonItem(response.metadata);
+            setWonItem(response.metadata.rewardDTO);
             setHasItem(true);
           } else {
             setHasItem(false);
@@ -153,7 +152,7 @@ const ShakeGame = () => {
   }
   
   return (
-    <ImageBackground source={image} className='w-screen h-full'>
+    <ImageBackground source={images.shakeGame} className='w-screen h-full'>
       {/* Modal Game */}
       <Modal 
         visible={modalGameVisible} 
@@ -173,8 +172,7 @@ const ShakeGame = () => {
                   <Text className='text-primary font-pbold text-[28px] text-center'>CHÚC MỪNG BẠN ĐÃ NHẬN ĐƯỢC</Text>
                   <View className='mt-4'>
                     <Item
-                      name={wonItem.itemName}
-                      amount={wonItem.amount}
+                      amount={wonItem.itemName}
                       imageUrl={wonItem.imageUrl}
                     />
                   </View>
@@ -275,7 +273,7 @@ const ShakeGame = () => {
                         <View className=''>
                             <Text className="text-xl w-full text-center text-white font-pbold leading-8 
                             mt-3 ml-3">
-                            Lắc xuuuuu
+                            
                             </Text>
                         </View>
                     </View>
@@ -284,11 +282,11 @@ const ShakeGame = () => {
                         <View className="justify-center items-center bg-white 
                             w-full rounded-md space-y-2 shadow-lg p-4 mb-[200px]">
                             <View className='items-center'>
-                                <Text className='text-primary font-pbold text-[28px]'>Lắc thật hăng</Text>
-                                <Text className='text-primary font-pbold text-[28px]'>Văng vật phẩm</Text>
+                                <Text className='text-orange-900 font-pbold text-[28px]'>Lắc thật hăng</Text>
+                                <Text className='text-orange-900 font-pbold text-[28px]'>Văng vật phẩm</Text>
                             </View>
                             <CustomButton title='Chơi ngay' containerStyles={'w-full my-4'} handlePress={() => {setModalGameVisible(true)}}/>
-                            <Text className="text-base font-pmedium">Bạn còn {turn} lượt lắc</Text>
+                            <Text className="text-base text-orange-900 font-pmedium">Bạn còn {turn} lượt lắc</Text>
                             <TouchableOpacity onPress={() => setModalTurnVisible(true)}>
                                 <Text className="text-base text-primary underline font-psemibold">Thêm lượt ngay</Text>
                             </TouchableOpacity>

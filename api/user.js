@@ -97,6 +97,7 @@ export const callApiGetUserByUsername = async (dataInput) => {
 }
 
 export const callApiUpdateAccount = async (idUser,updatedData) => {
+  console.log(updatedData)
   try{
     const response = await api.put(`/api/v1/users/${idUser}`,updatedData);
     return response.data;

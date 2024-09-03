@@ -2,10 +2,42 @@ import { View, Text,SafeAreaView,ScrollView, Dimensions, TouchableOpacity, Modal
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import GiftHistory from '../../../components/GiftHistory';
 import { HeaderAuth } from '../../../components';
+import { callApiGetGiftLog } from '../../../api/gift';
+import { useRoute } from '@react-navigation/native';
+import { useState,useEffect } from 'react';
+import { convertDataToOutputString } from '../../../utils/date';
+
 
 const History = () => {
-    
-    const listItems = ['Xu','Gà','Thỏ','Mèo','Vịt','Cá']
+    const [giftlog, setGiftlog] = useState([])
+  const route = useRoute();
+  const { userId} = route.params; 
+
+
+    const fetchUserGiftLog = async (id) => {
+        console.log("Gift log")
+        console.log("userId: ", id)
+        if(id === undefined) return;
+        try {
+          let itemData = await callApiGetGiftLog(id);
+        
+          console.log("Sus giftlog: ",itemData);
+          if(itemData.success === true){
+            setGiftlog(itemData.metadata)
+            
+            } else{
+                console.log("Failed giftlog: ",itemData.message);   
+            }
+        } catch (error) {
+          console.log(error);
+        }
+    };
+
+    useEffect(() => {
+        fetchUserGiftLog(userId);
+    },[])
+
+
   return (
     <SafeAreaView className="bg-bg h-full">
     <ScrollView>
@@ -27,18 +59,18 @@ const History = () => {
 
                 <View className="flex bg-white rounded-md shadow-lg my-4 p-2">
                     <View className="flex">
-                        <View className="mt-2 pr-3">
-                            <GiftHistory username={"Ngoc Anh"} isReceived={true} give_time={'20:18 - 21/7/2024'} itemName={"Xu"}/>
-                        </View>
-                        <View className="mt-2 pr-3">
-                            <GiftHistory username={"Anh Minh"} isReceived={false} give_time={'20:18 - 21/7/2024'} itemName={"Xu"}/>
-                        </View>
-                        <View className="mt-2 pr-3">
-                            <GiftHistory username={"ThAnh"} isReceived={true} give_time={'20:18 - 21/7/2024'} itemName={"Xu"}/>
-                        </View>
-                        <View className="mt-2 pr-3">
-                            <GiftHistory username={"Nguyen"} isReceived={false} give_time={'20:18 - 21/7/2024'} itemName={"Xu"}/>
-                        </View>
+                    {giftlog?.sendHistory?.map((history,index) => (
+                            <View key={index} className="mt-2 pr-3">
+                                <GiftHistory username={history.receiverName} isReceived={false} 
+                                    give_time={convertDataToOutputString(history.giveTime)} itemName={history.item.itemName}/>
+                            </View>
+                        ))}
+                        {giftlog?.receiveHistory?.map((history,index) => (
+                            <View key={index} className="mt-2 pr-3">
+                                <GiftHistory username={history.senderName} isReceived={true} 
+                                    give_time={convertDataToOutputString(history.giveTime)} itemName={history.item.itemName}/>
+                            </View>
+                        ))}
                     </View>
                 </View>
             </View>

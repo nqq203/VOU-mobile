@@ -7,7 +7,7 @@ const Item = ({
 }) => {
   return (
     <View className='flex-col items-center'>
-        <View className="w-[76px] h-[76px] rounded-xl bg-gray-100 overflow-hidden">
+        <View className="w-[56px] h-[56px] rounded-xl bg-gray-100 overflow-hidden">
             <Image source={{uri: imageUrl}}
             className="w-full h-full " />
         </View>
