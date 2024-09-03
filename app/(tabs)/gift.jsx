@@ -214,7 +214,7 @@ const Gift = () => {
                         <Text className="text-base text-red text-center mt-3">Thông tin chưa hợp lệ. Vui lòng kiểm tra lại</Text>
                     ) : null}
 
-                    <View className='relative w-full h-[72px]'>
+                    <View className='z-50 relative w-full h-[72px]'>
                         <View className='absolute z-20 w-full h-full'>
                             <Dropdown listItems={listOptions} setItem={setOption} customStyle={'mt-5'}/>
                         </View>
@@ -227,7 +227,7 @@ const Gift = () => {
                         className="h-[48px] mt-2 mb-6 p-2 rounded-md border border-gray-200 w-full text-base font-pmedium "
                     />
 
-                    <View className='relative w-full h-[76px] '>
+                    <View className='z-10 relative w-full h-[76px] '>
                         <View className='absolute z-10 w-full h-full'>
                             <Text className='text-base font-pmedium'>Vật phẩm</Text>
                             <Dropdown listItems={listItemsText} setItem={setItem} customStyle={'mt-2'}/>
