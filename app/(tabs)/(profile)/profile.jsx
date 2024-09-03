@@ -1,5 +1,5 @@
 import { Link, } from "expo-router";
-import { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { View, Text,SafeAreaView, ScrollView, Dimensions, TouchableOpacity } from 'react-native';
 import { FormField } from "../../../components";
 import { Image } from "react-native";
@@ -8,18 +8,40 @@ import Notification from "../../../components/Notification";
 import { useRouter } from "expo-router";
 import { useGlobalContext } from "../../../context/GlobalProvider";
 import { images } from "../../../constants";
+import * as SecureStore from 'expo-secure-store';
+
 
 const Profile = () => {
     const router = useRouter();
-    const { user,setUser, setIsLogged } = useGlobalContext();
-    console.log("Here: ",user);
-    const [form, setForm] = useState(user);
-    const defaultImage = user?.avatarUrl || "https://reactjs.org/logo-og.png";
-    const [image, setImage] = useState(user?.avatarUrl || images.defaultAva)
+    const [form, setForm] = useState();
+    const [image, setImage] = useState();
 
     const [dialogVisible, setDialogVisible] = useState(false);
     const [dialogTitle, setDialogTitle] = useState("");
     const [dialogMessage, setDialogMessage] = useState('Số điện thoại không hợp lệ');
+    const [user, setUser] = useState();
+
+    useEffect(() => {
+      const fetchUser = async () => {
+        try {
+          let user1 = await SecureStore.getItemAsync('user');
+        
+          if (user1) {
+            user1 = JSON.parse(user1);
+            setUser(user1);
+            console.log(user1);
+            setForm(user1);
+            setImage(user1?.avatarUrl || images.defaultAva)
+          }
+        } catch (error) {
+          console.log(error);
+        }
+      };
+
+      fetchUser();
+      
+    }, []);
+    console.log("user", user);
 
     const handleChangeImage = () => {
 
@@ -70,7 +92,7 @@ const Profile = () => {
                     </View>
 
                     <FormField
-                    value={user.fullName || ""}
+                    value={user?.fullName || ""}
                     handleChangeText={(e) => setForm({ ...form, fullName: e })}
                     placeholder={"FulName"}
                     keyboardType=""
@@ -79,7 +101,7 @@ const Profile = () => {
                     />
 
                     <FormField
-                    value={user.gender || ""}
+                    value={user?.gender || ""}
                     handleChangeText={(e) => setForm({ ...form, gender: e })}
                     placeholder={"Gender"}
                     keyboardType=""
@@ -89,7 +111,7 @@ const Profile = () => {
 
 
                     <FormField
-                    value={user.email}
+                    value={user?.email}
                     handleChangeText={(e) => setForm({ ...form, email: e })}
                     placeholder={"Email"}
                     keyboardType="email-address"
@@ -98,7 +120,7 @@ const Profile = () => {
                     />
 
                     <FormField
-                    value={user.phoneNumber}
+                    value={user?.phoneNumber}
                     handleChangeText={(e) => setForm({ ...form, phoneNumber: e })}
                     placeholder={"Phone Number"}
                     keyboardType="phone-pad"
@@ -107,7 +129,7 @@ const Profile = () => {
                     />
 
                     <FormField
-                    value={user.address}
+                    value={user?.address}
                     handleChangeText={(e) => setForm({ ...form, address: e })}
                     placeholder={"Address"}
                     icon="card-outline"
@@ -115,7 +137,7 @@ const Profile = () => {
                     />
 
                     <FormField
-                    value={user.facebookUrl || ""}
+                    value={user?.facebookUrl || ""}
                     handleChangeText={(e) => setForm({ ...form, facebookUrl: e })}
                     placeholder={"Facebook"}
                     icon="logo-facebook"

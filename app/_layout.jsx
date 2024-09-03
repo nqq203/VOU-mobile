@@ -58,16 +58,12 @@ const RootLayout = () => {
     <QueryClientProvider client={queryClient}>
       <GestureHandlerRootView style={{ flex: 1 }}>
         <GlobalProvider value={{ signIn, setSignIn }}>
-          {signIn ? (
             <Stack options={{ headerShown: false }}>
               <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
               <Stack.Screen name="index" options={{ headerShown: true }} />
-            </Stack>
-          ) : (
-            // <Stack>
               <Stack.Screen name="(auth)" options={{ headerShown: false }} />
-            // </Stack>
-          )}
+            </Stack>
+
         </GlobalProvider>
       </GestureHandlerRootView>
     </QueryClientProvider>

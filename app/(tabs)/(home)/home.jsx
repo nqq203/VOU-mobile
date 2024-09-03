@@ -58,7 +58,9 @@ const Home = () => {
       }
     };
     fetchPosts();
-  }, []);
+  }, [navigate]);
+
+
   return (
     <SafeAreaView className="bg-bg w-full">
       <ScrollView>

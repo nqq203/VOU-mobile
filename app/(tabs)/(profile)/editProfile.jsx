@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useEffect } from 'react'
 import { SafeAreaView, View, Text } from 'react-native'
 import { FormField, HeaderAuth } from '../../../components'
 import { useState } from 'react'
@@ -11,28 +11,49 @@ import { callApiUpdateAccount,callApiUpdateAccountImage } from '../../../api/use
 import * as SecureStore from 'expo-secure-store';
 
 const EditProfile = () => {
-  const { user,setUser } = useGlobalContext();
-  const [form, setForm] = useState(user);
+  // const { user,setUser } = useGlobalContext();
+  const [form, setForm] = useState(null);
 
   const [dialogVisible, setDialogVisible] = useState(false);
   const [dialogTitle, setDialogTitle] = useState("success");
   const [dialogMessage, setDialogMessage] = useState('Đổi thông tin thành công');
 
+  const [user, setUser] = useState();
+
+    useEffect(() => {
+      const fetchUser = async () => {
+        try {
+          let user1 = await SecureStore.getItemAsync('user');
+        
+          if (user1) {
+            user1 = JSON.parse(user1);
+            setUser(user1);
+            console.log(user1);
+            setForm(user1);
+          }
+        } catch (error) {
+          console.log(error);
+        }
+      };
+
+      fetchUser();
+      
+    }, []);
 
   const handleSave = async () => {
     const updatedData = {
-      fullName: form.fullName,
-      gender: form.gender,
-      email: form.email,
-      phoneNumber: form.phoneNumber,
-      address: form.address,
-      facebookUrl: form.facebookUrl
+      fullName: form?.fullName,
+      gender: form?.gender,
+      email: form?.email,
+      phoneNumber: form?.phoneNumber,
+      address: form?.address,
+      facebookUrl: form?.facebookUrl
     }
     
     // router.push('/profile')
 
     try {
-      const result = await callApiUpdateAccount(user.idUser, updatedData);
+      const result = await callApiUpdateAccount(user?.idUser, updatedData);
       if(result.success === true){
         console.log("Sus: ",result);
         await SecureStore.setItemAsync('user', JSON.stringify(result.metadata));
@@ -76,7 +97,7 @@ const EditProfile = () => {
             
             <View>
               <FormField
-              value={form.fullName || ""}
+              value={form?.fullName || ""}
               handleChangeText={(e) => setForm({ ...form, fullName: e })}
               placeholder={"FulName"}
               keyboardType=""
@@ -84,7 +105,7 @@ const EditProfile = () => {
               />
 
               <FormField
-              value={form.gender || ""}
+              value={form?.gender || ""}
               handleChangeText={(e) => setForm({ ...form, gender: e })}
               placeholder={"Gender"}
               keyboardType=""
@@ -93,7 +114,7 @@ const EditProfile = () => {
 
 
               <FormField
-              value={form.email || ""}
+              value={form?.email || ""}
               handleChangeText={(e) => setForm({ ...form, email: e })}
               placeholder={"Email"}
               keyboardType="email-address"
@@ -101,21 +122,21 @@ const EditProfile = () => {
               />
 
               <FormField
-              value={form.phoneNumber || ""}
+              value={form?.phoneNumber || ""}
               handleChangeText={(e) => setForm({ ...form, phoneNumber: e })}
               placeholder={"Phone Number"}
               keyboardType="phone-pad"
               icon="phone"
               />
               <FormField
-              value={form.address|| ""}
+              value={form?.address|| ""}
               handleChangeText={(e) => setForm({ ...form, address: e })}
               placeholder={"Address"}
               icon="card-outline"
               />
 
               <FormField
-              value={form.facebookUrl || ""}
+              value={form?.facebookUrl || ""}
               handleChangeText={(e) => setForm({ ...form, facebookUrl: e })}
               placeholder={"Facebook"}
               icon="logo-facebook"

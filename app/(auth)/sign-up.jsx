@@ -95,7 +95,7 @@ const SignUp = () => {
       
       const result = await callApiCreateAccount(user);
       console.log("Ho: ",result);
-      if (result.success && result.success === false){
+      if (result?.success && result.success === false){
         Alert.alert("Error", result.message);
         return;
       }

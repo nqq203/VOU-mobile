@@ -23,7 +23,7 @@ const OfflineVouchers = () => {
   const [dialogMessage, setDialogMessage] = useState('');
 
   const request = {
-    userId: user.idUser,
+    userId: user?.idUser,
     voucherType: "offline",
   }
 

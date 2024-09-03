@@ -3,7 +3,7 @@ import * as SecureStore from 'expo-secure-store';
 import axios from 'axios';
 
 const api = axios.create({
-  baseURL: 'http://192.168.1.14:8080',
+  baseURL: 'http://192.168.149.199:8080',
   responseType: 'json',
   withCredentials: true,
 }
@@ -11,7 +11,6 @@ const api = axios.create({
 
 api.interceptors.request.use(
   async config => {
-    // const token = await AsyncStorage.getItem('token');
     const token = await SecureStore.getItemAsync('token');
     config.headers['authorization'] = `Bearer ${token}`;
         return config;

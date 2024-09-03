@@ -41,7 +41,7 @@ export const callApiLogin = async (dataInput) => {
       username: dataInput?.username,
       password: dataInput?.password
     });
-    console.log('response: ', response.data);
+    // console.log('response: ', response.data);
     return response.data; 
   } catch (error) {
       console.log('Response callApiLogin:', error.response.data);
