@@ -1,5 +1,4 @@
 import React, { createContext, useContext, useEffect, useState } from "react";
-import AsyncStorage from '@react-native-async-storage/async-storage';
 import {callApiGetUserByUsername} from '../api/user';
 const GlobalContext = createContext();
 export const useGlobalContext = () => useContext(GlobalContext);
@@ -10,25 +9,25 @@ const GlobalProvider = ({ children }) => {
   const [loading, setLoading] = useState(true);
 
   // useEffect(() => {
-    // const user = AsyncStorage.getItem('user');
-    // const fetchUser = async () => {
+  //   // const user = AsyncStorage.getItem('user');
+  //   const fetchUser = async () => {
 
-    //   try {
+  //     try {
         
-    //     const res = await callApiGetUserByUsername({ username: user?.username });
-    //     if (res) {
-    //       setIsLogged(true);
-    //       setUser(res);
-    //     } else {
-    //       setIsLogged(false);
-    //       setUser(null);
-    //     }
-    //   } catch (error) {
-    //     console.log(error);
-    //   } finally {
-    //     setLoading(false);
-    //   }
-    // };
+  //       const res = await callApiGetUserByUsername({ username: user?.username });
+  //       if (res) {
+  //         setIsLogged(true);
+  //         setUser(res);
+  //       } else {
+  //         setIsLogged(false);
+  //         setUser(null);
+  //       }
+  //     } catch (error) {
+  //       console.log(error);
+  //     } finally {
+  //       setLoading(false);
+  //     }
+  //   };
 
   //   fetchUser();
   // }, [user?.username]);

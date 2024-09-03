@@ -1,68 +1,64 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { SafeAreaView } from "react-native-safe-area-context";
 import {
-  FlatList,
-  Image,
-  Alert,
   Text,
   View,
   Dimensions,
-  TextInput,
   ScrollView,
-  TouchableOpacity
 } from "react-native";
-import Ionicons from "react-native-vector-icons/Ionicons";
-import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
+import * as SecureStore from 'expo-secure-store';
 import { FormField, SearchInput } from "../../../components";
 import { router, usePathname } from "expo-router";
 import CardEvent from "../../../components/CardEvent";
 import NotiButton from "../../../components/NotiButton";
 import { useQuery } from "react-query";
+import { callAPIGetEvents } from "../../../api/events";
+import { useNavigation } from '@react-navigation/native';
 
 const Home = () => {
-  const [posts, setPosts] = useState([
-    {
-      id: 1,
-      title: "Kỷ niệm sinh nhật thành lập 10 10 năm thành lập 1",
-      image: "https://via.placeholder.com/150",
-      avt: "https://via.placeholder.com/150",
-      startDate: "2021/10/10",
-      endDate: "2021/10/10",
-      isFavorite: false,
-    },
-    {
-      id: 2,
-      title: "Kỷ niệm sinh nhật thành lập 10 10 năm thành lập 2",
-      image: "https://via.placeholder.com/150",
-      avt: "https://via.placeholder.com/150",
-      startDate: "2021/10/10",
-      endDate: "2021/10/10",
-      isFavorite: false,
-    },
-    {
-      id: 3,
-      title: "Kỷ niệm sinh nhật thành lập 10 10 năm thành lập 3",
-      image: "https://via.placeholder.com/150",
-      avt: "https://via.placeholder.com/150",
-      startDate: "2021/10/10",
-      endDate: "2021/10/10",
-      isFavorite: false,
-    },
-    {
-      id: 4,
-      title: "Kỷ niệm sinh nhật thành lập 10 10 năm thành lập 4",
-      image: "https://via.placeholder.com/150",
-      avt: "https://via.placeholder.com/150",
-      startDate: "2021/10/10",
-      endDate: "2021/10/10",
-      isFavorite: false,
-    },
-  ]);
+  const [posts, setPosts] = useState([]);
   const [loading, setLoading] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
   const pathname = usePathname();
   
+  const [user, setUser] = useState(null);
+  const navigate = useNavigation();
 
+  useEffect(() => {
+    const fetchUser = async () => {
+      try {
+        let user = await SecureStore.getItemAsync("user");
+        if (user) {
+          user = JSON.parse(user);
+          setUser(user);
+        }
+      } catch (error) {
+        console.log(error);
+      }
+    };
+    fetchUser();
+
+    const fetchPosts = async () => {
+      try {
+        setLoading(true);
+        const res = await callAPIGetEvents();
+        if (res.success){
+          console.log(res);
+          setPosts(res.metadata);
+        }
+        if (res.code === 401) {
+          await SecureStore.deleteItemAsync("user");  
+          await SecureStore.deleteItemAsync("token");  
+          navigate("/login");
+        }
+      } catch (error) {
+        
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchPosts();
+  }, []);
   return (
     <SafeAreaView className="bg-bg w-full">
       <ScrollView>
@@ -75,7 +71,7 @@ const Home = () => {
           <View className="flex-row justify-between">
             <View className="">
               <Text className={`text-xl text-primary font-bold leading-8`}>
-                HI, NGUYEN
+                HI, {user?.fullName}
               </Text>
               <Text className="text-md border-spacing-1 font-normal text-black">
                 Let's play the game!

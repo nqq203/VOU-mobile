@@ -25,7 +25,7 @@ export const callApiVerifyOTP = async (dataInput) => {
     return response.data; 
   }
   catch (error) {
-    console.log('Response data:', error.response.data);
+    console.log('Response callApiVerifyOTP:', error.response.data);
     console.log('Response status:', error.response.status);
     return error.response.data;
   }
@@ -43,7 +43,7 @@ export const callApiLogin = async (dataInput) => {
     console.log('response: ', response.data);
     return response.data; 
   } catch (error) {
-      console.log('Response data:', error.response.data);
+      console.log('Response callApiLogin:', error.response.data);
       console.log('Response status:', error.response.status);
       console.log('Response headers:', error.response.headers);
       return error.response.data;
@@ -60,7 +60,7 @@ export const callApiForgotPassword = async (dataInput) => {
     console.log('response: ', response.data);
     return response.data;
   } catch (error) {
-    console.log('Response data:', error.response.data);
+    console.log('Response callApiForgotPassword:', error.response.data);
     console.log('Response status:', error.response.status);
     return error.response.data;
   }
@@ -76,7 +76,7 @@ export const callApiResendOTP = async (dataInput) => {
     console.log('response: ', response.data);
     return response.data;
   } catch (error) {
-    console.log('Response data:', error.response.data);
+    console.log('Response callApiResendOTP:', error.response.data);
     console.log('Response status:', error.response.status);
     return error.response.data;
   }
@@ -89,7 +89,7 @@ export const callApiGetUserByUsername = async (dataInput) => {
     console.log('response: ', response.data);
     return response.data;
   } catch (error) {
-    console.log('Response data:', error.response.data);
+    console.log('Response callApiGetUserByUsername:', error.response.data);
     console.log('Response status:', error.response.status);
     return error.response.data;
   }

@@ -183,7 +183,7 @@ const SignUp = () => {
             </TouchableOpacity>
           </View>
         </View>
-        <FooterAuth text="Already a member?" textLink="Sign in" url="/sign-in" />
+       {/* <FooterAuth text="Already a member?" textLink="Sign in" url="/sign-in" /> */}
       </View>
     </ScrollView>
     {dialogVisible && <Notification

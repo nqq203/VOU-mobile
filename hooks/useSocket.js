@@ -1,8 +1,8 @@
 import { useCallback, useEffect, useState } from "react";
 import io from "socket.io-client";
 
-const SOCKET_BASE_URL = "http://10.253.42.12:8085";
-// const SOCKET_BASE_URL = "http://10.8.20.66:8085";
+// const SOCKET_BASE_URL = "http://10.253.42.12:8085";
+const SOCKET_BASE_URL = "http://10.8.20.66:8085";
 // const SOCKET_BASE_URL = "http://192.168.1.6:8085";
 
 

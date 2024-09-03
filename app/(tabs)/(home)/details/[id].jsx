@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useLocalSearchParams } from "expo-router";
 import Ionicons from 'react-native-vector-icons/Ionicons';
@@ -20,8 +20,8 @@ import Item from "../../../../components/item";
 import Voucher from "../../../../components/Voucher";
 import {images} from "../../../../constants";
 import Dropdown from "../../../../components/Dropdown";
-
-
+import { callAPIGetPost } from "../../../../api/events";
+import moment from "moment";
 
 const Details = () => {
   const {id} = useLocalSearchParams();
@@ -31,18 +31,7 @@ const Details = () => {
     setExpanded(!expanded);
   };
   // const user = await AsyncStorage.getItem('user');
-  const post = {
-    id: 1,
-    title: "Kỷ niệm sinh nhật thành lập 10 10 năm thành lập 1",
-    brand: 'Brand',
-    image: "https://via.placeholder.com/150",
-    avt: "https://via.placeholder.com/150",
-    startDate: "2021/10/10",
-    endDate: "2021/10/10",
-    isFavorite: false,
-    turns:1
-  };
-
+  console.log("ID",id);
   // Pop up Doi thuong
   const listItems = ['Xu','Gà','Thỏ','Mèo','Vịt','Cá']
   const [canExchangeVoucher, setCanExchangeVoucher] = useState(false)
@@ -58,6 +47,22 @@ const Details = () => {
     typeOfInfo: '',
     info:'',
   })
+  const [post, setPost] = useState({});
+
+  useEffect(() => {
+  const fetchPost = async () => {
+    try {
+      const res = await callAPIGetPost(id);
+      if (res.success){
+        console.log("Dtaa",res);
+        setPost(res.metadata);
+      }
+    } catch (error) {
+      console.log("Erpror",error);
+    }
+  };
+  fetchPost();
+}, []);
 
   // Exchange gift form
   const submit = () => {
@@ -225,14 +230,14 @@ const Details = () => {
           >
             <HeaderAuth text="" otherStyle="absolute top-4 left-4 z-10" otherStyleIcon="rounded-full" />
             
-            <Image source={{ uri: post.image }} className="w-full h-52 rounded-lg px-0" />
+            <Image source={{ uri: post.imageUrl }} className="w-full h-52 rounded-lg px-0" />
        
             <View className="flex flex-col px-4 ">
               <View className = 'flex-col space-y-1 my-2'>
-                <Text className = 'text-black text-2xl font-psemibold'>{post.title}</Text>
+                <Text className = 'text-black text-2xl font-psemibold'>{post.eventName}</Text>
                   <View className = 'flex-row items-center pl-2'>
                     <Ionicons name = 'calendar-clear-outline' size ={20} color = '#515151'/>
-                    <Text className = 'text-grey-700 font-pregular text-base ml-2'>{post.startDate} - {post.endDate}</Text>
+                    <Text className = 'text-grey-700 font-pregular text-base ml-2'>{moment(post.startDate).format('DD/MM/YYYY')} - {moment(post.endDate).format('DD/MM/YYYY')}</Text>
                   </View>
                   <View className = 'flex-row items-center justify-between  pl-2'>
                     <View className = 'flex-row items-center'>
@@ -287,7 +292,7 @@ const Details = () => {
 
                 <View className='flex gap-2'>
                   <Text className='font-pregular text-base'>Voucher được dùng khi mua hàng tại các chi nhánh của Brand trên khắp TP HCM</Text>
-                  <Text className='font-pregular text-base'><Text className='font-psemibold'>Số lượng:</Text> 1000 vouchers</Text>
+                  <Text className='font-pregular text-base'><Text className='font-psemibold'>Số lượng:</Text> {post.numberOfVouchers} vouchers</Text>
                   <Text className='font-pregular text-base'>
                     Bạn cần đạt được <Text className='font-psemibold'>100 Xu hoặc các mảnh ghép sau</Text> để đủ điều kiện đổi thưởng.
                   </Text>
@@ -298,11 +303,11 @@ const Details = () => {
                     title="Chơi ngay" 
                     containerStyles="justify-center my-4 flex-grow mr-4"
                     textStyles='' 
-                    handlePress={() => router.push("/games/shakeGame")}
-                    // handlePress={() => router.push({
-                    //   pathname: "/games/waiting-room",
-                    //   params: { room: post.id, username: "ahihi" },
-                    // })}
+                    // handlePress={() => router.push("/games/shakeGame")}
+                    handlePress={() => router.push({
+                      pathname: "/games/waiting-room",
+                      params: { room: post.id, username: "ahihi" },
+                    })}
                   />
 
                   <CustomButton 

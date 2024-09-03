@@ -56,6 +56,7 @@ const TabLayout = () => {
           options={{
             title: "Home",
             headerShown: false,
+
             tabBarIcon: ({ color, focused }) => (
               <TabIcon
                 icon={icons.home}

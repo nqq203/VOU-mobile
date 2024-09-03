@@ -1,5 +1,6 @@
 import { useState } from "react";
-import AsyncStorage from '@react-native-async-storage/async-storage';
+// import AsyncStorage from '@react-native-async-storage/async-storage';
+import * as SecureStore from 'expo-secure-store';
 import { Link, router } from "expo-router";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { View, Text, ScrollView, Dimensions, Alert,} from "react-native";
@@ -7,6 +8,7 @@ import { CustomButton, FooterAuth ,HeaderAuth,Notification} from "../../componen
 import { useGlobalContext } from "../../context/GlobalProvider";
 import { OtpInput } from "react-native-otp-entry";
 import { useRoute } from '@react-navigation/native';
+import moment from "moment";
 const {callApiVerifyOTP, callApiResendOTP} = require("../../api/user");
 
 const Verify = () => {
@@ -42,10 +44,12 @@ const submit = async () => {
     
     if (result.success === true && result.message) {
       Alert.alert("Success", "Account verified successfully");
-      await AsyncStorage.setItem('user', JSON.stringify(result.metadata.account));
-      await AsyncStorage.setItem('token', result.metadata.token);
-      setUser(result.metadata.account);
-      router.replace('/home');
+
+      await SecureStore.setItemAsync('user', JSON.stringify(result.metadata.user));
+      await SecureStore.setItemAsync('token_expires_at', moment().add(10,'hours').toISOString());
+      await SecureStore.setItemAsync('token', result.metadata.token);
+      setUser(result.data);
+      router.push('/home');
     }
     else Alert.alert("Error", result.message);
   } catch (error) {

@@ -1,15 +1,27 @@
+import {useState, useEffect} from "react";
 import { StatusBar } from "expo-status-bar";
 import { Redirect, router } from "expo-router";
-import { View, Text, Image, ScrollView, ImageBackground, StyleSheet } from "react-native";
+import { View, Image, ScrollView, ImageBackground, StyleSheet } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
+import * as SecureStore from 'expo-secure-store';
+import moment from "moment";
 
 import { images } from "../constants";
-import { CustomButton, Loader } from "../components";
+import { CustomButton } from "../components";
 import { useGlobalContext } from "../context/GlobalProvider";
 const image = { uri: 'https://legacy.reactjs.org/logo-og.png' };
 
 const Welcome = () => {
   const { loading, isLogged } = useGlobalContext();
+  const [signIn, setSignIn] = useState(false);
+
+  useEffect(() => {
+    const token = SecureStore.getItemAsync('token');
+    const  isExpired = moment().isAfter(SecureStore.getItemAsync('token_expires_at'));
+    if (token && !isExpired) {
+      setSignIn(true);
+    }
+  }, []);
 
   if (!loading && isLogged) return <Redirect href="/home" />;
 
@@ -54,7 +66,7 @@ const Welcome = () => {
 
             <CustomButton
               title="Let's go"
-              handlePress={() => router.push("/sign-in")}
+              handlePress={() => signIn ? router.push("/home") : router.push("/sign-in")}
               containerStyles="absolute bottom-20 px-20"
             />
           </View>

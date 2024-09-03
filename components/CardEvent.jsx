@@ -2,6 +2,8 @@ import { TouchableOpacity, View, Image, Text, StyleSheet } from 'react-native';
 import { router, usePathname } from "expo-router";
 import Ionicons from "react-native-vector-icons/Ionicons";
 import { useState } from 'react';
+import moment from 'moment';
+import { Alert } from 'react-native';
 
 const CardEvent = ({
     item,
@@ -10,7 +12,7 @@ const CardEvent = ({
 }) => {
   const pathname = usePathname();
   const [isFavorite, setisFavorite] = useState(item.isFavorite)
-
+  console.log("item:",item);
   const handleFavoritePress = (id) => {
     const value = !item.isFavorite;
     item.isFavorite = value;
@@ -31,19 +33,19 @@ const CardEvent = ({
   });
 
   return (
-    <TouchableOpacity key={item.id} 
+    <TouchableOpacity key={item.idEvent} 
      className={customStyle}
      
      {...props}
      onPress={() => {
-        if (item?.id === "")
+        if (item?.idEvent === "")
         return Alert.alert(
           "Missing Query",
           "Please input something to search results across database"
         );
     
-        if (pathname.startsWith("/details")) router.setParams({key});
-        else router.push(`/details/${item?.id}`);}}
+        if (pathname.startsWith("/details")) router.setParams({ id: item?.idEvent });
+        else router.push(`/details/${item?.idEvent}`);}}
     >
         <View className="bg-white rounded-lg pb-4" style={[styles.customShadow]}>
           <Image
@@ -58,13 +60,13 @@ const CardEvent = ({
               resizeMode="cover"
             />
             <View className="flex-col mx-3 w-[70%]">
-              <Text className="text-lg font-bold">{item.title}</Text>
-              <Text className="text-[15px] text-gray-500">Thời gian: {item.startDate} - {item.endDate}</Text>
+              <Text className="text-lg font-bold">{item.eventName}</Text>
+              <Text className="text-[15px] text-gray-500">Thời gian: {moment(item.startDate).format('DD/MM/YYYY')} - {moment(item.endDate).format('DD/MM/YYYY')}</Text>
             </View>
 
             <TouchableOpacity
               className="flex-row items-center justify-center bg-white"
-              onPress={() => handleFavoritePress(item.id)}
+              onPress={() => handleFavoritePress(item.idEvent)}
             >
               <Ionicons name={isFavorite ? "heart" : "heart-outline"} size={32} color="#EA661C" />
             </TouchableOpacity>

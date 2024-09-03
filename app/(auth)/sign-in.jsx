@@ -1,13 +1,16 @@
 import { useState } from "react";
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import { Link, router,Redirect } from "expo-router";
+// import AsyncStorage from '@react-native-async-storage/async-storage';
+import * as SecureStore from 'expo-secure-store';
+import { Link, router } from "expo-router";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { View, Text, ScrollView, Dimensions, Alert, Image, StyleSheet,TouchableOpacity } from "react-native";
+import { View, Text, ScrollView, Dimensions, Alert, TouchableOpacity } from "react-native";
 import { useNavigation } from '@react-navigation/native';
 import { FooterAuth, FormField ,HeaderAuth, Notification} from "../../components";
 import { useGlobalContext } from "../../context/GlobalProvider";
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import { callApiLogin } from "../../api/user";
+import moment from "moment";
+
 
 const SignIn = () => {
   const navigation = useNavigation();
@@ -44,11 +47,14 @@ const SignIn = () => {
       if (result.message === "Unverified account, please verify OTP") {
         navigation.navigate('verify-otp',{ username: form.username });
       }
-     if (result.success === true)
+      console.log("Result: ",result);
+     if (result.code === 200)
       {
-        await AsyncStorage.setItem('user', JSON.stringify(result.metadata.account));
-        await AsyncStorage.setItem('token', result.metadata.token);
-        setUser(result.metadata.account);
+        await SecureStore.setItemAsync('user', JSON.stringify(result.metadata.account));
+        await SecureStore.setItemAsync('token_expires_at', moment().add(10,'hours').toISOString());
+        await SecureStore.setItemAsync('token', result.metadata.token);
+        
+        setUser(result.metadata);
         setIsLogged(true);
         router.push('/home');
       }
