@@ -3,16 +3,18 @@ import Ionicons from 'react-native-vector-icons/Ionicons';
 import { SafeAreaView, View, Text, Dimensions,Modal,ScrollView, TouchableOpacity, Image} from 'react-native'
 import { HeaderAuth } from '../../../components'
 import Voucher from '../../../components/Voucher'
-import { useState } from 'react'
+import { useState,useEffect } from 'react'
 import { callApiGetUserVouchers } from '../../../api/voucher';
 import { useGlobalContext } from '../../../context/GlobalProvider';
 import Notification from '../../../components/Notification';
 import { useQuery } from 'react-query';
+import * as SecureStore from 'expo-secure-store';
 
 
 
 const OfflineVouchers = () => {
-  const { user } = useGlobalContext();
+  const [user, setUser] = useState("");
+
   const [listVouchers, setListVouchers] = useState([])
 
   const [modalVisible, setModalVisible] = useState(false)
@@ -22,29 +24,46 @@ const OfflineVouchers = () => {
   const [dialogTitle, setDialogTitle] = useState("success");
   const [dialogMessage, setDialogMessage] = useState('');
 
-  const request = {
-    userId: user?.idUser,
-    voucherType: "offline",
-  }
-
-  const {isFetching, refetch} = useQuery(
-    "fetch-my-offline-vouchers",
-    () => callApiGetUserVouchers(request),
-    {
-      onSuccess: (result) => {
-          console.log("SUc: ",result)
-          if(result.success === true){
-            console.log("Sus: ",result);
-            setListVouchers(result.metadata);
-          } else{
-            console.log(result.message);
-          }
-      },
-      onError: (error) => {
-          console.log(error)
-      }
+  const fetchUserVoucher = async (id) => {
+    if(id === undefined) return;
+    const request = {
+      userId: id,
+      voucherType: "offline",
     }
-  )
+    try {
+      let result = await callApiGetUserVouchers(request);
+    
+      if(result.success === true){
+        console.log("Sus: ",result);
+        setListVouchers(result.metadata);
+      } else{
+        console.log(result.message);
+      }
+    } catch (error) {
+      console.log(error);
+    }
+};
+
+  const fetchUser = async () => {
+      try {
+        let user1 = await SecureStore.getItemAsync('user');
+      
+        if (user1) {
+          user1 = JSON.parse(user1);
+          setUser(user1);
+        }
+      } catch (error) {
+        console.log(error);
+      }
+  };  
+
+  useEffect(() => {
+    fetchUser();
+  }, []);
+
+  useEffect(()=>{
+    fetchUserVoucher(user.idUser);
+  },[user])
 
   const handleVoucherClick = () => {
       setModalVisible(true)

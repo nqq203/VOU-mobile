@@ -18,6 +18,11 @@ export const callApiGetVouchers = async (eventId) => {
     }
 }
 
-export const callApiUseVoucher = async ({}) => {
-    
+export const callApiExchangeVoucher = async (code,userId) => {
+    try {
+        const response = await api.post(`/api/v1/vouchers/${code}/users/${userId}`);
+        return response.data;
+    } catch (error) {
+        return error.response.data;
+    }
 }

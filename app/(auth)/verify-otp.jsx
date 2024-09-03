@@ -2,6 +2,7 @@ import { useState } from "react";
 // import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as SecureStore from 'expo-secure-store';
 import { Link, router } from "expo-router";
+import { useNavigation } from '@react-navigation/native';
 import { SafeAreaView } from "react-native-safe-area-context";
 import { View, Text, ScrollView, Dimensions, Alert,} from "react-native";
 import { CustomButton, FooterAuth ,HeaderAuth,Notification} from "../../components";
@@ -23,6 +24,7 @@ const Verify = () => {
   const [onConfirm, setOnConfirm] = useState(() => () => {});
   const [isSuccess, setIsSuccess] = useState(false);
   const { username ,email} = route.params; 
+  const navigation = useNavigation();
 
 // const showDialog = (title, message, onConfirmCallback) => {
 //   setDialogTitle(title);
@@ -49,7 +51,8 @@ const submit = async () => {
       await SecureStore.setItemAsync('token_expires_at', moment().add(10,'hours').toISOString());
       await SecureStore.setItemAsync('token', result.metadata.token);
       setUser(result.data);
-      router.push('/home');
+      // router.replace('/home');
+      navigation.navigate('home');
     }
     else Alert.alert("Error", result.message);
   } catch (error) {

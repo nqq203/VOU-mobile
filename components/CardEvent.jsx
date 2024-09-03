@@ -4,19 +4,22 @@ import Ionicons from "react-native-vector-icons/Ionicons";
 import { useState } from 'react';
 import moment from 'moment';
 import { Alert } from 'react-native';
+import { callAPIFav } from '../api/events';
 
 const CardEvent = ({
     item,
+    isFav=false,
     customStyle,
     ...props
 }) => {
   const pathname = usePathname();
-  const [isFavorite, setisFavorite] = useState(item.isFavorite)
-  console.log("item:",item);
+  const [isFavorite, setisFavorite] = useState(isFav)
+
   const handleFavoritePress = (id) => {
     const value = !item.isFavorite;
     item.isFavorite = value;
     setisFavorite(value);
+    // await callAPIFav(id, );
   };
 
   const styles = StyleSheet.create({
@@ -49,13 +52,13 @@ const CardEvent = ({
     >
         <View className="bg-white rounded-lg pb-4" style={[styles.customShadow]}>
           <Image
-            source={{ uri: item.image }}
+            source={{uri: item.imageUrl}}
             className="w-full h-36 rounded-t-lg"
             resizeMode="cover"
           />
           <View className="flex-row mx-3 mt-2 ml-2 justify-between">
             <Image
-              source={{ uri: item.avt }}
+              source={{uri: item.logoBrand || "https://via.placeholder.com/150"}}
               className="w-12 h-12 rounded-lg mt-2"
               resizeMode="cover"
             />

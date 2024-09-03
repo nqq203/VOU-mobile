@@ -12,13 +12,15 @@ import NotiButton from '../../components/NotiButton';
 import { callApiGetItems } from '../../api/item';
 import { useGlobalContext } from '../../context/GlobalProvider';
 import { useQuery } from 'react-query';
-
-
+import { useCallback } from 'react';
 import { useEffect, useState } from 'react';
+import { useFocusEffect } from '@react-navigation/native';
+import * as SecureStore from 'expo-secure-store';
 
 
 const Gift = () => {
-    const { user } = useGlobalContext();
+    // const { user } = useGlobalContext();
+    const [user, setUser] = useState("");
     const [listItems, setListItems] = useState([])
     const listItemsText = ['Xu','Gà','Thỏ','Mèo','Vịt','Cá']
     const listOptions = ['Mã ID', 'Email', 'Số điện thoại']
@@ -33,27 +35,80 @@ const Gift = () => {
     })
     const [isError, setIsError] = useState(false);
 
-
-    const {isFetching, refetch} = useQuery(
-        "fetch-my-items",
-        () => callApiGetItems(user.idUser),
-        {
-            onSuccess: (data) => {
-                console.log("SUc: ",data)
-                if(data.success === true){
-                    console.log("Sus: ",data);
-                    setListItems(data.metadata);
+    // const {isFetching, refetch} = useQuery(
+    //     "fetch-my-items",
+    //     () => callApiGetItems(user?.idUser),
+    //     {
+    //         onSuccess: (data) => {
+    //             console.log("SUc: ",data)
+    //             if(data.success === true){
+    //                 console.log("Sus: ",data);
+    //                 setListItems(data.metadata);
                     
-                } else{
-                    console.log("Failed: ",data);
-                    setListItems(data.data)
-                }
-            },
-            onError: (error) => {
-                console.log(error)
+    //             } else{
+    //                 console.log("Failed: ",data);
+    //                 setListItems(data.data)
+    //             }
+    //         },
+    //         onError: (error) => {
+    //             console.log(error)
+    //         }
+    //     }
+    // )
+
+    useFocusEffect(
+        useCallback(() => {
+          // Your refresh logic here
+          console.log('Screen is focused and refreshed');
+        //   console.log(user.idUser);
+          fetchUserItems(user.idUser)
+    
+          return () => {
+            // Optional cleanup if needed when screen loses focus
+          };
+        }, [])
+    );
+
+    const fetchUserItems = async (id) => {
+        if(id === undefined) return;
+        try {
+          let itemData = await callApiGetItems(id);
+        
+          if(itemData.success === true){
+            // console.log("Sus: ",itemData);
+            setListItems(itemData.metadata);
+            
+            } else{
+                // console.log("Failed: ",itemData);
+                setListItems(itemData.data)
             }
+        } catch (error) {
+          console.log(error);
         }
-    )
+    };
+
+    const fetchUser = async () => {
+        try {
+          let user1 = await SecureStore.getItemAsync('user');
+        
+          if (user1) {
+            user1 = JSON.parse(user1);
+            setUser(user1);
+          }
+        } catch (error) {
+          console.log(error);
+        }
+    };
+
+    useEffect(() => {
+      fetchUser();
+    }, []);
+
+    useEffect(()=>{
+        fetchUserItems(user.idUser);
+    },[user])
+
+    
 
     const submit = () => {
         form.itemName = item;
@@ -168,10 +223,10 @@ const Gift = () => {
 
                 <View className="flex flex-row flex-wrap bg-white rounded-md shadow-lg mb-4" 
                     style={[styles.customShadow]} >
-                    {listItems.map(item  => {
+                    {listItems?.map(item  => {
                         return (
                             <View key={item.idItem} className="w-1/4 p-2">
-                                <Item imageUrl={item.imageUrl} amount={`1 ${item.amount}`} />
+                                <Item imageUrl={item.imageUrl} amount={`${item.amount}`} />
                             </View>
                         )
                     })}

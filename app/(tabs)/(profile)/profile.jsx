@@ -9,6 +9,8 @@ import { useRouter } from "expo-router";
 import { useGlobalContext } from "../../../context/GlobalProvider";
 import { images } from "../../../constants";
 import * as SecureStore from 'expo-secure-store';
+import { useCallback } from 'react';
+import { useFocusEffect } from '@react-navigation/native';
 
 
 const Profile = () => {
@@ -21,8 +23,20 @@ const Profile = () => {
     const [dialogMessage, setDialogMessage] = useState('Số điện thoại không hợp lệ');
     const [user, setUser] = useState();
 
-    useEffect(() => {
-      const fetchUser = async () => {
+    useFocusEffect(
+        useCallback(() => {
+          // Your refresh logic here
+          console.log('Screen is focused and refreshed');
+        //   refetch();
+        fetchUser();
+    
+          return () => {
+            // Optional cleanup if needed when screen loses focus
+          };
+        }, [])
+    );
+
+    const fetchUser = async () => {
         try {
           let user1 = await SecureStore.getItemAsync('user');
         
@@ -31,15 +45,15 @@ const Profile = () => {
             setUser(user1);
             console.log(user1);
             setForm(user1);
-            setImage(user1?.avatarUrl || images.defaultAva)
+            setImage(user1?.avatarUrl || "https://reactjs.org/logo-og.png");
           }
         } catch (error) {
           console.log(error);
         }
       };
 
+    useEffect(() => {
       fetchUser();
-      
     }, []);
     console.log("user", user);
 
@@ -67,7 +81,7 @@ const Profile = () => {
                         <TouchableOpacity className="w-[170px] h-[170px] rounded-full  border border-gray-300 shadow-sm overflow-hidden"
                             onPress={handleChangeImage}
                         >
-                            <Image source={image}
+                            <Image source={{uri: image}}
                             className="w-full h-full " />
                         </TouchableOpacity>
                     </View>

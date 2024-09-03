@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react'
-import { SafeAreaView, View, Text } from 'react-native'
+import { SafeAreaView, View, Text, ScrollView } from 'react-native'
 import { FormField, HeaderAuth } from '../../../components'
 import { useState } from 'react'
 import CustomButton from "../../../components/CustomButton";
@@ -9,6 +9,7 @@ import Notification from '../../../components/Notification';
 import { useGlobalContext } from '../../../context/GlobalProvider';
 import { callApiUpdateAccount,callApiUpdateAccountImage } from '../../../api/user';
 import * as SecureStore from 'expo-secure-store';
+
 
 const EditProfile = () => {
   // const { user,setUser } = useGlobalContext();
@@ -74,6 +75,7 @@ const EditProfile = () => {
 
   return (
     <SafeAreaView className="bg-bg h-full"> 
+      <ScrollView>
         <Notification
             visible={dialogVisible}
             onClose={() => setDialogVisible(false)}
@@ -149,6 +151,7 @@ const EditProfile = () => {
 
           </View>
         </View>
+        </ScrollView>
     </SafeAreaView>
   )
 }

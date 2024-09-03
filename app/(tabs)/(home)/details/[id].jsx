@@ -23,19 +23,23 @@ import Dropdown from "../../../../components/Dropdown";
 import { callAPIGetPost } from "../../../../api/events";
 import moment from "moment";
 import * as SecureStore from 'expo-secure-store';
+import { useQuery } from "react-query";
+import { callApiExchangeVoucher } from "../../../../api/voucher";
 
 const Details = () => {
+  // const {user} = useGlobalContext();
   const {id} = useLocalSearchParams();
   const [expanded, setExpanded] = useState(false);
   const navigation = useNavigation();
   const handleToggle = () => {
     setExpanded(!expanded);
   };
-  // const user = await AsyncStorage.getItem('user');
   console.log("ID",id);
+
   // Pop up Doi thuong
-  // const listItems = ['Xu','Gà','Thỏ','Mèo','Vịt','Cá']
   const [listItems, setListItems] = useState([])
+  const [qrCode, setQrCode] = useState("");
+  
   const [canExchangeVoucher, setCanExchangeVoucher] = useState(false)
   const [modalVisible, setModalVisible] = useState(false)
   const [isExchangeError, setIsExchangeError] = useState(false);
@@ -75,6 +79,7 @@ const Details = () => {
         console.log("Dtaa",res);
         setPost(res.metadata);
         setListItems(res.metadata.inventoryInfo?.items);
+        setQrCode(res.metadata.inventoryInfo.voucher_code);
       }
     } catch (error) {
       console.log("Erpror",error);
@@ -84,9 +89,22 @@ const Details = () => {
 }, []);
 
   // Exchange gift form
-  const submit = () => {
-      // setIsExchangeError(true);
-      setCanExchangeVoucher(true);
+  const submit = async () => {
+      try {
+        const result = await callApiExchangeVoucher(post?.inventoryInfo?.voucher_code,user.idUser);
+        console.log(result);
+        if (result.success === true){
+          setCanExchangeVoucher(true);
+        }
+        else{
+          // Alert.alert("Error", result.message);
+          setIsExchangeError(true);
+          console.log("Error",result.message);
+        }
+      } catch (error) {
+        setIsExchangeError(true);
+        console.log("Result: ",error);
+      }
   }
 
   
@@ -159,8 +177,8 @@ const Details = () => {
                         <View className="flex flex-row flex-wrap bg-white rounded-md shadow-lg my-6">
                         {listItems.map(item  => {
                                 return (
-                                    <View key={item} className="w-1/4 p-2">
-                                        <Item imageUrl={item?.imageUrl} amount={`1 ${item?.itemName}`} />
+                                    <View key={item?.idItem} className="w-1/4 p-2">
+                                        <Item imageUrl={item?.imageUrl} amount={`${item?.itemName}`} />
                                     </View>
                                 )
                             })}
@@ -261,7 +279,7 @@ const Details = () => {
                   <View className = 'flex-row items-center justify-between  pl-2'>
                     <View className = 'flex-row items-center'>
                       <Ionicons name = 'play-circle-sharp' size ={20 } color = '#515151'/>
-                      <Text className = 'text-grey-700 font-pregular text-base ml-2'>Lượt chơi: {post.turns}</Text>
+                      <Text className = 'text-grey-700 font-pregular text-base ml-2'>Lượt chơi: {post.turns || -1}</Text>
                     </View>
                     <TouchableOpacity onPress={() => {setModalTurnVisible(true)}}>
                       <Text className = 'text-primary font-psemibold text-base underline'>Thêm lượt</Text>

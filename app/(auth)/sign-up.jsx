@@ -58,7 +58,7 @@ const SignUp = () => {
   };
   
   const submit = async () => {
-    if (form.fullName === "" || form.email === "" || form.password === ""|| form.phoneNumber === "" || form.username === "") {
+    if ( form.email === "" || form.password === ""|| form.phoneNumber === "" || form.username === "") {
       Alert.alert("Error", "Please fill in all fields");
     }
     if (!validateEmail(form.email)) {
@@ -87,7 +87,7 @@ const SignUp = () => {
       const user ={
         email: form.email,
         password: form.password,
-        fullName: form.fullName,
+        fullName: form.username,
         phoneNumber: form.phoneNumber,
         username: form.username,
         role: 'PLAYER'
@@ -135,14 +135,6 @@ const SignUp = () => {
           Welcome to VOU
           </Text>
           <View className = ''>
-            <FormField
-              value={form.fullName}
-              handleChangeText={(e) => setForm({ ...form, fullName: e })}
-              placeholder={"FulName"}
-              keyboardType=""
-              icon="user-o"
-              
-            />
             <FormField
               value={form.username}
               handleChangeText={(e) => setForm({ ...form, username: e })}
