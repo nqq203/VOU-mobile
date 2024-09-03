@@ -19,6 +19,7 @@ const Profile = () => {
     const navigation = useNavigation();
     const [form, setForm] = useState();
     const [image, setImage] = useState();
+    const [gender, setGender] = useState("")
 
     const [dialogVisible, setDialogVisible] = useState(false);
     const [dialogTitle, setDialogTitle] = useState("");
@@ -47,6 +48,9 @@ const Profile = () => {
             setUser(user1);
             console.log(user1);
             setForm(user1);
+            if(user1.gender !== null){
+                setGender(user1?.gender === "MALE" ? "Nam" : "Nữ")
+            }
             setImage(user1?.avatarUrl || 'https://via.placeholder.com/200');
           }
         } catch (error) {
@@ -117,7 +121,7 @@ const Profile = () => {
                     />
 
                     <FormField
-                    value={(user?.gender === "MALE" ? "Nam" : "Nữ") || ""}
+                    value={gender}
                     handleChangeText={(e) => setForm({ ...form, gender: e })}
                     placeholder={"Gender"}
                     keyboardType=""
