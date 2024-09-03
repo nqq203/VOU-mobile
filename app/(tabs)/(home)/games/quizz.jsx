@@ -11,7 +11,7 @@ import { Modalize } from 'react-native-modalize';
 
 const QuizScreen = () => {
   const router = useRouter()
-  const { room, username } = useLocalSearchParams();
+  const { room, username,eventId } = useLocalSearchParams();
   const modalizeRef = React.useRef(null); 
   const [currentQuestion, setCurrentQuestion] = useState(null);
   const [selectedAnswerIndex, setSelectedAnswerIndex] = useState(null);
@@ -50,7 +50,7 @@ const QuizScreen = () => {
       router.push(
         {
           pathname: "/games/leaderboard",
-          params: { result, room, username },
+          params: { result, room, username ,eventId},
         }
       ); 
     }

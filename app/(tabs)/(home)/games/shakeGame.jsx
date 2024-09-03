@@ -1,23 +1,31 @@
-import { View, Text,SafeAreaView,ScrollView, 
-    Dimensions, TouchableOpacity, Modal, TextInput, 
-    ImageBackground, Image } from 'react-native';
-import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
+import React, { useEffect, useState } from 'react';
+import { View, Text, SafeAreaView, ScrollView, 
+    Dimensions, TouchableOpacity, Modal, TextInput, Vibration,
+    ImageBackground, Image, 
+    Alert} from 'react-native';
+import { Accelerometer } from 'expo-sensors';
+import { useLocalSearchParams } from "expo-router";
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import { HeaderAuth, CustomButton } from '../../../../components';
 import GiftHistory from '../../../../components/GiftHistory';
 import Item from '../../../../components/item';
 import { router } from 'expo-router';
-import { useEffect, useState } from 'react';
 import { images } from '../../../../constants';
 import Dropdown from '../../../../components/Dropdown';
-
+import * as SecureStore from 'expo-secure-store';
+import {callApiShakeGame} from '../../../../api/games';
 
 const ShakeGame = () => {
+    const { gameId, username } = useLocalSearchParams();
   const image = { uri: 'https://legacy.reactjs.org/logo-og.png' };
-  const [modalGameVisible, setmodalGameVisible] = useState(true);
+  const [showResult, setShowResult] = useState(false);
+  const [modalGameVisible, setModalGameVisible] = useState(8);
   const [turn, setTurn] = useState(3);
   const [hasTurnLeft, setHasTurnLeft] = useState(true);
   const [hasItem, setHasItem] = useState(false);
+  const [isShaking, setIsShaking] = useState(false);
+  const [shakeData, setShakeData] = useState({});
+  const [wonItem, setWonItem] = useState(null);
   
   const [modalTurnVisible, setModalTurnVisible] = useState(false);
   
@@ -29,19 +37,83 @@ const ShakeGame = () => {
     typeOfInfo: '',
     info:'',
   })
+  const [user, setUser] = useState();
 
-  const startShake = () => {
-    let val = turn;
-    if(turn > 0){
-        setTurn(val-1);
+  useEffect(() => {
+    const fetchUser = async () => {
+      try {
+        let user = await SecureStore.getItemAsync("user");
+        if (user) {
+          user = JSON.parse(user);
+          setUser(user);
+        }
+      } catch (error) {
+        console.log(error);
+      }
+    };
+    fetchUser();
+
+    let subscription;
+    const startAccelerometer = async () => {
+      Accelerometer.setUpdateInterval(1000);
+      subscription = Accelerometer.addListener(accelerometerData => {
+        setShakeData(accelerometerData);
+      });
+    };
+
+    startAccelerometer();
+
+    return () => {
+      subscription && subscription.remove();
+    };
+  }, []);
+
+  useEffect(() => {
+    const { x, y, z } = shakeData;
+    const acceleration = Math.sqrt(x * x + y * y + z * z);
+    if (acceleration > 1.78) {  
+        Vibration.vibrate(); 
+      if (!isShaking) {
+        setIsShaking(true);
+        startShake();
+      }
+    } else {
+      setIsShaking(false);
     }
-    if(turn === 1){
-        setHasItem(true)
-        setHasTurnLeft(false);
+  }, [shakeData]);
+
+  
+  const startShake = async () => {
+    if (turn > 0) {
+        setShowResult(false);
+      setTurn(prevTurn => prevTurn - 1);
+      try {
+        const response = await callApiShakeGame({idUser: user.idUser, idGame: gameId});
+        console.log('Response:', response);
+        if (response.success) {
+          if (response?.metadata) {
+            setWonItem(response.metadata);
+            setHasItem(true);
+          } else {
+            setHasItem(false);
+          }
+        }
+        else {
+            Alert.alert(response.message);
+        }
+        setShowResult(true); 
+      } catch (error) {
+        console.error('Error calling ShakeGame API:', error);
+      }
     }
-    if(turn === 0){
-        setmodalGameVisible(false)
-        setModalTurnVisible(true);
+
+    if (turn === 1) {
+      setHasTurnLeft(false);
+    }
+
+    if (turn === 0) {
+      setModalGameVisible(false);
+      setModalTurnVisible(true);
     }
   }
 
@@ -54,73 +126,78 @@ const ShakeGame = () => {
     setModalAskForTurnVisible(true);
   }
 
+
   const sendRequestTurn = () => {
     if(option === 'Mã ID') {
-        form.typeOfInfo = 'id'
+      form.typeOfInfo = 'id'
     } else if(option === 'Email'){
-        form.typeOfInfo = 'email'
+      form.typeOfInfo = 'email'
     } else if(option === 'Số điện thoại'){
-        form.typeOfInfo = 'phone'
+      form.typeOfInfo = 'phone'
     }
 
     if( form.info === '' || form.typeOfInfo === ''){
-        setIsError(true);
-        return;
+      setIsError(true);
+      return;
     }
 
     console.log(form);
     setModalAskForTurnVisible(false);
     setModalTurnVisible(true);
     setForm({
-        typeOfInfo: '',
-        info:'',
-        itemName: '',
-        amount: '',
+      typeOfInfo: '',
+      info:'',
+      itemName: '',
+      amount: '',
     })    
   }
   
   return (
     <ImageBackground source={image} className='w-screen h-full'>
-        {/* Modal Game */}
-        <Modal 
-            visible={modalGameVisible} 
-            transparent={true}
-            onRequestClose={() => {console.log("Close")}}
-        >
-            <View className="bg-gray-500/[0.5] flex-1 items-center justify-center">
-                <View className='flex bg-white space-y-4 px-3 pb-4 pt-3 w-[360px] items-center rounded-md'>
-                    <TouchableOpacity className='flex-row-reverse w-full pr-2' onPress={() => setmodalGameVisible(false)}>
-                        <Ionicons name='close' size={28} color={'gray'} />
-                    </TouchableOpacity>
+      {/* Modal Game */}
+      <Modal 
+        visible={modalGameVisible} 
+        transparent={true}
+        onRequestClose={() => {console.log("Close")}}
+      >
+        <View className="bg-gray-500/[0.5] flex-1 items-center justify-center">
+          <View className='flex bg-white space-y-4 px-3 pb-4 pt-3 w-[360px] items-center rounded-md'>
+            <TouchableOpacity className='flex-row-reverse w-full pr-2' onPress={() => setModalGameVisible(false)}>
+              <Ionicons name='close' size={28} color={'gray'} />
+            </TouchableOpacity>
 
-                    {hasItem ? (
-                        <View className='items-center my-2'>
-                            <Text className='text-primary font-pbold text-[28px] text-center'>CHÚC MỪNG BẠN ĐÃ NHẬN ĐƯỢC</Text>
-
-                            <View className='mt-4'>
-                                <Item />
-                            </View>
-                        </View>
-                    ) : (
-                        <View className='items-center my-2'>
-                            <Text className='text-primary font-pbold text-[28px] text-center'>ÔI HỤT MẤT RỒI</Text>
-                            <View className='mt-4'>
-                                <Image className='w-24 h-24 resize' source={images.noItem}/>
-                            </View>
-                        </View>
-                    )}
-                    {turn !== 0 ? (
-                        <Text className="text-base font-pmedium">Bạn còn {turn} lượt lắc</Text>
-                    ) : (
-                        <Text className="text-base font-pmedium">Bạn đã hết lượt lắc</Text>
-                    )}
-
-                    <CustomButton title={hasTurnLeft ? "Lắc tiêp" : "Thêm lượt"}  containerStyles={'w-full mt-4'} handlePress={startShake}/>
-                
+            
+            {showResult ? (
+              hasItem ? (
+                <View className='items-center my-2'>
+                  <Text className='text-primary font-pbold text-[28px] text-center'>CHÚC MỪNG BẠN ĐÃ NHẬN ĐƯỢC</Text>
+                  <View className='mt-4'>
+                    <Item
+                      name={wonItem.itemName}
+                      amount={wonItem.amount}
+                      imageUrl={wonItem.imageUrl}
+                    />
+                  </View>
                 </View>
+              ) : (
+                <View className='items-center my-2'>
+                  <Text className='text-primary font-pbold text-[28px] text-center'>ÔI HỤT MẤT RỒI</Text>
+                  <View className='mt-4'>
+                    <Image className='w-24 h-24 resize' source={images.noItem} />
+                  </View>
+                </View>
+              )
+            ) : null}
+            {turn !== 0 ? (
+              <Text className="text-base font-pmedium">Bạn còn {turn} lượt lắc</Text>
+            ) : (
+              <Text className="text-base font-pmedium">Bạn đã hết lượt lắc</Text>
+            )}
 
-            </View>
-        </Modal>
+            <CustomButton title={hasTurnLeft ? "Lắc tiếp" : "Thêm lượt"}  containerStyles={'w-full mt-4'} handlePress={startShake}/>
+          </View>
+        </View>
+      </Modal>
 
         {/* Modal Turn */}
         <Modal 
@@ -210,7 +287,7 @@ const ShakeGame = () => {
                                 <Text className='text-primary font-pbold text-[28px]'>Lắc thật hăng</Text>
                                 <Text className='text-primary font-pbold text-[28px]'>Văng vật phẩm</Text>
                             </View>
-                            <CustomButton title='Chơi ngay' containerStyles={'w-full my-4'} handlePress={() => {setmodalGameVisible(true)}}/>
+                            <CustomButton title='Chơi ngay' containerStyles={'w-full my-4'} handlePress={() => {setModalGameVisible(true)}}/>
                             <Text className="text-base font-pmedium">Bạn còn {turn} lượt lắc</Text>
                             <TouchableOpacity onPress={() => setModalTurnVisible(true)}>
                                 <Text className="text-base text-primary underline font-psemibold">Thêm lượt ngay</Text>

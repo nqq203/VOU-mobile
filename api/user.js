@@ -6,6 +6,7 @@ export const callApiCreateAccount = async (userData) => {
  
   try{
     const data = await api.post("/api/v1/auth/register", userData);
+    console.log("data: ", data.data);
     return data.data;
   } catch (error) {
     console.log("Error in API: ",error);

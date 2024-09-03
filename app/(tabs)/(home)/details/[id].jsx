@@ -22,6 +22,7 @@ import {images} from "../../../../constants";
 import Dropdown from "../../../../components/Dropdown";
 import { callAPIGetPost } from "../../../../api/events";
 import moment from "moment";
+import * as SecureStore from 'expo-secure-store';
 
 const Details = () => {
   const {id} = useLocalSearchParams();
@@ -33,7 +34,8 @@ const Details = () => {
   // const user = await AsyncStorage.getItem('user');
   console.log("ID",id);
   // Pop up Doi thuong
-  const listItems = ['Xu','Gà','Thỏ','Mèo','Vịt','Cá']
+  // const listItems = ['Xu','Gà','Thỏ','Mèo','Vịt','Cá']
+  const [listItems, setListItems] = useState([])
   const [canExchangeVoucher, setCanExchangeVoucher] = useState(false)
   const [modalVisible, setModalVisible] = useState(false)
   const [isExchangeError, setIsExchangeError] = useState(false);
@@ -47,6 +49,22 @@ const Details = () => {
     typeOfInfo: '',
     info:'',
   })
+  const [user, setUser] = useState();
+
+  useEffect(() => {
+    const fetchUser = async () => {
+      try {
+        let user = await SecureStore.getItemAsync("user");
+        if (user) {
+          user = JSON.parse(user);
+          setUser(user);
+        }
+      } catch (error) {
+        console.log(error);
+      }
+    };
+    fetchUser();
+  }, []);
   const [post, setPost] = useState({});
 
   useEffect(() => {
@@ -56,6 +74,7 @@ const Details = () => {
       if (res.success){
         console.log("Dtaa",res);
         setPost(res.metadata);
+        setListItems(res.metadata.inventoryInfo?.items);
       }
     } catch (error) {
       console.log("Erpror",error);
@@ -141,7 +160,7 @@ const Details = () => {
                         {listItems.map(item  => {
                                 return (
                                     <View key={item} className="w-1/4 p-2">
-                                        <Item imageUrl={"https://placehold.co/76x76"} amount={`1 ${item}`} />
+                                        <Item imageUrl={item?.imageUrl} amount={`1 ${item?.itemName}`} />
                                     </View>
                                 )
                             })}
@@ -254,8 +273,8 @@ const Details = () => {
                 <View className = 'border-grey-200' style={{borderWidth:0.3, borderStyle:'dashed', borderRadius:1}}></View>
                 <View className='flex-row space-y-1 my-2 justify-between'>
                   <View className='flex-row items-center space-x-2'>
-                    <Image source={{ uri: post.avt }} className="w-10 h-10 rounded-lg" />
-                    <Text className='text-black font-psemibold text-lg'>{post.brand}</Text>
+                    <Image source={{ uri: post.brandLogo }} className="w-10 h-10 rounded-lg" />
+                    <Text className='text-black font-psemibold text-lg'>{post.brandId ? post.brandId[0]?.nameBrand : post.brandName}</Text>
                   </View>
                 </View>
                 <View 
@@ -266,9 +285,10 @@ const Details = () => {
 
               {/* Noi dung game */}
               <View className='flex-col space-y-1'>
-                <Text className='font-psemibold text-lg leading-6  tracking-wide text-primary'>
-                  Trò chơi Quizz
-                </Text>
+              <Text className='font-psemibold text-lg leading-6 tracking-wide text-primary'>
+                {post.gameInfoDTO?.gameType === 'shake-game' ? 'Trò chơi lắc xu' : 'Trò chơi Quiz'}
+              </Text>
+
                 <TouchableOpacity onPress={handleToggle}>
                 <Text className=' font-pegular text-base leading-5 tracking-wide'>
                   {expanded 
@@ -287,36 +307,87 @@ const Details = () => {
                 </Text>
                 <View className ='flex-row space-x-2 items-center'>
                   <Image source={icons.voucher} resizeMode="contain" className ='h-8 w-8 mt-1' />
-                  <Text className ='font-psemibold text-base'>Trị giá 200.000 đồng</Text>
+                  <Text className ='font-psemibold text-base'>{post?.inventoryInfo?.voucher_name}</Text>
                 </View> 
 
-                <View className='flex gap-2'>
-                  <Text className='font-pregular text-base'>Voucher được dùng khi mua hàng tại các chi nhánh của Brand trên khắp TP HCM</Text>
-                  <Text className='font-pregular text-base'><Text className='font-psemibold'>Số lượng:</Text> {post.numberOfVouchers} vouchers</Text>
+                {post.gameInfoDTO?.gameType === 'shake-game' ? (
+                  <View>
+                  <View className='flex gap-2'>
+                    <Text className='font-pregular text-base'>Chi tiết: {post?.inventoryInfo?.voucher_description}</Text>
+                    <Text className='font-pregular text-base'><Text className='font-psemibold'>Số lượng:</Text> {post?.numberOfVouchers} mã giảm giá</Text>
+                    <Text className='font-pregular text-base'>
+                      Bạn cần đạt được <Text className='font-psemibold'>100 Xu hoặc các mảnh ghép sau</Text> để đủ điều kiện đổi thưởng.
+                    </Text>
+                    <View className="flex self-center flex-row flex-wrap bg-white rounded-md my-6 mb-2">
+                      {listItems.map(item => (
+                        <View key={item} className="w-1/4 p-2">
+                          <Item imageUrl={item?.imageUrl} amount={`1 ${item?.itemName}`} />
+                        </View>
+                      ))}
+                    </View>
+                  </View>
+                   <View className='flex-row'>
+                   <CustomButton 
+                     title="Chơi ngay" 
+                     containerStyles="justify-center my-4 flex-grow mr-4"
+                     textStyles='' 
+                    //  handlePress={() => router.push("/games/shakeGame")}
+                     handlePress={() => router.push({
+                       pathname: "/games/shakeGame",
+                       params: { gameId: post?.gameInfoDTO?.gameId, username: user.username },
+                     })}
+                   />
+                   
+                   <CustomButton 
+                     title="Đổi thưởng" 
+                     containerStyles="justify-center my-4 bg-white border border-primary flex-grow"
+                     textStyles='text-primary' 
+                     handlePress={() => {setModalVisible(true)}}
+                   />
+                 </View>
+                 </View>
+                ) : (
+                  <View className='flex gap-2'>
+                    <Text className='font-pregular text-base'>Chi tiết: {post?.inventoryInfo?.voucher_description}</Text>
                   <Text className='font-pregular text-base'>
-                    Bạn cần đạt được <Text className='font-psemibold'>100 Xu hoặc các mảnh ghép sau</Text> để đủ điều kiện đổi thưởng.
+                    Để nhận voucher, hãy chơi game vào lúc {moment(post?.gameInfoDTO?.startedAt).format("HH:mm:ss DD/MM/YYYY")} để nhận ngay voucher.
                   </Text>
-                </View>
 
-                <View className='flex-row'>
                   <CustomButton 
                     title="Chơi ngay" 
                     containerStyles="justify-center my-4 flex-grow mr-4"
                     textStyles='' 
-                    // handlePress={() => router.push("/games/shakeGame")}
-                    handlePress={() => router.push({
-                      pathname: "/games/waiting-room",
-                      params: { room: post.id, username: "ahihi" },
-                    })}
+                    handlePress={() => {
+                      const currentTime = moment().utcOffset(7);
+                      const startedAt = moment(post?.gameInfoDTO?.startedAt); 
+                      const timeDifference = startedAt.diff(currentTime, 'seconds');
+                      console.log("startedAt", startedAt.format(), "currentTime", currentTime.format(), "timeDifference", timeDifference);
+                      
+                      if (timeDifference > 0 && timeDifference <= 60) {
+                        router.push({
+                          pathname: "/games/waiting-room",
+                          params: { 
+                            room: post?.gameInfoDTO?.gameId, 
+                            username: user.username,
+                            remainingTime: timeDifference,
+                            eventId: post?.idEvent
+                          },
+                        });
+                      } else if (timeDifference > 60) {
+                        alert("Chưa tới giờ chơi. Vui lòng quay lại sau!");
+                      } else {
+                        alert("Trò chơi đã bắt đầu. Vui lòng tham gia ngay!");
+                      }
+                    }}
                   />
 
-                  <CustomButton 
-                    title="Đổi thưởng" 
-                    containerStyles="justify-center my-4 bg-white border border-primary flex-grow"
-                    textStyles='text-primary' 
-                    handlePress={() => {setModalVisible(true)}}
-                  />
-                </View>
+                  </View>
+                  
+
+                )}
+           
+
+                
               </View>
             </View>
           </View>

@@ -5,7 +5,7 @@ import { View, Image, ScrollView, ImageBackground, StyleSheet } from "react-nati
 import { SafeAreaView } from "react-native-safe-area-context";
 import * as SecureStore from 'expo-secure-store';
 import moment from "moment";
-
+import { useRouter, useNavigation } from 'expo-router';
 import { images } from "../constants";
 import { CustomButton } from "../components";
 import { useGlobalContext } from "../context/GlobalProvider";
@@ -14,6 +14,12 @@ const image = { uri: 'https://legacy.reactjs.org/logo-og.png' };
 const Welcome = () => {
   const { loading, isLogged } = useGlobalContext();
   const [signIn, setSignIn] = useState(false);
+  const router = useRouter();
+  const navigation = useNavigation();
+
+  useEffect(() => {
+    navigation.setOptions({ headerShown: false });
+  }, [navigation]);
 
   useEffect(() => {
     const token = SecureStore.getItemAsync('token');

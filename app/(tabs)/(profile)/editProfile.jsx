@@ -8,8 +8,7 @@ import { router } from 'expo-router';
 import Notification from '../../../components/Notification';
 import { useGlobalContext } from '../../../context/GlobalProvider';
 import { callApiUpdateAccount,callApiUpdateAccountImage } from '../../../api/user';
-import { useMutation } from 'react-query';
-import AsyncStorage from '@react-native-async-storage/async-storage';
+import * as SecureStore from 'expo-secure-store';
 
 const EditProfile = () => {
   const { user,setUser } = useGlobalContext();
@@ -36,7 +35,7 @@ const EditProfile = () => {
       const result = await callApiUpdateAccount(user.idUser, updatedData);
       if(result.success === true){
         console.log("Sus: ",result);
-        await AsyncStorage.setItem('user', JSON.stringify(result.metadata));
+        await SecureStore.setItemAsync('user', JSON.stringify(result.metadata));
         setUser(result.metadata);
         setDialogTitle("success");
         setDialogMessage("Cập nhật thông tin thành công");

@@ -1,9 +1,9 @@
 import { useCallback, useEffect, useState } from "react";
 import io from "socket.io-client";
 
-// const SOCKET_BASE_URL = "http://10.253.42.12:8085";
-const SOCKET_BASE_URL = "http://10.8.20.66:8085";
-// const SOCKET_BASE_URL = "http://192.168.1.6:8085";
+const SOCKET_BASE_URL = "http://192.168.1.14:8085";
+// const SOCKET_BASE_URL = "http://10.8.20.66:8085";
+// const SOCKET_BASE_URL = "http://localhost:8085";
 
 
 
@@ -16,6 +16,8 @@ export const useSocket = (room, username) => {
     messageType: "",
     createdDateTime: "",
   });
+
+
   const [allUsers, setAllUsers] = useState(0);
   const [isConnected, setConnected] = useState(false);
   const [gameStarted, setGameStarted] = useState(false);

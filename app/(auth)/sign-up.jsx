@@ -8,7 +8,7 @@ import { useGlobalContext } from "../../context/GlobalProvider";
 import { FooterAuth, FormField ,HeaderAuth,Notification} from "../../components";
 import { callApiCreateAccount } from "../../api/user";
 import { useMutation } from "react-query";
-import AsyncStorage from '@react-native-async-storage/async-storage';
+// import AsyncStorage from '@react-native-async-storage/async-storage';
 
 // import Notification from "../../components/Notification";
 
@@ -95,13 +95,13 @@ const SignUp = () => {
       
       const result = await callApiCreateAccount(user);
       console.log("Ho: ",result);
-      if (result.success === false){
+      if (result.success && result.success === false){
         Alert.alert("Error", result.message);
         return;
       }
       setUser(result);
       setIsLogged(true);
-      await AsyncStorage.setItem('username', form.username);
+      // await AsyncStorage.setItem('username', form.username);
 
       router.replace("/verify-otp", { username: form.username });
     } catch (error) {

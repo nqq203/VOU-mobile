@@ -1,23 +1,22 @@
-import { useEffect,useState } from "react";
+import { useEffect, useState } from "react";
 import { useFonts } from "expo-font";
-import {GestureHandlerRootView} from "react-native-gesture-handler";
+import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { SplashScreen, Stack } from "expo-router";
-import { QueryClient, QueryClientProvider } from 'react-query'
+import { QueryClient, QueryClientProvider } from 'react-query';
 import * as SecureStore from 'expo-secure-store';
 import GlobalProvider from "../context/GlobalProvider";
 import moment from "moment";
 
-
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
-      refetchOnWindowFocus: false
-    }
-  }
-})
+      refetchOnWindowFocus: false,
+    },
+  },
+});
 
-// Prevent the splash screen from auto-hiding before asset loading is complete.
 SplashScreen.preventAutoHideAsync();
+
 const RootLayout = () => {
   const [fontsLoaded, error] = useFonts({
     "Inter-Black": require("../assets/fonts/Inter-Black.ttf"),
@@ -30,15 +29,19 @@ const RootLayout = () => {
     "Inter-SemiBold": require("../assets/fonts/Inter-SemiBold.ttf"),
     "Inter-Thin": require("../assets/fonts/Inter-Thin.ttf"),
   });
+
   const [signIn, setSignIn] = useState(false);
+
   useEffect(() => {
-    const token = SecureStore.getItemAsync('token');
-    const isExpired = moment().isAfter(SecureStore.getItemAsync('token_expires_at'));
-    if (token && !isExpired) {
-      setSignIn(true);
-    }
-    else setSignIn(false);
+    const checkSignInStatus = async () => {
+      const token = await SecureStore.getItemAsync('token');
+      const isExpired = moment().isAfter(await SecureStore.getItemAsync('token_expires_at'));
+      setSignIn(token && !isExpired);
+    };
+
+    checkSignInStatus();
   }, []);
+
   useEffect(() => {
     if (error) throw error;
 
@@ -51,27 +54,23 @@ const RootLayout = () => {
     return null;
   }
 
-  if (!fontsLoaded && !error) {
-    return null;
-  }
-  
   return (
     <QueryClientProvider client={queryClient}>
       <GestureHandlerRootView style={{ flex: 1 }}>
-        <GlobalProvider>
-        <Stack>
-            {signIn   ?  (
-            <Stack  >
-            <Stack.Screen name="(tabs)"  options={{ headerShown: false }} /> 
-            <Stack.Screen name="index" options={{ headerShown: true }} />
+        <GlobalProvider value={{ signIn, setSignIn }}>
+          {signIn ? (
+            <Stack options={{ headerShown: false }}>
+              <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+              <Stack.Screen name="index" options={{ headerShown: true }} />
             </Stack>
-            ) : (
-              <Stack.Screen name="(auth)" options={{ headerShown: false }}  />
-            )}
-            </Stack>
+          ) : (
+            // <Stack>
+              <Stack.Screen name="(auth)" options={{ headerShown: false }} />
+            // </Stack>
+          )}
         </GlobalProvider>
       </GestureHandlerRootView>
-     </QueryClientProvider>
+    </QueryClientProvider>
   );
 };
 

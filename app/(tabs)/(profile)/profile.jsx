@@ -6,7 +6,6 @@ import { Image } from "react-native";
 import CustomButton from "../../../components/CustomButton";
 import Notification from "../../../components/Notification";
 import { useRouter } from "expo-router";
-import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useGlobalContext } from "../../../context/GlobalProvider";
 import { images } from "../../../constants";
 

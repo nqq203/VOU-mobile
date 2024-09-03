@@ -39,9 +39,9 @@ const submit = async () => {
   setSubmitting(true);
 
   try {
-    const username = await AsyncStorage.getItem('username');
+    // const username = await AsyncStorage.getItem('username');
     const result = await callApiVerifyOTP({username: username, otp: otp});
-    
+    console.log("Result: ",result);
     if (result.success === true && result.message) {
       Alert.alert("Success", "Account verified successfully");
 

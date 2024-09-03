@@ -7,9 +7,9 @@ import { HeaderAuth } from "../../../../components";
 import { images } from "../../../../constants";
 import {AnimatedImage} from '../../../../components';
 const WaitingRoom = () => {
-  const { room, username } = useLocalSearchParams();
+  const { room, username,remainingTime ,eventId} = useLocalSearchParams();
   const { isConnected, gameStarted, sendData, allUsers } = useSocket(room, username);
-  const [countdown, setCountdown] = useState(60);
+  const [countdown, setCountdown] = useState(remainingTime);
   const [showWaitingScreen, setShowWaitingScreen] = useState(false);
   const router = useRouter()
 
@@ -18,6 +18,7 @@ const WaitingRoom = () => {
     if (countdown > 0) {
       timer = setInterval(() => setCountdown(countdown - 1), 1000);
     } else {
+      console.log("countdown", countdown)
       if (!gameStarted) {
       setShowWaitingScreen(true);
     }
@@ -32,7 +33,7 @@ const WaitingRoom = () => {
       router.push(
         {
           pathname: "/games/quizz",
-          params: { room, username },
+          params: { room, username,eventId },
         }
       ); 
     }
@@ -77,7 +78,7 @@ const WaitingRoom = () => {
           <AnimatedImage source={images.robot} containerStyle = 'absolute top-[144px] left-[52px]' />
           <View className="self-center items-center" style={{ position: "absolute", top: 377 }}>
             <Text className="text-primary text-[48px] font-pbold self-center items-center pb-[17px]">
-              {formatTime(countdown)}
+              {formatTime(remainingTime)}
             </Text>
             <Text className="text-black text-[20px] font-pmedium self-center items-center pb-[72px]">
               Có {allUsers} người đang cùng theo dõi

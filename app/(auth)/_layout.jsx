@@ -10,8 +10,8 @@ const AuthLayout = () => {
   if (!loading && isLogged) return <Redirect href="/home" />;
 
   return (
-    <>
-      <Stack>
+    
+      <Stack screenOptions={{ headerShown: false }}>
         <Stack.Screen
           name="sign-in"
           options={{
@@ -44,9 +44,6 @@ const AuthLayout = () => {
         />
       </Stack>
 
-      {/* <Loader isLoading={loading} />s */}
-      <StatusBar backgroundColor="#161622" style="light" />
-    </>
   );
 };
 

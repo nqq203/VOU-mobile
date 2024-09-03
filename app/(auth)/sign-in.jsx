@@ -44,7 +44,7 @@ const SignIn = () => {
       const result = await callApiLogin(data);
 
       setIsLogged(true);
-      if (result.message === "Unverified account, please verify OTP") {
+      if (result.success === false && result.code === 401 && result.message === 'Tài khoản chưa được xác thực. Hãy xác thực OTP để đăng nhập!') {
         navigation.navigate('verify-otp',{ username: form.username });
       }
       console.log("Result: ",result);
@@ -54,7 +54,9 @@ const SignIn = () => {
         await SecureStore.setItemAsync('token_expires_at', moment().add(10,'hours').toISOString());
         await SecureStore.setItemAsync('token', result.metadata.token);
         
-        setUser(result.metadata);
+        const result12 = await SecureStore.getItemAsync('user');
+        console.log("Result123: ",result12);
+        setUser(result12.metadata);
         setIsLogged(true);
         router.push('/home');
       }
