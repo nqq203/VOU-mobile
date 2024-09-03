@@ -41,8 +41,9 @@ const Gift = () => {
           // Your refresh logic here
           console.log('Screen is focused and refreshed');
         //   console.log(user.idUser);
-          fetchUserItems(user.idUser);
-          fetchUserGiftLog(user.idUser);
+            console.log(user);
+            fetchUser();
+          
             
           return () => {
             // Optional cleanup if needed when screen loses focus
@@ -113,6 +114,13 @@ const Gift = () => {
             setDialogMessage('Gửi tặng vật phẩm thành công');
             setDialogVisible(true);
             fetchUserItems(user.idUser);
+            setIsError(false);
+            setForm({
+                typeOfInfo: '',
+                receiverId:'',
+                itemId: '',
+                amount: '',
+            })
             } else{
                 console.log("Failed: ",result);
                 setDialogTitle('');
@@ -205,7 +213,16 @@ const Gift = () => {
         >
             <View className="bg-gray-500/[0.5] flex-1 items-center justify-center">
                 <View className='flex  bg-white px-3 pb-4 pt-3 w-[360px] items-center rounded-md'>
-                    <TouchableOpacity className='flex-row-reverse w-full pr-2' onPress={() => setModalVisible(false)}>
+                    <TouchableOpacity className='flex-row-reverse w-full pr-2' 
+                        onPress={() => {
+                            setModalVisible(false); setIsError(false);
+                            setForm({
+                                typeOfInfo: '',
+                                receiverId:'',
+                                itemId: '',
+                                amount: '',
+                            })}}
+                    >
                         <Ionicons name='close' size={28} color={'gray'} />
                     </TouchableOpacity>
                     <Text className="text-2xl font-psemibold">Thông tin bạn bè</Text>
