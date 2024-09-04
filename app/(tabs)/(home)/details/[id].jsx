@@ -25,6 +25,10 @@ import moment from "moment";
 import * as SecureStore from 'expo-secure-store';
 import { useQuery } from "react-query";
 import { callApiExchangeVoucher } from "../../../../api/voucher";
+import { Share,Platform } from "react-native";
+import * as Sharing from "expo-sharing";
+import * as FileSystem from "expo-file-system";
+import { cacheDirectory, downloadAsync } from "expo-file-system";
 
 const Details = () => {
   // const {user} = useGlobalContext();
@@ -108,8 +112,54 @@ const Details = () => {
   }
 
   
-  const askForTurnFacebook = () => {
-    console.log("Facebook")
+  const askForTurnFacebook = async () => {
+    // title, message, url, image
+    const title = post.eventName;
+    const message = "Cơ hội nhận được: " + post.inventoryInfo?.voucher_name + " trị giá " + post.inventoryInfo?.voucher_price;
+    const url = post.imageUrl;
+    const messageAndUrl = message.concat("\n\n").concat(url);
+    try {
+      // Download the image and get the local URI
+      const uri = await FileSystem.downloadAsync(url, FileSystem.cacheDirectory + "tmp.png");
+      console.log(uri.uri); // Prints the local image file URI
+  
+      // Share the content
+      let result;
+      if (Platform.OS === 'ios') {
+        // For iOS, use the Sharing module to share the file directly
+        result = await Sharing.shareAsync(uri.uri, {
+          dialogTitle: title,
+          mimeType: 'image/png',
+          UTI: 'image/png',
+        });
+      } else {
+        // For Android, share the message and image URI together
+        result = await Share.share(
+          {
+            title,
+            message: messageAndUrl,
+            url: uri.uri,
+          },
+          {
+            subject: title,
+          }
+        );
+      }
+
+      if (result.action === Share.sharedAction) {
+        console.log("+1 turn")
+        if (result.activityType) {
+          console.log('Shared via activity:', result.activityType);
+          
+        } else {
+          console.log('Shared without specifying an activity');
+        }
+      } else if (result.action === Share.dismissedAction) {
+        console.log('Share dismissed');
+      }
+    } catch (error) {
+      console.log(error);
+    }
   }
 
   const askForTurnFromFriend = () => {

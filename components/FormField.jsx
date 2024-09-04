@@ -67,12 +67,12 @@ const FormField = ({
             placeholderTextColor="#BCBCBC"
             placeholderStyle="font-plight"
             onChangeText={handleChangeText}
-            secureTextEntry={(placeholder === "Password" ||placeholder === "Confirm password")&& !showPassword}
+            secureTextEntry={(placeholder === "Password" ||placeholder === "Confirm password" || placeholder === "Nhập lại password") && !showPassword}
             {...props}
           />
 
           {(placeholder 
-          === "Password" ||placeholder === "Confirm password") && (
+          === "Password" ||placeholder === "Confirm password" || placeholder === "Nhập lại password") && (
             <TouchableOpacity onPress={() => setShowPassword(!showPassword)}>
               <Ionicons
                 name={!showPassword ? 'eye-outline' : 'eye-off-outline'} 

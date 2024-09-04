@@ -241,12 +241,12 @@ const Gift = () => {
                         placeholderTextColor={'#949494'}
                         value={form.receiverId}
                         onChange={(e) => setForm({...form, receiverId: e.nativeEvent.text})}
-                        className="h-[48px] mt-2 mb-6 p-2 rounded-md border border-gray-200 w-full text-base font-pmedium "
+                        className="h-[48px] mt-2 mb-6 p-2 rounded-md border border-gray-200 w-full text-base font-pregular "
                     />
 
                     <View className='z-10 relative w-full h-[76px] '>
                         <View className='absolute z-10 w-full h-full'>
-                            <Text className='text-base font-pmedium'>Vật phẩm</Text>
+                            <Text className='text-base font-pregular'>Vật phẩm</Text>
                             <Dropdown listItems={listItemsText} setItem={setItem} customStyle={'mt-2'}/>
                         </View>
                     </View>
@@ -256,7 +256,7 @@ const Gift = () => {
                         value={form.amount}
                         keyboardType="numeric"
                         onChange={(e) => setForm({...form, amount: e.nativeEvent.text})}
-                        className="h-[48px] mt-4 mb-6 p-2 rounded-md border border-gray-200 w-full text-base font-pmedium "
+                        className="h-[48px] mt-4 mb-6 p-2 rounded-md border border-gray-200 w-full text-base font-pregular "
                     />
 
                     <CustomButton title={"TẶNG"}  containerStyles={'w-full'} handlePress={submit}/>

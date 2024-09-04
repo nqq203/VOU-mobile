@@ -28,31 +28,31 @@ const EditProfile = () => {
   const handleClickItem = (item) => {
     setOption(item);
     setIsOpen(!isOpen);
-}
+  }
 
   const [user, setUser] = useState();
 
-    useEffect(() => {
-      const fetchUser = async () => {
-        try {
-          let user1 = await SecureStore.getItemAsync('user');
-        
-          if (user1) {
-            user1 = JSON.parse(user1);
-            setUser(user1);
-            console.log(user1);
-            setForm(user1);
-            const gender = user1.gender === "MALE" ? "Nam" : "Nữ"
-            setOption(gender)
-          }
-        } catch (error) {
-          console.log(error);
-        }
-      };
-
-      fetchUser();
+  useEffect(() => {
+    const fetchUser = async () => {
+      try {
+        let user1 = await SecureStore.getItemAsync('user');
       
-    }, []);
+        if (user1) {
+          user1 = JSON.parse(user1);
+          setUser(user1);
+          console.log(user1);
+          setForm(user1);
+          const gender = user1.gender === "MALE" ? "Nam" : "Nữ"
+          setOption(gender)
+        }
+      } catch (error) {
+        console.log(error);
+      }
+    };
+
+    fetchUser();
+    
+  }, []);
 
   const handleSave = async () => {
     const gender = option === "Nam"  ? "MALE" : "FEMALE";
@@ -123,7 +123,7 @@ const EditProfile = () => {
             <View className=''>
               <Text className="text-[28px] w-full text-center text-black font-pbold leading-8 
                 mt-3 ml-3">
-                Edit Profile
+                 Chỉnh sửa thông tin
               </Text>
             </View>
             
@@ -131,20 +131,10 @@ const EditProfile = () => {
               <FormField
               value={form?.fullName || ""}
               handleChangeText={(e) => setForm({ ...form, fullName: e })}
-              placeholder={"FulName"}
+              placeholder={"Họ và tên"}
               keyboardType=""
               icon="user-o"
-              />
-
-              {/* <FormField
-              value={form?.gender || ""}
-              handleChangeText={(e) => setForm({ ...form, gender: e })}
-              placeholder={"Gender"}
-              keyboardType=""
-              icon='transgender'
-              /> */}
-
-            
+              />            
 
               <View className='relative w-full z-50 mt-4 border-b mr-1 border-grey-100' style={[styles.customShadow]}>
                 <TouchableOpacity className={`bg-white relative flex-row items-center w-full h-14 px-1 bg-black-100 rounded-lg `} 
@@ -182,27 +172,27 @@ const EditProfile = () => {
               <FormField
               value={form?.phoneNumber || ""}
               handleChangeText={(e) => setForm({ ...form, phoneNumber: e })}
-              placeholder={"Phone Number"}
+              placeholder={"Số điện thoại"}
               keyboardType="phone-pad"
               icon="phone"
               />
               <FormField
               value={form?.address|| ""}
               handleChangeText={(e) => setForm({ ...form, address: e })}
-              placeholder={"Address"}
+              placeholder={"Địa chỉ"}
               icon="card-outline"
               />
 
               <FormField
               value={form?.facebookUrl || ""}
               handleChangeText={(e) => setForm({ ...form, facebookUrl: e })}
-              placeholder={"Facebook"}
+              placeholder={"Link facebook"}
               icon="logo-facebook"
               />
             </View>
             
             <View>
-              <CustomButton title={"Save"} handlePress={handleSave} />
+              <CustomButton title={"Lưu thông tin"} handlePress={handleSave} />
             </View> 
 
           </View>

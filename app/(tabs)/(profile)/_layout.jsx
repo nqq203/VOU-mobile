@@ -10,6 +10,9 @@ export default function ProfileLayout() {
       <Stack.Screen name="editProfile"  options={{ headerShown: false }}/>
       <Stack.Screen name="onlineVouchers"  options={{ headerShown: false }}/>
       <Stack.Screen name="offlineVouchers"  options={{ headerShown: false }}/>
+      <Stack.Screen name="history"  options={{ headerShown: false }}/>
+      <Stack.Screen name="changePassword"  options={{ headerShown: false }}/>
+
     </Stack>
   );
 }
