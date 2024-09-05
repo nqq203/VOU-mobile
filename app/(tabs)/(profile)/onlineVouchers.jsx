@@ -10,7 +10,7 @@ import { useGlobalContext } from '../../../context/GlobalProvider';
 import Notification from '../../../components/Notification';
 import { useQuery } from 'react-query';
 import * as SecureStore from 'expo-secure-store';
-
+import moment from 'moment';
 
 
 const OnlineVouchers = () => {
@@ -123,8 +123,8 @@ const OnlineVouchers = () => {
         <View className="flex flex-col items-center justify-center">
           {listVouchers.length !== 0 ? (
             listVouchers.map(voucher => (
-              <Voucher isOnline={true} name={"Giảm 20% cho đơn trên 50KKKKKKKvvv"} 
-            expirationDay={"31/7/2024"} handlePres={handleVoucherClick}></Voucher>
+              <Voucher isOnline={true} name={voucher?.voucher?.voucherName} 
+            expirationDay={moment(voucher?.voucher?.expirationDate).format('DD/MM/YYYY')} handlePres={handleVoucherClick} imageUrl = {voucher?.voucher?.imageUrl}></Voucher>
             ))
           ) : (
             <Text className="text-base w-full text-center text-black font-pregular leading-8 

@@ -7,6 +7,7 @@ const Voucher = ({
     expirationDay,
     containerStyle,
     handlePres,
+    imageUrl,
     ...props
 }) => {
   return (
@@ -17,7 +18,7 @@ const Voucher = ({
         onPress={handlePres}        
     >
         <View className="w-[80px] h-[80px] rounded-xl bg-gray-100 mr-3 mt-1 overflow-hidden">
-            <Image source={{uri: 'https://placehold.co/80x80'}}
+            <Image source={{uri: imageUrl}}
             className="w-full h-full " />
         </View>
 

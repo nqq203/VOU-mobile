@@ -5,7 +5,7 @@ import { useLocalSearchParams, useRouter } from "expo-router";
 import {CustomButton,Voucher} from '../../../../components';
 import moment from "moment";
 import * as SecureStore from 'expo-secure-store';
-const {callApiGetVouchers} = require('../../../../api/voucher');
+const {callApiGetVouchers,callApiUseVoucher} = require('../../../../api/voucher');
 // Leaderboard item component
 const LeaderboardItem = ({ rank, name, points, avatar }) => (
   <View className='pl-6 flex-row items-center m-[10px] bg-white rounded-2xl px-2 py-2 font-medium text-10 space-x-2'>
@@ -94,7 +94,7 @@ const Leaderboard = () => {
       const users = JSON.parse(result).sort((a, b) => b.score - a.score);
 
       const topUsers = users.slice(0, 3).map((user, index) => ({
-        name: user.userId,
+        name: user.idUser,
         points: user.score,
         avatar: user.avatar,
       }));
@@ -102,33 +102,33 @@ const Leaderboard = () => {
 
       const others = users.slice(3).map((user, index) => ({
         rank: index + 4,
-        name: user.userId,
+        name: user.idUser,
         points: user.score,
         avatar: user.avatar,
       }));
       setOtherUsers(others);
     
-    const currentUser = users.find(item => item.userId === user.username);
+    const currentUser = users.find(item => item.idUser === user.username);
       setUserRank({
         rank: users.indexOf(currentUser) + 1,
         points: currentUser.score,
         avatar: currentUser.avatar,
-        name: user?.fullName ||"Anonymous",      
-        userId: user.userId  
+        name: user?.fullName ||"Anonymous",
+        userId: user?.idUser  
       });
 
-      if (topUsers.find(item => user.username === item.userId)) {
+      if (topUsers.find(item => user?.username === item.idUser)) {
         setIsTop3(true);
         const voucher = await callApiGetVouchers(eventId)
         console.log("Voucher: ",voucher)
         setVoucher(voucher)
-        // await callApiUseVoucher(user.userId, voucher.data[0].idVoucher, eventId);
+        await callApiUseVoucher(voucher.data[0].idVoucher, user?.idUser);
       } else {
         setIsTop3(false);
       }
       setShowModal(true);
     }
-  }, [eventId, result, user?.fullName, user.userId, user.username]);
+  }, [eventId, result, user?.fullName, user?.idUser, user?.username]);
 
   return (
     <SafeAreaView>
@@ -145,7 +145,7 @@ const Leaderboard = () => {
           {otherUsers.length > 0 && (
             <View className='bg-brown-100 rounded-xl'>
               {otherUsers.map((user) => (
-                <LeaderboardItem key={user.rank} {...user} />
+                <LeaderboardItem key={user?.rank} {...user} />
               ))}
             </View>
           )}

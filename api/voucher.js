@@ -26,3 +26,16 @@ export const callApiExchangeVoucher = async (code,userId) => {
         return error.response.data;
     }
 }
+
+export const callApiUseVoucher =    async (code,userId) => {
+    try {
+        const requestBody = {
+            voucherCode: code,
+            winnerIds: [userId]
+        }
+        const response = await api.post(`/api/v1/vouchers/gifts`, requestBody);
+        return response.data;
+    } catch (error) {
+        return error.response.data;
+    }
+}

@@ -1,41 +1,48 @@
-import { ScrollView, Easing, Text, View, Dimensions, FlatList, ActivityIndicator, Animated } from "react-native";
-import React, { useState, useEffect, useRef } from "react";
+import { ScrollView, Text, View, Dimensions, ActivityIndicator } from "react-native";
+import React, { useState, useEffect } from "react";
 import { useSocket } from "../../../../hooks/useSocket";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { HeaderAuth } from "../../../../components";
 import { images } from "../../../../constants";
-import {AnimatedImage} from '../../../../components';
+import { AnimatedImage } from '../../../../components';
+
 const WaitingRoom = () => {
-  const { room, username,remainingTime ,eventId} = useLocalSearchParams();
+  const { room, username, remainingTime, eventId } = useLocalSearchParams();
   const { isConnected, gameStarted, sendData, allUsers } = useSocket(room, username);
-  const [countdown, setCountdown] = useState(remainingTime);
+  const [countdown, setCountdown] = useState(Number(remainingTime));
   const [showWaitingScreen, setShowWaitingScreen] = useState(false);
-  const router = useRouter()
+  const router = useRouter();
 
   useEffect(() => {
-    let timer;
-    if (countdown > 0) {
-      timer = setInterval(() => setCountdown(countdown - 1), 1000);
-    } else {
-      console.log("countdown", countdown)
-      if (!gameStarted) {
+    if (countdown <= 0 && !gameStarted) {
       setShowWaitingScreen(true);
+      return; // Exit early to avoid starting the interval
     }
-    }
-    
+
+    const timer = setInterval(() => {
+      setCountdown((prevCountdown) => {
+        if (prevCountdown <= 1) {
+          clearInterval(timer);
+          if (!gameStarted) {
+            setShowWaitingScreen(true);
+          }
+          return 0;
+        }
+        return prevCountdown - 1;
+      });
+    }, 1000);
+
     return () => clearInterval(timer);
   }, [countdown, gameStarted]);
 
   useEffect(() => {
     if (gameStarted) {
-      console.log("Action question")
-      router.push(
-        {
-          pathname: "/games/quizz",
-          params: { room, username,eventId },
-        }
-      ); 
+      console.log("Action question");
+      router.push({
+        pathname: "/games/quizz",
+        params: { room, username, eventId },
+      });
     }
   }, [gameStarted, router]);
 
@@ -53,8 +60,8 @@ const WaitingRoom = () => {
       </SafeAreaView>
     );
   }
-  
-  if (!isConnected){
+
+  if (!isConnected) {
     return (
       <SafeAreaView style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
         <ActivityIndicator size="large" color="#EA661C" />
@@ -64,23 +71,25 @@ const WaitingRoom = () => {
   }
 
   return (
-
-    <SafeAreaView>
+    <SafeAreaView style={{ flex: 1 }}>
       <ScrollView>
         <View
-          className="bg-bg w-full flex-col relative"
           style={{
-            minHeight: Dimensions.get("window").height - 50,
+            backgroundColor: '#f0f0f0', // Use your theme color here
+            width: '100%',
+            flex: 1,
+            position: 'relative',
             padding: 20,
+            minHeight: Dimensions.get("window").height - 50,
           }}
         >
           <HeaderAuth />
-          <AnimatedImage source={images.robot} containerStyle = 'absolute top-[144px] left-[52px]' />
-          <View className="self-center items-center" style={{ position: "absolute", top: 377 }}>
-            <Text className="text-primary text-[48px] font-pbold self-center items-center pb-[17px]">
-              {formatTime(remainingTime)}
+          <AnimatedImage source={images.robot} containerStyle={{ position: 'absolute', top: 144, left: 52 }} />
+          <View style={{ alignSelf: 'center', position: 'absolute', top: 377 }}>
+            <Text style={{ color: '#EA661C', fontSize: 48, fontWeight: 'bold', textAlign: 'center', paddingBottom: 17 }}>
+              {formatTime(countdown)}
             </Text>
-            <Text className="text-black text-[20px] font-pmedium self-center items-center pb-[72px]">
+            <Text style={{ color: '#000', fontSize: 20, fontWeight: '500', textAlign: 'center', paddingBottom: 72 }}>
               Có {allUsers} người đang cùng theo dõi
             </Text>
           </View>

@@ -1,10 +1,11 @@
 import { TouchableOpacity, View, Image, Text, StyleSheet } from 'react-native';
 import { router, usePathname } from "expo-router";
 import Ionicons from "react-native-vector-icons/Ionicons";
-import { useState } from 'react';
+import { useState ,useEffect} from 'react';
 import moment from 'moment';
 import { Alert } from 'react-native';
 import { callAPIFav } from '../api/events';
+import * as SecureStore from 'expo-secure-store';
 
 const CardEvent = ({
     item,
@@ -14,12 +15,28 @@ const CardEvent = ({
 }) => {
   const pathname = usePathname();
   const [isFavorite, setisFavorite] = useState(isFav)
+  const [user, setUser] = useState(null);
+  const fetchUser = async () => {
+    try {
+      let user1 = await SecureStore.getItemAsync('user');
+    
+      if (user1) {
+        user1 = JSON.parse(user1);
+        setUser(user1);
+      }
+    } catch (error) {
+      console.log(error);
+    }
+};
 
-  const handleFavoritePress = (id) => {
+    useEffect(() => {
+      fetchUser();
+    }, []);
+  const handleFavoritePress = async (id) => {
     const value = !item.isFavorite;
     item.isFavorite = value;
     setisFavorite(value);
-    // await callAPIFav(id, );
+    await callAPIFav(id,user?.idUser );
   };
 
   const styles = StyleSheet.create({
