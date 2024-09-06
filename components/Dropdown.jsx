@@ -10,7 +10,7 @@ const Dropdown = ({
     customStyle
 }) => {
     const [isOpen, setIsOpen] = useState(false)
-    const [currentItem, setCurrentItem] = useState('None')
+    const [currentItem, setCurrentItem] = useState(listItems[0] || "None")
 
     const handleClickItem = (item) => {
         setItem(item);
@@ -18,7 +18,7 @@ const Dropdown = ({
         setCurrentItem(item);
     }
     return (
-        <TouchableOpacity className={`relative flex-row items-center w-full h-[48px] rounded-md border border-gray-300 ${customStyle}`} 
+        <TouchableOpacity className={`z-50 relative flex-row items-center w-full h-[48px] rounded-md border border-gray-200 ${customStyle}`} 
             onPress={() =>  setIsOpen(!isOpen)} >
             <View className='p-2'>
                 <Ionicons name='caret-down' size={24} color={"black"}></Ionicons>
@@ -26,10 +26,10 @@ const Dropdown = ({
             <Text className='text-base font-pmedium text-gray-700'>{currentItem}</Text>
 
             {isOpen ? (
-                <View className={`bg-gray border w-full top-[50px] border-gray-400 rounded-md absolute`}>
+                <View className={`bg-gray border w-full top-[50px] border-gray-200 rounded-md absolute`}>
                     {listItems.map(item  => {
                         return (
-                            <TouchableOpacity key={item} className='bg-gray-50 p-2 border border-gray-100' 
+                            <TouchableOpacity key={item} className='bg-gray-50 p-2 border border-gray-200' 
                                 onPress={() => handleClickItem(item)}>
                                 <Text className='text-base font-pmedium text-gray-500'>{item}</Text>
                             </TouchableOpacity>

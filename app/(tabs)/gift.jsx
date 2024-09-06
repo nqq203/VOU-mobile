@@ -10,59 +10,41 @@ import FormField from '../../components/FormField';
 import { Notification } from '../../components';
 import NotiButton from '../../components/NotiButton';
 import { callApiGetItems } from '../../api/item';
+import { callApiSendItem,callApiGetGiftLog } from '../../api/gift';
 import { useGlobalContext } from '../../context/GlobalProvider';
 import { useQuery } from 'react-query';
 import { useCallback } from 'react';
 import { useEffect, useState } from 'react';
 import { useFocusEffect } from '@react-navigation/native';
 import * as SecureStore from 'expo-secure-store';
-
+import { convertDataToOutputString } from '../../utils/date';
 
 const Gift = () => {
-    // const { user } = useGlobalContext();
     const [user, setUser] = useState("");
     const [listItems, setListItems] = useState([])
-    const listItemsText = ['Xu','Gà','Thỏ','Mèo','Vịt','Cá']
-    const listOptions = ['Mã ID', 'Email', 'Số điện thoại']
+    const [listItemsText, setListItemsText] = useState([])
+    const [giftlog, setGiftlog] = useState([])
+    const listOptions = ['Mã ID', 'Email', 'Tên tài khoản']
     const [item, setItem] = useState('');
     const [option, setOption] = useState('')
     const [modalVisible, setModalVisible] = useState(false)
     const [form, setForm] = useState({
         typeOfInfo: '',
-        info:'',
-        itemName: '',
+        receiverId:'',
+        itemId: '',
         amount: '',
     })
     const [isError, setIsError] = useState(false);
-
-    // const {isFetching, refetch} = useQuery(
-    //     "fetch-my-items",
-    //     () => callApiGetItems(user?.idUser),
-    //     {
-    //         onSuccess: (data) => {
-    //             console.log("SUc: ",data)
-    //             if(data.success === true){
-    //                 console.log("Sus: ",data);
-    //                 setListItems(data.metadata);
-                    
-    //             } else{
-    //                 console.log("Failed: ",data);
-    //                 setListItems(data.data)
-    //             }
-    //         },
-    //         onError: (error) => {
-    //             console.log(error)
-    //         }
-    //     }
-    // )
 
     useFocusEffect(
         useCallback(() => {
           // Your refresh logic here
           console.log('Screen is focused and refreshed');
         //   console.log(user.idUser);
-          fetchUserItems(user.idUser)
-    
+            console.log(user);
+            fetchUser();
+          
+            
           return () => {
             // Optional cleanup if needed when screen loses focus
           };
@@ -74,13 +56,76 @@ const Gift = () => {
         try {
           let itemData = await callApiGetItems(id);
         
+          console.log("Sus: ",itemData);
           if(itemData.success === true){
-            // console.log("Sus: ",itemData);
-            setListItems(itemData.metadata);
+            const sortedItems = itemData.metadata.sort((a, b) => a.idItem - b.idItem);
+            setListItems(sortedItems);
+            const itemNames = itemData.metadata.map(item => item.itemName);
+            setListItemsText(itemNames)
             
             } else{
-                // console.log("Failed: ",itemData);
-                setListItems(itemData.data)
+                console.log("Failed: ",itemData);   
+            }
+        } catch (error) {
+          console.log(error);
+        }
+    };
+
+    const fetchUserGiftLog = async (id) => {
+        console.log("Gift log")
+        console.log("userId: ", id)
+        if(id === undefined) return;
+        try {
+          let itemData = await callApiGetGiftLog(id);
+        
+          console.log("Sus giftlog: ",itemData);
+          if(itemData.success === true){
+            setGiftlog(itemData.metadata)
+            
+            } else{
+                console.log("Failed giftlog: ",itemData.message);   
+            }
+        } catch (error) {
+          console.log(error);
+        }
+    };
+
+    
+
+    const sendItemToFriend = async (data) => {
+        if(data.receiverId === "") {
+            console.log("Không có id người nhận");
+            return;
+        }
+
+        if(data.senderId === "") {
+            console.log("Không có id người nhận");
+            return;
+        }
+
+        try {
+          let result = await callApiSendItem(data);
+          console.log("Send:",result);
+
+          if(result.success === true){
+            console.log("Sus: ",result);
+            setModalVisible(false);
+            setDialogTitle('success');
+            setDialogMessage('Gửi tặng vật phẩm thành công');
+            setDialogVisible(true);
+            fetchUserItems(user.idUser);
+            setIsError(false);
+            setForm({
+                typeOfInfo: '',
+                receiverId:'',
+                itemId: '',
+                amount: '',
+            })
+            } else{
+                console.log("Failed: ",result);
+                setDialogTitle('');
+                setDialogMessage(result.message);
+                setDialogVisible(true);
             }
         } catch (error) {
           console.log(error);
@@ -106,39 +151,53 @@ const Gift = () => {
 
     useEffect(()=>{
         fetchUserItems(user.idUser);
+        fetchUserGiftLog(user.idUser);
     },[user])
 
     
 
-    const submit = () => {
-        form.itemName = item;
+    const submit = async () => {
+        let itemId = 0;
+        listItems.map(it => { 
+            if(it.itemName === item){
+                itemId = it.idItem;
+            }
+        });
         if(option === 'Mã ID') {
             form.typeOfInfo = 'id'
         } else if(option === 'Email'){
             form.typeOfInfo = 'email'
-        } else if(option === 'Số điện thoại'){
-            form.typeOfInfo = 'phone'
+        } else if(option === 'Tên tài khoản'){
+            form.typeOfInfo = 'username'
         }
+        form.itemId = itemId;
 
-        if(form.amount === '' || form.info === '' || form.itemName === '' || form.typeOfInfo === ''){
+        if(form.amount === '' || form.receiverId === '' || form.itemId === '' || form.typeOfInfo === ''){
             setIsError(true);
             return;
         }
 
-        setIsError(false);
-        setModalVisible(false);
+        const data = {
+            receiverId: parseInt(form.receiverId),
+            senderId: user.idUser,
+            itemId: form.itemId,
+            amount: parseInt(form.amount),
+        }
+        const result = await sendItemToFriend(data)
+        
+        // setIsError(false);
+        // setModalVisible(false);
 
-        setDialogTitle('success');
-        setDialogMessage('Gửi tặng vật phẩm thành công');
-        setDialogVisible(true);
-        console.log(form);
-        setForm({
-            typeOfInfo: '',
-            info:'',
-            itemName: '',
-            amount: '',
-        })     
-
+        // setDialogTitle('success');
+        // setDialogMessage('Gửi tặng vật phẩm thành công');
+        // setDialogVisible(true);
+        // console.log(form);
+        // setForm({
+        //     typeOfInfo: '',
+        //     receiverId:'',
+        //     itemName: '',
+        //     amount: '',
+        // });
     }
 
     const [dialogVisible, setDialogVisible] = useState(false);
@@ -154,16 +213,25 @@ const Gift = () => {
         >
             <View className="bg-gray-500/[0.5] flex-1 items-center justify-center">
                 <View className='flex  bg-white px-3 pb-4 pt-3 w-[360px] items-center rounded-md'>
-                    <TouchableOpacity className='flex-row-reverse w-full pr-2' onPress={() => setModalVisible(false)}>
+                    <TouchableOpacity className='flex-row-reverse w-full pr-2' 
+                        onPress={() => {
+                            setModalVisible(false); setIsError(false);
+                            setForm({
+                                typeOfInfo: '',
+                                receiverId:'',
+                                itemId: '',
+                                amount: '',
+                            })}}
+                    >
                         <Ionicons name='close' size={28} color={'gray'} />
                     </TouchableOpacity>
                     <Text className="text-2xl font-psemibold">Thông tin bạn bè</Text>
-                    <Text className="text-base text-gray-500 text-center">Chọn mã ID/Email/Số điện thoại và điền thông tin tương ứng để gửi đến đúng người nhé</Text>
+                    <Text className="text-base text-gray-500 text-center">Chọn mã ID/Email/Tên tài khoản và điền thông tin tương ứng để gửi đến đúng người nhé</Text>
                     {isError ? (
                         <Text className="text-base text-red text-center mt-3">Thông tin chưa hợp lệ. Vui lòng kiểm tra lại</Text>
                     ) : null}
 
-                    <View className='relative w-full h-[72px]'>
+                    <View className='z-50 relative w-full h-[72px]'>
                         <View className='absolute z-20 w-full h-full'>
                             <Dropdown listItems={listOptions} setItem={setOption} customStyle={'mt-5'}/>
                         </View>
@@ -171,14 +239,14 @@ const Gift = () => {
                     <TextInput
                         placeholder='Nhập nội dung'
                         placeholderTextColor={'#949494'}
-                        value={form.info}
-                        onChange={(e) => setForm({...form, info: e.nativeEvent.text})}
-                        className="h-[48px] mt-2 mb-6 p-2 rounded-md border border-gray-200 w-full text-base font-pmedium "
+                        value={form.receiverId}
+                        onChange={(e) => setForm({...form, receiverId: e.nativeEvent.text})}
+                        className="h-[48px] mt-2 mb-6 p-2 rounded-md border border-gray-200 w-full text-base font-pregular "
                     />
 
-                    <View className='relative w-full h-[76px] '>
+                    <View className='z-10 relative w-full h-[76px] '>
                         <View className='absolute z-10 w-full h-full'>
-                            <Text className='text-base font-pmedium'>Vật phẩm</Text>
+                            <Text className='text-base font-pregular'>Vật phẩm</Text>
                             <Dropdown listItems={listItemsText} setItem={setItem} customStyle={'mt-2'}/>
                         </View>
                     </View>
@@ -188,7 +256,7 @@ const Gift = () => {
                         value={form.amount}
                         keyboardType="numeric"
                         onChange={(e) => setForm({...form, amount: e.nativeEvent.text})}
-                        className="h-[48px] mt-4 mb-6 p-2 rounded-md border border-gray-200 w-full text-base font-pmedium "
+                        className="h-[48px] mt-4 mb-6 p-2 rounded-md border border-gray-200 w-full text-base font-pregular "
                     />
 
                     <CustomButton title={"TẶNG"}  containerStyles={'w-full'} handlePress={submit}/>
@@ -243,18 +311,24 @@ const Gift = () => {
                     </Text>
 
                     <View className="flex">
-                        <View className="mt-2 pr-3">
-                            <GiftHistory username={"Ngoc Anh"} isReceived={true} give_time={'20:18 - 21/7/2024'} itemName={"Xu"}/>
-                        </View>
-                        <View className="mt-2 pr-3">
-                            <GiftHistory username={"Anh Minh"} isReceived={false} give_time={'20:18 - 21/7/2024'} itemName={"Xu"}/>
-                        </View>
-                        <View className="mt-2 pr-3">
-                            <GiftHistory username={"ThAnh"} isReceived={true} give_time={'20:18 - 21/7/2024'} itemName={"Xu"}/>
-                        </View>
-                        <View className="mt-2 pr-3">
-                            <GiftHistory username={"Nguyen"} isReceived={false} give_time={'20:18 - 21/7/2024'} itemName={"Xu"}/>
-                        </View>
+                        {giftlog?.sendHistory?.length === 0 && giftlog?.receiveHistory?.length === 0 ? (
+                            <Text className="text-base w-full text-center text-black font-pregular leading-8 mt-3 ml-3">Chưa có lịch sử trao đổi</Text>
+                        ) : (
+                            <>
+                            {giftlog?.sendHistory?.map((history,index) => (
+                                <View key={index} className="mt-2 pr-3">
+                                    <GiftHistory username={history.receiverName} isReceived={false} 
+                                        give_time={convertDataToOutputString(history.giveTime)} itemName={history.item.itemName}/>
+                                </View>
+                            ))}
+                            {giftlog?.receiveHistory?.map((history,index) => (
+                                <View key={index} className="mt-2 pr-3">
+                                    <GiftHistory username={history.senderName} isReceived={true} 
+                                        give_time={convertDataToOutputString(history.giveTime)} itemName={history.item.itemName}/>
+                                </View>
+                            ))}
+                            </>
+                        )}
                     </View>
                 </View>
 

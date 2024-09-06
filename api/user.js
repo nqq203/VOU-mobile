@@ -97,6 +97,7 @@ export const callApiGetUserByUsername = async (dataInput) => {
 }
 
 export const callApiUpdateAccount = async (idUser,updatedData) => {
+  console.log(updatedData)
   try{
     const response = await api.put(`/api/v1/users/${idUser}`,updatedData);
     return response.data;
@@ -108,16 +109,35 @@ export const callApiUpdateAccount = async (idUser,updatedData) => {
 }
 
 export const callApiUpdateAccountImage = async (idUser,avatar) => {
-  const formData = new FormData();
-  formData.append('avatar',avatar);
+  try {
+    const localUri = avatar;
+    const filename = localUri.split('/').pop();
+    const match = /\.(\w+)$/.exec(filename);
+    const type = match ? `image/${match[1]}` : `image`;
 
-  const {data} = await api.patch(`/api/v1/users/${idUser}/avatar`,
-      formData,
-      {
+    const formData = new FormData();
+    formData.append('avatar', { uri: localUri, name: filename, type });
+  
+    const response = await api.patch(`/api/v1/users/${idUser}/avatar`,
+        formData,
+        {
           headers: {
               'Content-Type': 'multipart/form-data', 
           },
-      }
-  );
-  return data;
+        }
+    );
+    return response.data;    
+  } catch (error) {
+    return error.response.data;
+  }
+}
+
+export const callApiChangePassword = async (newData) => {
+  console.log("New: ",newData)
+  try {
+    const response = await api.post(`api/v1/auth/change-password`,newData);
+    return response.data;    
+  } catch (error) {
+    return error.response.data;
+  }
 }

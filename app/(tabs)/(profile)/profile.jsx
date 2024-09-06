@@ -9,26 +9,33 @@ import { useRouter } from "expo-router";
 import { useGlobalContext } from "../../../context/GlobalProvider";
 import { images } from "../../../constants";
 import * as SecureStore from 'expo-secure-store';
+import * as ImagePicker from 'expo-image-picker';
 import { useCallback } from 'react';
 import { useFocusEffect } from '@react-navigation/native';
-
+import { useNavigation } from '@react-navigation/native';
+import { callApiUpdateAccountImage } from "../../../api/user";
+import Ionicons from 'react-native-vector-icons/Ionicons';
+import MaterialIcons from 'react-native-vector-icons/MaterialIcons'
 
 const Profile = () => {
     const router = useRouter();
+    const navigation = useNavigation();
     const [form, setForm] = useState();
     const [image, setImage] = useState();
+    const [gender, setGender] = useState("")
 
     const [dialogVisible, setDialogVisible] = useState(false);
     const [dialogTitle, setDialogTitle] = useState("");
     const [dialogMessage, setDialogMessage] = useState('Số điện thoại không hợp lệ');
     const [user, setUser] = useState();
+    const [isChosingImage, setIsChosingImage] = useState(false);
+
 
     useFocusEffect(
         useCallback(() => {
           // Your refresh logic here
           console.log('Screen is focused and refreshed');
-        //   refetch();
-        fetchUser();
+            fetchUser();
     
           return () => {
             // Optional cleanup if needed when screen loses focus
@@ -43,9 +50,12 @@ const Profile = () => {
           if (user1) {
             user1 = JSON.parse(user1);
             setUser(user1);
-            console.log(user1);
+            console.log("user: ",user1);
             setForm(user1);
-            setImage(user1?.avatarUrl || "https://reactjs.org/logo-og.png");
+            if(user1.gender !== null){
+                setGender(user1?.gender === "MALE" ? "Nam" : "Nữ")
+            }
+            setImage(user1?.avatarUrl || 'https://via.placeholder.com/200');
           }
         } catch (error) {
           console.log(error);
@@ -55,20 +65,70 @@ const Profile = () => {
     useEffect(() => {
       fetchUser();
     }, []);
-    console.log("user", user);
 
-    const handleChangeImage = () => {
+    const updateAvatar = async () => {
+        if(user?.idUser === null) return;
+        try {
+            const result = await callApiUpdateAccountImage(user?.idUser,image);
+            console.log("Result: ", result);
+            if (result.success === true){
+                setDialogTitle("success");
+                setDialogMessage("Cập nhật avatar thành công");
+                setDialogVisible(true);
 
+                const newUser = {
+                    ...user,
+                    avatarUrl: result.metadata,
+                }
+                console.log("New: ",user);
+
+                setUser(newUser);
+                await SecureStore.setItemAsync('user', JSON.stringify(newUser));
+                
+            } else{
+                setDialogTitle("");
+                setDialogMessage(result.message || result.error || "Lỗi cập nhật");
+                setDialogVisible(true);
+            }
+        } catch (error) {
+            console.log("Err: ", error);
+        }
+        setIsChosingImage(false);
+    }
+
+
+    const showImagePicker = async () => {
+        // Ask the user for the permission to access the media library 
+        
+        const permissionResult = await ImagePicker.requestMediaLibraryPermissionsAsync();
+        setIsChosingImage(true);
+        if (permissionResult.granted === false) {
+          alert("You've refused to allow this appp to access your photos!");
+          setIsChosingImage(false);
+          return;
+        }
+    
+        const result = await ImagePicker.launchImageLibraryAsync({
+            mediaTypes: ImagePicker.MediaTypeOptions.Images,
+            allowsEditing: true,
+            quality: 1,
+        });
+        console.log(result.assets)
+        if (!result.canceled) {
+          setImage(result.assets[0].uri);
+          console.log("Image: ", result.assets[0].uri);
+        }
     }
 
     return (
         <SafeAreaView className="bg-bg h-full">
-        <Notification
-            visible={dialogVisible}
-            onClose={() => setDialogVisible(false)}
-            isSuccess={dialogTitle}
-            message={dialogMessage}
-        />
+            <Notification
+                visible={dialogVisible}
+                onClose={() => setDialogVisible(false)}
+                isSuccess={dialogTitle}
+                message={dialogMessage}
+            />
+
         <ScrollView>
             <View
                 className="bg-bg w-full flex-col space-y-2 px-4 my-8"
@@ -77,17 +137,29 @@ const Profile = () => {
                 }}
             >
                 <View className="justify-center items-center flex-1 mb-2">
-                    <View className="h-[200px] justify-center align-middle">
+                    <View className="h-[200px] justify-center align-middle" >
                         <TouchableOpacity className="w-[170px] h-[170px] rounded-full  border border-gray-300 shadow-sm overflow-hidden"
-                            onPress={handleChangeImage}
+                            onPress={showImagePicker}
                         >
-                            <Image source={{uri: image}}
-                            className="w-full h-full " />
+                            <Image source={{uri: image}} className="w-full h-full" />
                         </TouchableOpacity>
+                        {isChosingImage ? (
+                            <TouchableOpacity className="w-10 h-10 absolute items-center justify-center rounded-full bottom-4 right-2 bg-white border border-gray-100"
+                                onPress={(e) => {e.persist(); updateAvatar()}}
+                            >
+                                <MaterialIcons size={28} color="#EA661C" name="done"/>
+                            </TouchableOpacity>
+                        ) : (
+                            <TouchableOpacity className="w-10 h-10 absolute items-center justify-center rounded-full bottom-4 right-2 bg-white border border-gray-100"
+                                onPress={showImagePicker}
+                            >
+                                <Ionicons size={28} color="#EA661C" name="camera-outline"/>
+                            </TouchableOpacity>
+                        )}
                     </View>
 
                     <Text className={`text-[28px] text-black font-pbold leading-8`}>
-                        Nguyễn Thị Mĩ Diệu
+                        {user?.fullName}
                     </Text>
                 </View>
 
@@ -95,12 +167,12 @@ const Profile = () => {
                 <View>
                     <View className="flex-row align-items justify-between">
                         <Text className={`text-lg text-black font-pbold leading-8`}>
-                            Account Settings
+                            Thông tin tài khoản
                         </Text>
 
                         <TouchableOpacity onPress={() => {router.push('/editProfile')}}>
                             <Text className={`text-base text-primary font-psemibold leading-8 underline`}>
-                                Edit
+                                Chỉnh sửa
                             </Text>
                         </TouchableOpacity>
                     </View>
@@ -108,16 +180,16 @@ const Profile = () => {
                     <FormField
                     value={user?.fullName || ""}
                     handleChangeText={(e) => setForm({ ...form, fullName: e })}
-                    placeholder={"FulName"}
+                    placeholder={"Họ và tên"}
                     keyboardType=""
                     icon="user-o"
                     editable={false}
                     />
 
                     <FormField
-                    value={user?.gender || ""}
+                    value={gender}
                     handleChangeText={(e) => setForm({ ...form, gender: e })}
-                    placeholder={"Gender"}
+                    placeholder={"Giới tính"}
                     keyboardType=""
                     icon='transgender'
                     editable={false}
@@ -136,7 +208,7 @@ const Profile = () => {
                     <FormField
                     value={user?.phoneNumber}
                     handleChangeText={(e) => setForm({ ...form, phoneNumber: e })}
-                    placeholder={"Phone Number"}
+                    placeholder={"Số điện thoại"}
                     keyboardType="phone-pad"
                     icon="phone"
                     editable={false}
@@ -145,7 +217,7 @@ const Profile = () => {
                     <FormField
                     value={user?.address}
                     handleChangeText={(e) => setForm({ ...form, address: e })}
-                    placeholder={"Address"}
+                    placeholder={"Địa chỉ"}
                     icon="card-outline"
                     editable={false}
                     />
@@ -153,7 +225,7 @@ const Profile = () => {
                     <FormField
                     value={user?.facebookUrl || ""}
                     handleChangeText={(e) => setForm({ ...form, facebookUrl: e })}
-                    placeholder={"Facebook"}
+                    placeholder={"Link facebook"}
                     icon="logo-facebook"
                     editable={false}
                     />
@@ -178,21 +250,23 @@ const Profile = () => {
 
                 <View className='flex gap-2 mt-6'>
                     <Text className={`text-lg text-black font-pbold leading-8`}>
-                        History
+                        Lịch sử trao đổi
                     </Text>
                     <View>
                         <CustomButton title={"Gift history"} containerStyles={'border border-brown-900 bg-white'}
-                            textStyles={'text-brown-900 font-psemibold'} handlePress={() => {router.push('/history');}}/>
+                            textStyles={'text-brown-900 font-psemibold'} handlePress={() => {navigation.navigate('history',{ userId: user.idUser});}}/>
                     </View>
                 </View>
 
                 <View className="flex gap-2 mt-6">
                     <Text className={`text-lg text-black font-pbold leading-8`}>
-                        Others
+                        Khác
                     </Text>
                     <View>
-                        <CustomButton title={"Sign out"} containerStyles={'bg-red'}
-                            textStyles={'text-white font-psemibold'} handlePress={() => {router.replace('/');}}/>
+                        <CustomButton title={"Đổi mật khẩu"} containerStyles={'border border-brown-900 bg-white mb-2'}
+                                textStyles={'text-brown-900 font-psemibold'} handlePress={() => {navigation.navigate('changePassword',{ userId: user.idUser, email: user.email});}}/>
+                        <CustomButton title={"Đăng xuất"} containerStyles={'bg-red'}
+                                textStyles={'text-white font-psemibold'} handlePress={() => {router.replace('/');}}/>
                     </View>
                 </View>               
 

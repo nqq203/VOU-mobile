@@ -9,7 +9,6 @@ import { useRouter, useNavigation } from 'expo-router';
 import { images } from "../constants";
 import { CustomButton } from "../components";
 import { useGlobalContext } from "../context/GlobalProvider";
-const image = { uri: 'https://legacy.reactjs.org/logo-og.png' };
 
 const Welcome = () => {
   const { loading, isLogged } = useGlobalContext();
@@ -58,7 +57,7 @@ const Welcome = () => {
 
 
   return (
-    <ImageBackground source={image} style={styles.backgroundImage}>
+    <ImageBackground source={images.landing} className='w-screen h-full'>
       <SafeAreaView style={styles.safeArea}>
         {/* <Loader isLoading={loading} /> */}
 

@@ -25,6 +25,10 @@ import moment from "moment";
 import * as SecureStore from 'expo-secure-store';
 import { useQuery } from "react-query";
 import { callApiExchangeVoucher } from "../../../../api/voucher";
+import { Share,Platform } from "react-native";
+import * as Sharing from "expo-sharing";
+import * as FileSystem from "expo-file-system";
+import { cacheDirectory, downloadAsync } from "expo-file-system";
 
 const Details = () => {
   // const {user} = useGlobalContext();
@@ -94,7 +98,7 @@ const Details = () => {
         const result = await callApiExchangeVoucher(post?.inventoryInfo?.voucher_code,user.idUser);
         console.log(result);
         if (result.success === true){
-          setCanExchangeVoucher(true);
+          setCanExchangeVoucher(true)
         }
         else{
           // Alert.alert("Error", result.message);
@@ -108,8 +112,54 @@ const Details = () => {
   }
 
   
-  const askForTurnFacebook = () => {
-    console.log("Facebook")
+  const askForTurnFacebook = async () => {
+    // title, message, url, image
+    const title = post.eventName;
+    const message = "Cơ hội nhận được: " + post.inventoryInfo?.voucher_name + " trị giá " + post.inventoryInfo?.voucher_price;
+    const url = post.imageUrl;
+    const messageAndUrl = message.concat("\n\n").concat(url);
+    try {
+      // Download the image and get the local URI
+      const uri = await FileSystem.downloadAsync(url, FileSystem.cacheDirectory + "tmp.png");
+      console.log(uri.uri); // Prints the local image file URI
+  
+      // Share the content
+      let result;
+      if (Platform.OS === 'ios') {
+        // For iOS, use the Sharing module to share the file directly
+        result = await Sharing.shareAsync(uri.uri, {
+          dialogTitle: title,
+          mimeType: 'image/png',
+          UTI: 'image/png',
+        });
+      } else {
+        // For Android, share the message and image URI together
+        result = await Share.share(
+          {
+            title,
+            message: messageAndUrl,
+            url: uri.uri,
+          },
+          {
+            subject: title,
+          }
+        );
+      }
+
+      if (result.action === Share.sharedAction) {
+        console.log("+1 turn")
+        if (result.activityType) {
+          console.log('Shared via activity:', result.activityType);
+          
+        } else {
+          console.log('Shared without specifying an activity');
+        }
+      } else if (result.action === Share.dismissedAction) {
+        console.log('Share dismissed');
+      }
+    } catch (error) {
+      console.log(error);
+    }
   }
 
   const askForTurnFromFriend = () => {
@@ -158,10 +208,10 @@ const Details = () => {
                       <View className='w-full my-2 items-center'>
                         <Text className="text-xl font-pbold text-center text-primary">CHÚC MỪNG</Text>
                         <Text className="text-xl font-pbold text-center text-primary">BẠN ĐÃ NHẬN ĐƯỢC</Text>
-                        <Voucher isOnline={false} name={"Giảm 10% khi gọi BE"} expirationDay={"1/7/2024"} 
-                          containerStyle={'my-6'} />
+                        <Voucher isOnline={false} voucherImg={post?.inventoryInfo?.imageUrl} 
+                          voucherName={post?.inventoryInfo?.voucher_name} voucherExpire={post?.inventoryInfo?.expiration_date} />
                         <CustomButton title={"Nhận ngay"} containerStyles={'w-3/4'} 
-                          handlePress={() => {setCanExchangeVoucher(false); setModalVisible(false)}} />
+                          handlePress={() => { setCanExchangeVoucher(false); setModalVisible(false)}} />
                       </View>
                     ) : (
                       <View className='w-full my-2 items-center'>
@@ -279,7 +329,7 @@ const Details = () => {
                   <View className = 'flex-row items-center justify-between  pl-2'>
                     <View className = 'flex-row items-center'>
                       <Ionicons name = 'play-circle-sharp' size ={20 } color = '#515151'/>
-                      <Text className = 'text-grey-700 font-pregular text-base ml-2'>Lượt chơi: {post.turns || -1}</Text>
+                      <Text className = 'text-grey-700 font-pregular text-base ml-2'>Lượt chơi: {post.turns || 10}</Text>
                     </View>
                     <TouchableOpacity onPress={() => {setModalTurnVisible(true)}}>
                       <Text className = 'text-primary font-psemibold text-base underline'>Thêm lượt</Text>
@@ -291,7 +341,7 @@ const Details = () => {
                 <View className = 'border-grey-200' style={{borderWidth:0.3, borderStyle:'dashed', borderRadius:1}}></View>
                 <View className='flex-row space-y-1 my-2 justify-between'>
                   <View className='flex-row items-center space-x-2'>
-                    <Image source={{ uri: post.brandLogo }} className="w-10 h-10 rounded-lg" />
+                    <Image source={{ uri: post.brandLogo || "https://via.placeholder.com/10" }} className="w-10 h-10 rounded-lg" />
                     <Text className='text-black font-psemibold text-lg'>{post.brandId ? post.brandId[0]?.nameBrand : post.brandName}</Text>
                   </View>
                 </View>
@@ -338,7 +388,7 @@ const Details = () => {
                     </Text>
                     <View className="flex self-center flex-row flex-wrap bg-white rounded-md my-6 mb-2">
                       {listItems.map(item => (
-                        <View key={item} className="w-1/4 p-2">
+                        <View key={item.idItem} className="w-1/4 p-2">
                           <Item imageUrl={item?.imageUrl} amount={`1 ${item?.itemName}`} />
                         </View>
                       ))}
