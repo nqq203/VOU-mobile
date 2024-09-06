@@ -1,11 +1,11 @@
 import React, { useState, useEffect } from "react";
-import { View, Text, Image, ScrollView, SafeAreaView, Dimensions,Modal } from 'react-native';
-import { HeaderAuth } from '../../../../components';
+import { View, Text, Image, ScrollView, SafeAreaView, Dimensions, Modal } from 'react-native';
+import { HeaderAuth, CustomButton, Voucher } from '../../../../components';
 import { useLocalSearchParams, useRouter } from "expo-router";
-import {CustomButton,Voucher} from '../../../../components';
 import moment from "moment";
 import * as SecureStore from 'expo-secure-store';
-const {callApiGetVouchers,callApiUseVoucher} = require('../../../../api/voucher');
+const { callApiGetVouchers, callApiUseVoucher } = require('../../../../api/voucher');
+
 // Leaderboard item component
 const LeaderboardItem = ({ rank, name, points, avatar }) => (
   <View className='pl-6 flex-row items-center m-[10px] bg-white rounded-2xl px-2 py-2 font-medium text-10 space-x-2'>
@@ -89,46 +89,60 @@ const Leaderboard = () => {
     };
     fetchUser();
   }, []);
-  useEffect(() => async () => {
-    if (result) {
-      const users = JSON.parse(result).sort((a, b) => b.score - a.score);
 
-      const topUsers = users.slice(0, 3).map((user, index) => ({
-        name: user.idUser,
-        points: user.score,
-        avatar: user.avatar,
-      }));
-      setPodiumUsers(topUsers);
+  useEffect(() => {
+    const processResult = async () => {
+      if (result) {
+        const users = JSON.parse(result).sort((a, b) => b.score - a.score);
+        console.log("Users: ", users)
+        const topUsers = users.slice(0, 3).map((user, index) => ({
+          name: user.idUser,
+          points: user.score,
+          avatar: user.avatar,
+        }));
+        setPodiumUsers(topUsers);
 
-      const others = users.slice(3).map((user, index) => ({
-        rank: index + 4,
-        name: user.idUser,
-        points: user.score,
-        avatar: user.avatar,
-      }));
-      setOtherUsers(others);
-    
-    const currentUser = users.find(item => item.idUser === user.username);
-      setUserRank({
-        rank: users.indexOf(currentUser) + 1,
-        points: currentUser.score,
-        avatar: currentUser.avatar,
-        name: user?.fullName ||"Anonymous",
-        userId: user?.idUser  
-      });
+        const others = users.slice(3).map((user, index) => ({
+          rank: index + 4,
+          name: user.idUser,
+          points: user.score,
+          avatar: user.avatar,
+        }));
+        setOtherUsers(others);
+      
+        const currentUser = users.find(item => item.idUser === user?.username);
+        if (currentUser) {
+          setUserRank({
+            rank: users.indexOf(currentUser) + 1,
+            points: currentUser.score,
+            avatar: currentUser.avatar,
+            name: user?.fullName || "Anonymous",
+            userId: user?.idUser  
+          });
 
-      if (topUsers.find(item => user?.username === item.idUser)) {
-        setIsTop3(true);
-        const voucher = await callApiGetVouchers(eventId)
-        console.log("Voucher: ",voucher)
-        setVoucher(voucher)
-        await callApiUseVoucher(voucher.data[0].idVoucher, user?.idUser);
-      } else {
-        setIsTop3(false);
+          if (topUsers.find(item => user?.username === item.name)) {
+            setIsTop3(true);
+            try {
+              const voucherResult = await callApiGetVouchers(eventId);
+              console.log("Voucher: ", voucherResult);
+              setVoucher(voucherResult);
+              if (voucherResult.data && voucherResult.data.length > 0) {
+                await callApiUseVoucher(voucherResult.data[0].idVoucher, user?.idUser);
+              }
+            } catch (error) {
+              console.error("Error fetching or using voucher:", error);
+            }
+            
+          } else {
+            setIsTop3(false);
+          }
+          setShowModal(true);
+        }
       }
-      setShowModal(true);
-    }
-  }, [eventId, result, user?.fullName, user?.idUser, user?.username]);
+    };
+
+    processResult();
+  }, [eventId, result, user]);
 
   return (
     <SafeAreaView>
@@ -140,7 +154,7 @@ const Leaderboard = () => {
             padding: 20,
           }}
         >
-          <HeaderAuth otherStyleIcon = 'hidden' text="Leaderboard" otherStyle='mb-6' />
+          <HeaderAuth otherStyleIcon='hidden' text="Leaderboard" otherStyle='mb-6' />
           {podiumUsers.length > 0 && <Podium users={podiumUsers} />}
           {otherUsers.length > 0 && (
             <View className='bg-brown-100 rounded-xl'>
@@ -151,20 +165,26 @@ const Leaderboard = () => {
           )}
         </View>
         <Modal 
-        visible={showModal} 
-        transparent={true}
-        onRequestClose={() => {console.log("Close")}}
-      >
-        <View className="bg-gray-500/[0.5] flex-1 items-center justify-center">
-          <View className='flex bg-white space-y-4 px-3 pb-4 pt-3 w-[360px] items-center rounded-md'>
-            
-              isTop3 ? (
+          visible={showModal} 
+          transparent={true}
+          onRequestClose={() => {console.log("Close")}}
+        >
+          <View className="bg-gray-500/[0.5] flex-1 items-center justify-center">
+            <View className='flex bg-white space-y-4 px-3 pb-4 pt-3 w-[360px] items-center rounded-md'>
+              {isTop3 ? (
                 <View className='w-full my-2 items-center'>
-                        <Text className="text-xl font-pbold text-center text-primary">CHÚC MỪNG</Text>
-                        <Text className="text-xl font-pbold text-center text-primary">BẠN ĐÃ NHẬN ĐƯỢC</Text>
-                        <Voucher isOnline={voucher?.voucher_type === "online"} name={voucher?.voucher_description} expirationDay={moment(voucher?.expiration_date).format('DD/MM/YYYY')} 
-                          containerStyle={'my-6'} />
-                      </View>
+                  <Text className="text-xl font-pbold text-center text-primary">CHÚC MỪNG</Text>
+                  <Text className="text-xl font-pbold text-center text-primary">BẠN ĐÃ NHẬN ĐƯỢC</Text>
+                  <Voucher 
+                    isOnline={voucher?.data && voucher.data[0]?.voucher_type === "online"}
+                    name={voucher?.data && voucher.data[0]?.voucher_description}
+                    expirationDay={voucher?.data && voucher.data[0]?.expiration_date 
+                      ? moment(voucher.data[0].expiration_date).format('DD/MM/YYYY') 
+                      : ''} 
+                    containerStyle={'my-6'}
+                  />
+
+                </View>
               ) : (
                 <View className='items-center my-2'>
                   <Text className='text-primary font-pbold text-[28px] text-center'>SỐ ĐIỂM CỦA BẠN LÀ</Text>
@@ -172,14 +192,11 @@ const Leaderboard = () => {
                     <Text className='text-primary font-pbold text-[28px] text-center'>{userRank.points}</Text>
                   </View>
                 </View>
-              )
-
-
-            <CustomButton title="Về trang chủ"  containerStyles={'w-full mt-4'} handlePress={() => router.push('/home')}/>
+              )}
+              <CustomButton title="Về trang chủ" containerStyles={'w-full mt-4'} handlePress={() => router.push('/home')}/>
+            </View>
           </View>
-        </View>
-      </Modal>
-
+        </Modal>
       </ScrollView>
     </SafeAreaView>
   );

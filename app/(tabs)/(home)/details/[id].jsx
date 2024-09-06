@@ -368,7 +368,7 @@ const Details = () => {
                   <View className='flex gap-2'>
                     <Text className='font-pregular text-base'>Chi tiết: {post?.inventoryInfo?.voucher_description}</Text>
                   <Text className='font-pregular text-base'>
-                    Để nhận voucher, hãy chơi game vào lúc {moment(post?.gameInfoDTO?.startedAt).utcOffset(0).format("HH:mm:ss DD/MM/YYYY")} để nhận ngay voucher.
+                    Để nhận voucher, hãy chơi game vào lúc {moment(post?.gameInfoDTO?.startedAt).utcOffset(420, true).format('HH:mm:ss DD/MM/YYYY')} để nhận ngay voucher.
                   </Text>
 
                   <CustomButton 
@@ -379,8 +379,6 @@ const Details = () => {
                       const currentTime = moment().toLocaleString();
                       console.log(post?.gameInfoDTO?.startedAt)
                       const startedAt =moment(post?.gameInfoDTO?.startedAt).utcOffset(420, true).format('YYYY-MM-DDTHH:mm:ss.SSSZ');
-                      // const newTime = moment(startedAt).subtract(7, 'hours').format('YYYY-MM-DDTHH:mm:ss.SSSZ');
-
                       const timeDifference = moment(startedAt).diff(moment(currentTime), 'seconds');
 
                       console.log("startedAt", startedAt, "currentTime", currentTime, "timeDifference", timeDifference);

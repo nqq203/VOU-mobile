@@ -9,6 +9,7 @@ import SearchInput from "./SearchInput";
 import FooterAuth from "./FooterAuth";
 import HeaderAuth from "./HeaderAuth";
 import Notification from "./Notification";
+import Voucher from "./Voucher";
 import AnimatedImage from "./AnimatedImage";
 export {
   VideoCard,
@@ -20,5 +21,6 @@ export {
   FooterAuth,
   HeaderAuth,
   AnimatedImage,
-  Notification
+  Notification,
+  Voucher
 };
