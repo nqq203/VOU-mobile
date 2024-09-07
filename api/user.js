@@ -97,7 +97,7 @@ export const callApiGetUserByUsername = async (dataInput) => {
 }
 
 export const callApiUpdateAccount = async (idUser,updatedData) => {
-  console.log(updatedData)
+  // console.log(updatedData)
   try{
     const response = await api.put(`/api/v1/users/${idUser}`,updatedData);
     return response.data;
@@ -133,7 +133,7 @@ export const callApiUpdateAccountImage = async (idUser,avatar) => {
 }
 
 export const callApiChangePassword = async (newData) => {
-  console.log("New: ",newData)
+  // console.log("New: ",newData)
   try {
     const response = await api.post(`api/v1/auth/change-password`,newData);
     return response.data;    

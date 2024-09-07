@@ -14,7 +14,14 @@ import facebook from "../assets/images/facebook.png"
 import defaultAva from "../assets/images/defaultAva.jpg"
 import shakeGame from "../assets/images/shakeGame.png"
 import landing from "../assets/images/landing.jpg"
+import quizBg from "../assets/images/quizBg.jpg"
+import MC from "../assets/images/MC.gif"
+import dragonAva from '../assets/images/avatar/dragon_ava.png'
+import snakeAva from '../assets/images/avatar/snake_ava.png'
+import rabbitAva from '../assets/images/avatar/rabbit_ava.png'
+import mouse_Ava from '../assets/images/avatar/mouse_ava.png'
 
 export default { profile,
     logoBig,logoMedium, logoSmall, noItem,robot,
-    turn1, turn2, turn3, friends,facebook,defaultAva,shakeGame,landing };
+    turn1, turn2, turn3, friends,facebook,defaultAva,
+    shakeGame,landing, quizBg, MC, dragonAva, snakeAva, rabbitAva,mouse_Ava};

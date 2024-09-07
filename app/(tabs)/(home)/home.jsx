@@ -7,7 +7,7 @@ import {
   ScrollView,
 } from "react-native";
 import * as SecureStore from 'expo-secure-store';
-import { FormField, SearchInput } from "../../../components";
+import { FormField, SearchInput, Loader } from "../../../components";
 import { router, usePathname } from "expo-router";
 import CardEvent from "../../../components/CardEvent";
 import NotiButton from "../../../components/NotiButton";
@@ -19,7 +19,7 @@ import { useFocusEffect } from '@react-navigation/native';
 
 const Home = () => {
   const [posts, setPosts] = useState([]);
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const pathname = usePathname();
   
@@ -30,7 +30,7 @@ const Home = () => {
     useCallback(() => {
       // Your refresh logic here
       console.log('Screen is focused and refreshed');
-    //   console.log(user.idUser);
+      setLoading(true);
       fetchPosts();
 
         
@@ -38,7 +38,7 @@ const Home = () => {
         // Optional cleanup if needed when screen loses focus
       };
     }, [])
-);
+  );
 
   const fetchUser = async () => {
     try {
@@ -54,10 +54,9 @@ const Home = () => {
 
   const fetchPosts = async () => {
     try {
-      setLoading(true);
       const res = await callAPIGetEvents();
       if (res.success){
-        console.log(res);
+        // console.log(res);
         setPosts(res.metadata);
       }
       if (res.code === 401) {
@@ -87,13 +86,17 @@ const Home = () => {
             minHeight: Dimensions.get("window").height - 50,
           }}
         >
+        {loading ? (
+          <Loader isLoading={loading} />
+        ) : (
+          <>
           <View className="flex-row justify-between">
             <View className="">
-              <Text className={`text-xl text-primary font-bold leading-8`}>
+              <Text className={`text-lg text-primary font-pbold leading-8`}>
                 HI, {user?.fullName}
               </Text>
-              <Text className="text-md border-spacing-1 font-normal text-black">
-                Let's play the game!
+              <Text className="text-md border-spacing-1 font-pregular text-black">
+                Cùng tham gia sự kiện ngay thôi!
               </Text>
             </View>
 
@@ -108,6 +111,8 @@ const Home = () => {
               <CardEvent key={index} item={item}/>
             ))}
           </View>
+          </>
+        )}
         </View>
       </ScrollView>
     </SafeAreaView>

@@ -113,10 +113,6 @@ const ChangePassword = () => {
                     placeholder={"Nhập lại password"}
                     icon="lock-closed-outline"
                     />           
-
-                
-
-                
                 </View>
                 
                 <View>

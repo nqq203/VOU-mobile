@@ -10,8 +10,8 @@ import { useGlobalContext } from '../../../context/GlobalProvider';
 import Notification from '../../../components/Notification';
 import { useQuery } from 'react-query';
 import * as SecureStore from 'expo-secure-store';
-import moment from 'moment';
-
+import { convertDataToOutputString } from '../../../utils/date';
+import * as Clipboard from 'expo-clipboard';
 
 const OnlineVouchers = () => {
   // const { user } = useGlobalContext();
@@ -20,6 +20,7 @@ const OnlineVouchers = () => {
   const [listVouchers, setListVouchers] = useState([])
   const [modalVisible, setModalVisible] = useState(false)
   const [isError, setIsError] = useState(false);
+  const [currentVoucher, setCurrentVoucher] = useState(null);
 
   const [dialogVisible, setDialogVisible] = useState(false);
   const [dialogTitle, setDialogTitle] = useState("success");
@@ -67,13 +68,19 @@ const OnlineVouchers = () => {
   },[user])
 
 
-  const handleVoucherClick = () => {
-      setModalVisible(true)
+  const handleVoucherClick = (voucher) => {
+      setModalVisible(true);
+      setCurrentVoucher(voucher)
+      console.log(voucher)
   }
 
-  const openApp = () => {
-    console.log("Open app")
-  }
+  const copyToClipboard = async (text) => {
+    await Clipboard.setStringAsync(text);
+    setDialogTitle("success");
+    setDialogMessage("Sao chép thành công")
+    setDialogVisible(true)
+  };
+
   return (
     <SafeAreaView className="bg-bg h-full"> 
       <Notification
@@ -91,12 +98,29 @@ const OnlineVouchers = () => {
             <View className='flex  bg-white px-3 pb-4 pt-3 w-[360px] items-center rounded-md'>
 
               <View className='w-full my-2 items-center'>
-                <TouchableOpacity className='flex-row-reverse w-full pr-2' onPress={() => setModalVisible(false)}>
+                <TouchableOpacity className='flex-row-reverse w-full mb-2' onPress={() => setModalVisible(false)}>
                   <Ionicons name='close' size={28} color={'gray'} />
                 </TouchableOpacity>
-                <Text className="text-2xl font-psemibold text-center">Đi đến ứng dụng</Text>
-                <CustomButton title={"Mở App"} containerStyles={'w-3/4 mt-6'}  handlePress={openApp}/>
 
+                <Text className="text-2xl font-pbold text-primary text-center">
+                  {currentVoucher?.voucherName || ""}
+                </Text>
+                <Text className="text-base text-center">
+                  Ngày hết hạn: <Text className='font-psemibold text-base'>
+                    {convertDataToOutputString(currentVoucher?.expirationDate)}
+                    </Text>
+                </Text>
+                <Text className="text-base text-center">
+                  {currentVoucher?.description || ""}
+                </Text>
+                
+                <TouchableOpacity onPress={() => copyToClipboard(currentVoucher?.code)} 
+                  className="my-6 bg-gray-100 rounded-md p-4 w-full items-center flex flex-row justify-center">
+                  <Ionicons name='copy-outline' size={26} />
+                  <Text className="ml-2 font-psemibold text-xl">
+                    {currentVoucher?.code || ""}
+                  </Text>
+                </TouchableOpacity>
               </View>
             
             </View>
@@ -123,9 +147,9 @@ const OnlineVouchers = () => {
         <View className="flex flex-col items-center justify-center">
           {listVouchers.length !== 0 ? (
             listVouchers.map((voucher,index) => (
-              <Voucher key={index} isOnline={true} voucherImg={voucher.voucher.imageUrl} 
+              <Voucher key={index} isOnline={true} voucherImg={voucher.voucher.imageUrl} amount={voucher.amount}
                 voucherName={voucher.voucher.voucherName} voucherExpire={voucher.voucher.expirationDate}
-                handlePres={handleVoucherClick}></Voucher>
+                handlePres={() => handleVoucherClick(voucher.voucher)}></Voucher>
             ))
           ) : (
             <Text className="text-base w-full text-center text-black font-pregular leading-8 

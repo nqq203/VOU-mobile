@@ -69,13 +69,13 @@ const CardEvent = ({
     >
         <View className="bg-white rounded-lg pb-4" style={[styles.customShadow]}>
           <Image
-            source={{uri: item.imageUrl}}
+            source={{uri: item.imageUrl || "https://via.placeholder.com/150"}}
             className="w-full h-36 rounded-t-lg"
             resizeMode="cover"
           />
           <View className="flex-row mx-3 mt-2 ml-2 justify-between">
             <Image
-              source={{uri: item.logoBrand || "https://via.placeholder.com/12"}}
+              source={{uri: item.brandLogo || "https://via.placeholder.com/50"}}
               className="w-12 h-12 rounded-lg mt-2"
               resizeMode="cover"
             />

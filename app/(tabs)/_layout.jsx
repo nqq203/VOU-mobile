@@ -43,6 +43,8 @@ const TabLayout = () => {
             height: 78,
             justifyContent: "center",
             borderRadius: 20,
+            borderBottomEndRadius: 0,
+            borderBottomStartRadius: 0,
             alignContent: "center",
             flexDirection: "row",
             alignItems: "center",

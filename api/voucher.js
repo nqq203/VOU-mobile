@@ -11,7 +11,7 @@ export const callApiGetUserVouchers = async ({userId,voucherType}) => {
 
 export const callApiGetVouchers = async (eventId) => {
     try {
-        const response = await api.get(`/api/v1/vouchers/events/{eventId}`);
+        const response = await api.get(`/api/v1/vouchers/events/${eventId}`);
         return response.data;
     } catch (error) {
         return error.response.data;
@@ -19,7 +19,6 @@ export const callApiGetVouchers = async (eventId) => {
 }
 
 export const callApiExchangeVoucher = async (code,userId) => {
-    console.log(code + " _ " + userId);
     try {
         const response = await api.post(`/api/v1/vouchers/${code}/users/${userId}`);
         return response.data;

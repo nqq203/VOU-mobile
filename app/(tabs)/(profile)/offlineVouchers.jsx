@@ -138,7 +138,7 @@ const OfflineVouchers = () => {
         <View className="flex flex-col items-center justify-center">
           {listVouchers.length !== 0 ? (
             listVouchers.map((voucher,index) => (
-              <Voucher key={index} isOnline={false} voucherImg={voucher.voucher.imageUrl} 
+              <Voucher key={index} isOnline={false} voucherImg={voucher.voucher.imageUrl} amount={voucher.amount}
                 voucherName={voucher.voucher.voucherName} voucherExpire={voucher.voucher.expirationDate}
                 handlePres={() => handleVoucherClick(voucher?.voucher)} />
             ))

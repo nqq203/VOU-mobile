@@ -47,6 +47,7 @@ const SignIn = () => {
       if (result.success === false && result.code === 401 && result.message === 'Tài khoản chưa được xác thực. Hãy xác thực OTP để đăng nhập!') {
         navigation.navigate('verify-otp',{ username: form.username });
       }
+      
       console.log("Result: ",result);
      if (result.code === 200)
       {

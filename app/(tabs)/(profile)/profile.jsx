@@ -1,7 +1,7 @@
 import { Link, } from "expo-router";
 import React, { useEffect, useState } from 'react';
 import { View, Text,SafeAreaView, ScrollView, Dimensions, TouchableOpacity } from 'react-native';
-import { FormField } from "../../../components";
+import { FormField,Loader } from "../../../components";
 import { Image } from "react-native";
 import CustomButton from "../../../components/CustomButton";
 import Notification from "../../../components/Notification";
@@ -20,6 +20,8 @@ import MaterialIcons from 'react-native-vector-icons/MaterialIcons'
 const Profile = () => {
     const router = useRouter();
     const navigation = useNavigation();
+    const [loading, setLoading] = useState(true);
+
     const [form, setForm] = useState();
     const [image, setImage] = useState();
     const [gender, setGender] = useState("")
@@ -33,13 +35,14 @@ const Profile = () => {
 
     useFocusEffect(
         useCallback(() => {
-          // Your refresh logic here
-          console.log('Screen is focused and refreshed');
+            // Your refresh logic here
+            console.log('Screen is focused and refreshed');
+            setLoading(true)
             fetchUser();
     
-          return () => {
-            // Optional cleanup if needed when screen loses focus
-          };
+            return () => {
+                // Optional cleanup if needed when screen loses focus
+            };
         }, [])
     );
 
@@ -60,6 +63,10 @@ const Profile = () => {
         } catch (error) {
           console.log(error);
         }
+        const timer = setTimeout(() => {
+            setLoading(false)
+        }, 3000);
+        return () => clearTimeout(timer);
       };
 
     useEffect(() => {
@@ -136,6 +143,10 @@ const Profile = () => {
                     minHeight: Dimensions.get("window").height - 50,
                 }}
             >
+            {loading ? (
+                <Loader isLoading={loading} />
+            ) : (
+                <>
                 <View className="justify-center items-center flex-1 mb-2">
                     <View className="h-[200px] justify-center align-middle" >
                         <TouchableOpacity className="w-[170px] h-[170px] rounded-full  border border-gray-300 shadow-sm overflow-hidden"
@@ -269,7 +280,8 @@ const Profile = () => {
                                 textStyles={'text-white font-psemibold'} handlePress={() => {router.replace('/');}}/>
                     </View>
                 </View>               
-
+                </>
+            )}                
             </View>
         </ScrollView>
         </SafeAreaView>

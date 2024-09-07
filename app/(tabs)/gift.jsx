@@ -7,10 +7,8 @@ import Item from '../../components/item';
 import GiftHistory from '../../components/GiftHistory';
 import Dropdown from '../../components/Dropdown';
 import FormField from '../../components/FormField';
-import { Notification } from '../../components';
+import { Notification,Loader } from '../../components';
 import NotiButton from '../../components/NotiButton';
-import { callApiGetItems } from '../../api/item';
-import { callApiSendItem,callApiGetGiftLog } from '../../api/gift';
 import { useGlobalContext } from '../../context/GlobalProvider';
 import { useQuery } from 'react-query';
 import { useCallback } from 'react';
@@ -18,20 +16,24 @@ import { useEffect, useState } from 'react';
 import { useFocusEffect } from '@react-navigation/native';
 import * as SecureStore from 'expo-secure-store';
 import { convertDataToOutputString } from '../../utils/date';
+import { callApiGetItems } from '../../api/item';
+import { callApiSendItem,callApiGetGiftLog } from '../../api/gift';
 
 const Gift = () => {
     const [user, setUser] = useState("");
+    const [loading, setLoading] = useState(true);
+
     const [listItems, setListItems] = useState([])
     const [listItemsText, setListItemsText] = useState([])
     const [giftlog, setGiftlog] = useState([])
     const listOptions = ['Mã ID', 'Email', 'Tên tài khoản']
     const [item, setItem] = useState('');
-    const [option, setOption] = useState('')
+    const [option, setOption] = useState(listOptions[0])
     const [modalVisible, setModalVisible] = useState(false)
     const [form, setForm] = useState({
-        typeOfInfo: '',
-        receiverId:'',
-        itemId: '',
+        typeOfInfo: 'Mã ID',
+        receiverInfo:'',
+        itemId: 'Chó',
         amount: '',
     })
     const [isError, setIsError] = useState(false);
@@ -40,7 +42,7 @@ const Gift = () => {
         useCallback(() => {
           // Your refresh logic here
           console.log('Screen is focused and refreshed');
-        //   console.log(user.idUser);
+            setLoading(true)
             console.log(user);
             fetchUser();
           
@@ -56,7 +58,7 @@ const Gift = () => {
         try {
           let itemData = await callApiGetItems(id);
         
-          console.log("Sus: ",itemData);
+          console.log("listItems: ",itemData);
           if(itemData.success === true){
             const sortedItems = itemData.metadata.sort((a, b) => a.idItem - b.idItem);
             setListItems(sortedItems);
@@ -72,13 +74,11 @@ const Gift = () => {
     };
 
     const fetchUserGiftLog = async (id) => {
-        console.log("Gift log")
-        console.log("userId: ", id)
         if(id === undefined) return;
         try {
           let itemData = await callApiGetGiftLog(id);
         
-          console.log("Sus giftlog: ",itemData);
+        //   console.log("Sus giftlog: ",itemData);
           if(itemData.success === true){
             setGiftlog(itemData.metadata)
             
@@ -93,16 +93,6 @@ const Gift = () => {
     
 
     const sendItemToFriend = async (data) => {
-        if(data.receiverId === "") {
-            console.log("Không có id người nhận");
-            return;
-        }
-
-        if(data.senderId === "") {
-            console.log("Không có id người nhận");
-            return;
-        }
-
         try {
           let result = await callApiSendItem(data);
           console.log("Send:",result);
@@ -117,7 +107,7 @@ const Gift = () => {
             setIsError(false);
             setForm({
                 typeOfInfo: '',
-                receiverId:'',
+                receiverInfo:'',
                 itemId: '',
                 amount: '',
             })
@@ -152,12 +142,17 @@ const Gift = () => {
     useEffect(()=>{
         fetchUserItems(user.idUser);
         fetchUserGiftLog(user.idUser);
+        const timer = setTimeout(() => {
+            setLoading(false)
+        }, 3000);
+        return () => clearTimeout(timer);
     },[user])
 
     
 
     const submit = async () => {
-        let itemId = 0;
+        let itemId = 1;
+        console.log(item)
         listItems.map(it => { 
             if(it.itemName === item){
                 itemId = it.idItem;
@@ -172,14 +167,18 @@ const Gift = () => {
         }
         form.itemId = itemId;
 
-        if(form.amount === '' || form.receiverId === '' || form.itemId === '' || form.typeOfInfo === ''){
+        if(form.amount === '' || form.receiverInfo === '' || form.itemId === '' || form.typeOfInfo === ''){
             setIsError(true);
             return;
         }
 
         const data = {
-            receiverId: parseInt(form.receiverId),
-            senderId: user.idUser,
+            senderUsername: option === "Tên tài khoản" ? user.username : null,
+            receiverUsername: option === "Tên tài khoản" ? form.receiverInfo : null,
+            senderEmail: option === "Email" ? user.email : null,
+            receiverEmail: option === "Email" ? form.receiverInfo : null,
+            senderId: option === "Mã ID" ? user.idUser : null,
+            receiverId: option === "Mã ID" ? parseInt(form.receiverInfo) : null,
             itemId: form.itemId,
             amount: parseInt(form.amount),
         }
@@ -194,7 +193,7 @@ const Gift = () => {
         // console.log(form);
         // setForm({
         //     typeOfInfo: '',
-        //     receiverId:'',
+        //     receiverInfo:'',
         //     itemName: '',
         //     amount: '',
         // });
@@ -218,7 +217,7 @@ const Gift = () => {
                             setModalVisible(false); setIsError(false);
                             setForm({
                                 typeOfInfo: '',
-                                receiverId:'',
+                                receiverInfo:'',
                                 itemId: '',
                                 amount: '',
                             })}}
@@ -239,8 +238,8 @@ const Gift = () => {
                     <TextInput
                         placeholder='Nhập nội dung'
                         placeholderTextColor={'#949494'}
-                        value={form.receiverId}
-                        onChange={(e) => setForm({...form, receiverId: e.nativeEvent.text})}
+                        value={form.receiverInfo}
+                        onChange={(e) => setForm({...form, receiverInfo: e.nativeEvent.text})}
                         className="h-[48px] mt-2 mb-6 p-2 rounded-md border border-gray-200 w-full text-base font-pregular "
                     />
 
@@ -279,7 +278,11 @@ const Gift = () => {
                     minHeight: Dimensions.get("window").height - 50,
                 }}
             >
-                <View className="flex-row justify-between items-center">
+            {loading ? (
+                <Loader isLoading={loading} />
+            ) : (
+                <>
+                <View className="flex-row justify-between items-center mt-3">
                     <View className="">
                         <Text className={`text-xl text-black font-bold leading-8`}>
                             VẬT PHẨM CỦA TÔI
@@ -331,6 +334,8 @@ const Gift = () => {
                         )}
                     </View>
                 </View>
+                </>
+            )}
 
             </View>
         </ScrollView>

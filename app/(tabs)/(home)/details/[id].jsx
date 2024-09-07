@@ -10,9 +10,10 @@ import {
   ScrollView,
   TouchableOpacity,
   TextInput,
-  Modal
+  Modal,
+  AppState
 } from "react-native";
-import { CustomButton, HeaderAuth} from "../../../../components";
+import { CustomButton, HeaderAuth, Loader} from "../../../../components";
 import { icons } from "../../../../constants";
 import { useNavigation } from '@react-navigation/native';
 import { router } from "expo-router";
@@ -20,6 +21,7 @@ import Item from "../../../../components/item";
 import Voucher from "../../../../components/Voucher";
 import {images} from "../../../../constants";
 import Dropdown from "../../../../components/Dropdown";
+import Notification from "../../../../components/Notification";
 import { callAPIGetPost } from "../../../../api/events";
 import moment from "moment";
 import * as SecureStore from 'expo-secure-store';
@@ -28,17 +30,21 @@ import { callApiExchangeVoucher } from "../../../../api/voucher";
 import { Share,Platform } from "react-native";
 import * as Sharing from "expo-sharing";
 import * as FileSystem from "expo-file-system";
+import { callApiAddTurn } from "../../../../api/turn";
 import { cacheDirectory, downloadAsync } from "expo-file-system";
+import { useCallback } from 'react';
+import { useFocusEffect } from '@react-navigation/native';
 
 const Details = () => {
   // const {user} = useGlobalContext();
   const {id} = useLocalSearchParams();
   const [expanded, setExpanded] = useState(false);
+  const [loading, setLoading] = useState(true);
+
   const navigation = useNavigation();
   const handleToggle = () => {
     setExpanded(!expanded);
   };
-  console.log("ID",id);
 
   // Pop up Doi thuong
   const [listItems, setListItems] = useState([])
@@ -48,9 +54,13 @@ const Details = () => {
   const [modalVisible, setModalVisible] = useState(false)
   const [isExchangeError, setIsExchangeError] = useState(false);
 
+  // Xin luot
   const [modalTurnVisible, setModalTurnVisible] = useState(false);
   const [modalAskForTurnVisible, setModalAskForTurnVisible] = useState(false);
   const [isTurnError, setIsTurnError] = useState(false);
+  const [turns, setTurns] = useState(10);
+  const [turnResult, setTurnResult] = useState("")
+
   const listOptions = ['Mã ID', 'Email', 'Số điện thoại']
   const [option, setOption] = useState('')
   const [form, setForm] = useState({
@@ -58,11 +68,36 @@ const Details = () => {
     info:'',
   })
   const [user, setUser] = useState();
+  const shakeGameDescription = "Lắc Xu là game tương tác, trong đó người dùng lắc điện thoại để nhận các vật phẩm ngẫu nhiên như xu, quà, hoặc điểm thưởng. Các vật phẩm thu thập được có thể dùng để đổi lấy phần thưởng hấp dẫn, tạo cảm giác hứng thú và hồi hộp khi chơi."
+  const quizGameDescription = "Quiz là game tương tác, nơi người dùng cùng xem livestream và trả lời các câu hỏi trong thời gian thực. Người chơi tham gia qua thiết bị cá nhân, cạnh tranh với nhau bằng cách chọn câu trả lời đúng nhanh nhất, tạo nên trải nghiệm học hỏi và giải trí trực tiếp."
+
+  const [dialogVisible, setDialogVisible] = useState(false);
+  const [dialogTitle, setDialogTitle] = useState("");
+  const [dialogMessage, setDialogMessage] = useState('');
+
+  useEffect(() => {
+    const handleAppStateChange = async (nextAppState) => {
+      if (nextAppState === 'active') {
+        if(turnResult != "") {
+          setDialogTitle("success");
+          setDialogMessage(turnResult);          
+          setDialogVisible(true);
+        }
+      }
+    };
+
+    const subscription = AppState.addEventListener('change', handleAppStateChange);
+
+    return () => {
+      subscription.remove(); // Cleanup the event listener
+    };
+  }, []);
 
   useEffect(() => {
     const fetchUser = async () => {
       try {
         let user = await SecureStore.getItemAsync("user");
+        // console.log(user);
         if (user) {
           user = JSON.parse(user);
           setUser(user);
@@ -73,27 +108,33 @@ const Details = () => {
     };
     fetchUser();
   }, []);
-  const [post, setPost] = useState({});
 
+  const [post, setPost] = useState({});
   useEffect(() => {
   const fetchPost = async () => {
-    try {
-      const res = await callAPIGetPost(id);
-      if (res.success){
-        console.log("Dtaa",res);
-        setPost(res.metadata);
-        setListItems(res.metadata.inventoryInfo?.items);
-        setQrCode(res.metadata.inventoryInfo.voucher_code);
+      try {
+        const res = await callAPIGetPost(id);
+        if (res.success){
+          // console.log("Dtaa",res);
+          setPost(res.metadata);
+          setListItems(res.metadata.inventoryInfo?.items);
+          setQrCode(res.metadata.inventoryInfo.voucher_code);
+          setTurns(res.metadata.turns || 10);
+        }
+      } catch (error) {
+        console.log("Error",error);
       }
-    } catch (error) {
-      console.log("Erpror",error);
-    }
-  };
-  fetchPost();
-}, []);
+    };
+    fetchPost();
+    const timer = setTimeout(() => {
+      setLoading(false)
+    }, 3000);
+    return () => clearTimeout(timer);
+  }, []);
 
   // Exchange gift form
   const submit = async () => {
+    console.log(user);
       try {
         const result = await callApiExchangeVoucher(post?.inventoryInfo?.voucher_code,user.idUser);
         console.log(result);
@@ -115,7 +156,8 @@ const Details = () => {
   const askForTurnFacebook = async () => {
     // title, message, url, image
     const title = post.eventName;
-    const message = "Cơ hội nhận được: " + post.inventoryInfo?.voucher_name + " trị giá " + post.inventoryInfo?.voucher_price;
+    const message = "Tham gia ngay sự kiện " + title + " trên ứng dụng VOU \n" +
+      "Cơ hội nhận được \"" + post.inventoryInfo?.voucher_name + "\" trị giá " + post.inventoryInfo?.voucher_price + "VND";
     const url = post.imageUrl;
     const messageAndUrl = message.concat("\n\n").concat(url);
     try {
@@ -147,12 +189,17 @@ const Details = () => {
       }
 
       if (result.action === Share.sharedAction) {
-        console.log("+1 turn")
         if (result.activityType) {
           console.log('Shared via activity:', result.activityType);
-          
         } else {
           console.log('Shared without specifying an activity');
+        }
+        setModalTurnVisible(false);
+
+        const resultAdd = await callApiAddTurn(user.idUser,post?.gameInfoDTO?.gameId)
+        // console.log(resultAdd)
+        if(resultAdd.success){
+          setTurnResult(resultAdd.message);
         }
       } else if (result.action === Share.dismissedAction) {
         console.log('Share dismissed');
@@ -252,8 +299,8 @@ const Details = () => {
             onRequestClose={() => {console.log("Close")}}
         >
             <View className="bg-gray-500/[0.5] flex-1 items-center justify-center">
-                <View className='flex bg-white px-3 pb-4 pt-3 w-[360px] items-center rounded-md'>
-                    <TouchableOpacity className='flex-row-reverse w-full pr-2' onPress={() => setModalTurnVisible(false)}>
+                <View className='flex bg-white px-4 pb-4 pt-3 w-[360px] items-center rounded-lg'>
+                    <TouchableOpacity className='flex-row-reverse w-full' onPress={() => setModalTurnVisible(false)}>
                         <Ionicons name='close' size={28} color={'gray'} />
                     </TouchableOpacity>
                     <Text className="text-2xl font-psemibold">Thêm lượt chơi</Text>
@@ -308,6 +355,13 @@ const Details = () => {
                 </View>
             </View>
         </Modal>
+
+        <Notification
+            visible={dialogVisible}
+            onClose={() => setDialogVisible(false)}
+            isSuccess={dialogTitle}
+            message={dialogMessage}
+        />  
         <ScrollView>
           <View
             className="bg-white w-full flex-col relative"
@@ -315,21 +369,32 @@ const Details = () => {
               minHeight: Dimensions.get("window").height - 50,
             }}
           >
-            <HeaderAuth text="" otherStyle="absolute top-4 left-4 z-10" otherStyleIcon="rounded-full" />
+          {loading ? (
+            <Loader isLoading={loading} />
+          ) : (
+            <>
+            <View className = {`flex-row items-center justify-center  w-full h-12 absolute top-4 left-4 z-10`}>
+              <TouchableOpacity className = {`bg-white w-12 h-12 items-center justify-center absolute left-0 rounded-xl shadow-md border border-gray-100 `} 
+                onPress={() => {
+                  router.push('/home')
+                }}>
+                <Ionicons name="chevron-back" size={24} color="#000"  />
+              </TouchableOpacity>
+            </View>
             
-            <Image source={{ uri: post.imageUrl }} className="w-full h-52 rounded-lg px-0" />
+            <Image source={{ uri: post.imageUrl || "https://via.placeholder.com/200" }} className="w-full h-52 rounded-lg px-0" />
        
             <View className="flex flex-col px-4 ">
               <View className = 'flex-col space-y-1 my-2'>
                 <Text className = 'text-black text-2xl font-psemibold'>{post.eventName}</Text>
                   <View className = 'flex-row items-center pl-2'>
-                    <Ionicons name = 'calendar-clear-outline' size ={20} color = '#515151'/>
-                    <Text className = 'text-grey-700 font-pregular text-base ml-2'>{moment(post.startDate).format('DD/MM/YYYY')} - {moment(post.endDate).format('DD/MM/YYYY')}</Text>
+                    <Ionicons name = 'calendar-clear-outline' size ={22} color = '#515151'/>
+                    <Text className = 'text-black font-pregular text-base ml-2'>{moment(post.startDate).format('DD/MM/YYYY')} - {moment(post.endDate).format('DD/MM/YYYY')}</Text>
                   </View>
                   <View className = 'flex-row items-center justify-between  pl-2'>
                     <View className = 'flex-row items-center'>
-                      <Ionicons name = 'play-circle-sharp' size ={20 } color = '#515151'/>
-                      <Text className = 'text-grey-700 font-pregular text-base ml-2'>Lượt chơi: {post.turns || 10}</Text>
+                      <Ionicons name = 'play-circle-sharp' size ={23 } color = '#515151'/>
+                      <Text className = 'text-black font-pregular text-base ml-2'>Lượt chơi: {turns}</Text>
                     </View>
                     <TouchableOpacity onPress={() => {setModalTurnVisible(true)}}>
                       <Text className = 'text-primary font-psemibold text-base underline'>Thêm lượt</Text>
@@ -341,7 +406,7 @@ const Details = () => {
                 <View className = 'border-grey-200' style={{borderWidth:0.3, borderStyle:'dashed', borderRadius:1}}></View>
                 <View className='flex-row space-y-1 my-2 justify-between'>
                   <View className='flex-row items-center space-x-2'>
-                    <Image source={{ uri: post.brandLogo || "https://via.placeholder.com/10" }} className="w-10 h-10 rounded-lg" />
+                    <Image source={{ uri: post.brandLogo || "https://via.placeholder.com/50" }} className="w-10 h-10 rounded-lg" />
                     <Text className='text-black font-psemibold text-lg'>{post.brandId ? post.brandId[0]?.nameBrand : post.brandName}</Text>
                   </View>
                 </View>
@@ -358,11 +423,13 @@ const Details = () => {
               </Text>
 
                 <TouchableOpacity onPress={handleToggle}>
-                <Text className=' font-pegular text-base leading-5 tracking-wide'>
-                  {expanded 
-                    ? 'Lorem ipsum dolor sit amet consectetur. Massa nulla ipsum adipiscing orci donec et augue. Praesent dictum vivamus mauris tempus egestas nisi. Pretium integer non ut ornare mi vel sociis. Nec arcu quis risus quis arcu dapibus. Lacus diam quisque aliquam. Praesent dictum.'
-                    : 'Lorem ipsum dolor sit amet consectetur. Massa nulla ipsum adipiscing orci donec et augue. Praesent dictum vivamus mauris tempus egestas nisi. Pretium integer non ut ornare mi vel sociis...'}
-                </Text>
+                  <Text className=' font-pegular text-base leading-5 tracking-wide'>
+                    {expanded 
+                      ? (post.gameInfoDTO?.gameType === 'shake-game' ? shakeGameDescription : quizGameDescription)
+                      : (post.gameInfoDTO?.gameType === 'shake-game' ? shakeGameDescription.substring(0,130)+"..." : quizGameDescription.substring(0,130)+"...")
+                    }
+                  </Text>
+
                   <Text className='text-grey-500 text-right font-pregular text-sm leading-6 underline tracking-wide'>
                     {expanded ? 'Thu gọn' : 'Xem thêm'}
                   </Text>
@@ -380,16 +447,29 @@ const Details = () => {
 
                 {post.gameInfoDTO?.gameType === 'shake-game' ? (
                   <View>
-                  <View className='flex gap-2'>
-                    <Text className='font-pregular text-base'>Chi tiết: {post?.inventoryInfo?.voucher_description}</Text>
-                    <Text className='font-pregular text-base'><Text className='font-psemibold'>Số lượng:</Text> {post?.numberOfVouchers} mã giảm giá</Text>
+                  <View className='flex gap-2'> 
+                    <Text className='font-pregular text-base'>Trị giá: 
+                      <Text className="font-psemibold text-primary">
+                      {" " + post?.inventoryInfo?.voucher_price + " VND"} 
+                      </Text>
+                    </Text>
                     <Text className='font-pregular text-base'>
-                      Bạn cần đạt được <Text className='font-psemibold'>100 Xu hoặc các mảnh ghép sau</Text> để đủ điều kiện đổi thưởng.
+                        Số lượng:
+                      <Text className='font-psemibold text-primary'>
+                        {" " + post?.numberOfVouchers + " mã giảm giá"}
+                      </Text> 
+                    </Text>
+                    <Text className='font-pregular text-base'>Chi tiết: {post?.inventoryInfo?.voucher_description}</Text>
+                    <Text className='font-pregular text-base'>
+                      Bạn cần đạt được 
+                      <Text className='font-psemibold text-primary'> 
+                       {post?.inventoryInfo?.aim_coin ?  ` ${post?.inventoryInfo?.aim_coin} Xu hoặc` : ""} các mảnh ghép sau
+                      </Text> để đủ điều kiện đổi thưởng.
                     </Text>
                     <View className="flex self-center flex-row flex-wrap bg-white rounded-md my-6 mb-2">
                       {listItems.map(item => (
                         <View key={item.idItem} className="w-1/4 p-2">
-                          <Item imageUrl={item?.imageUrl} amount={`1 ${item?.itemName}`} />
+                          <Item imageUrl={item?.imageUrl} amount={`${item?.itemName}`} />
                         </View>
                       ))}
                     </View>
@@ -399,7 +479,6 @@ const Details = () => {
                      title="Chơi ngay" 
                      containerStyles="justify-center my-4 flex-grow mr-4"
                      textStyles='' 
-                    //  handlePress={() => router.push("/games/shakeGame")}
                      handlePress={() => router.push({
                        pathname: "/games/shakeGame",
                        params: { gameId: post?.gameInfoDTO?.gameId, username: user.username },
@@ -416,14 +495,29 @@ const Details = () => {
                  </View>
                 ) : (
                   <View className='flex gap-2'>
-                    <Text className='font-pregular text-base'>Chi tiết: {post?.inventoryInfo?.voucher_description}</Text>
+                  <Text className='font-pregular text-base'>Trị giá: 
+                    <Text className="font-psemibold text-primary">
+                    {" " + post?.inventoryInfo?.voucher_price + " VND"} 
+                    </Text>
+                  </Text>
+                  <Text className='font-pregular text-base'>Chi tiết: {post?.inventoryInfo?.voucher_description}</Text>
                   <Text className='font-pregular text-base'>
-                    Để nhận voucher, hãy chơi game vào lúc {moment(post?.gameInfoDTO?.startedAt).utcOffset(420, true).format('HH:mm:ss DD/MM/YYYY')} để nhận ngay voucher.
+                    Để nhận voucher, hãy tham gia chơi game vào lúc 
+                    <Text className="font-psemibold text-primary text base">
+                      {" " + moment(post?.gameInfoDTO?.startedAt).utcOffset(420, true).format('HH:mm:ss DD/MM/YYYY') + " "}
+                    </Text>
+                    để nhận ngay voucher.
+                  </Text>
+
+                  <Text className="text-base font-psemibold text-primary">Lưu ý: 
+                    <Text className="text-base font-pregular text-black">
+                      {" " + "Bấm Chơi ngay trước 1 phút game bắt đầu để có thể tham gia game thành công"}
+                    </Text>
                   </Text>
 
                   <CustomButton 
                     title="Chơi ngay" 
-                    containerStyles="justify-center my-4 flex-grow mr-4"
+                    containerStyles="justify-center my-4 flex-grow"
                     textStyles='' 
                     handlePress={() => {
                       const currentTime = moment().toLocaleString();
@@ -440,13 +534,18 @@ const Details = () => {
                             room: post?.idEvent, 
                             username: user.username,
                             remainingTime: timeDifference,
-                            eventId: post?.idEvent
+                            eventId: post?.idEvent,
+                            eventName: post?.eventName
                           },
                         });
                       } else if (timeDifference > 60) {
-                        alert("Chưa tới giờ chơi. Vui lòng quay lại sau!");
+                        setDialogTitle("");
+                        setDialogMessage("Chưa tới giờ chơi. Vui lòng quay lại sau!");
+                        setDialogVisible(true);
                       } else {
-                        alert("Trò chơi đã bắt đầu. Vui lòng tham gia ngay!");
+                        setDialogTitle("");
+                        setDialogMessage("Trò chơi đã bắt đầu. Bạn không thể tham gia được nữa :(");
+                        setDialogVisible(true);
                       }
                     }}
                   />
@@ -460,6 +559,8 @@ const Details = () => {
                 
               </View>
             </View>
+            </>  
+          )}
           </View>
         </ScrollView>
       </SafeAreaView>
