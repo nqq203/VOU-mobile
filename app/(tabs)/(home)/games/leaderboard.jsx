@@ -97,17 +97,10 @@ const Leaderboard = () => {
   useEffect(() => {
     const processResult = async () => {
       if (result) {
-        // const users = [{userId:1,score:10,avatar: null},{userId:2,score:9,avatar: null},{userId:3,score:8,avatar: null},
-        //   {userId:4,score:7,avatar: null},
-        //   {userId:5,score:6,avatar: null},
-        //   {userId:6,score:5,avatar: null},
-        //   {userId:7,score:4,avatar: null},
-        //   {userId:8,score:4,avatar: null},
-        // ]
         const users = JSON.parse(result).sort((a, b) => b.score - a.score);
-        console.log("Users: ", users)
+        // console.log("Users: ", users)
         const topUsers = users.slice(0, 3).map((user, index) => ({
-          name: user.idUser,
+          name: user.userId,
           points: user.score,
           avatar: user.avatar,
         }));
@@ -116,30 +109,29 @@ const Leaderboard = () => {
 
         const others = users.slice(3).map((user, index) => ({
           rank: index + 4,
-          name: user.idUser,
+          name: user.userId,
           points: user.score,
           avatar: user.avatar,
         }));
         setOtherUsers(others);
-      
-        const currentUser = users.find(item => item.idUser === user?.username);
+        
+        const currentUser = users.find(item => item.userId === user?.username);
         if (currentUser) {
           setUserRank({
             rank: users.indexOf(currentUser) + 1,
             points: currentUser.score,
             avatar: currentUser.avatar || "https://via.placeholder.com/50",
-            name: user?.fullName || "Anonymous",
-            userId: user?.idUser  
+            name: user?.userId || "Anonymous",
+            userId: user?.userId
           });
 
-          if (topUsers.find(item => user?.username === item.name)) {
+          if (topUsers.find(item => user?.username === item?.name)) {
             setIsTop3(true);
             try {
               const voucherResult = await callApiGetVouchers(eventId);
-              console.log("Voucher: ", voucherResult);
               setVoucher(voucherResult);
               if (voucherResult) {
-                await callApiUseVoucher(voucherResult.idVoucher, user?.idUser);
+                await callApiUseVoucher(voucherResult.voucher_code, user?.idUser);
               }
             } catch (error) {
               console.log("Error fetching or using voucher:", error);

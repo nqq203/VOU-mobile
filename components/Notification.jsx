@@ -36,7 +36,7 @@ const Notification = ({ isSuccess, message,visible,onClose }) => {
         <View className ='flex-row'>
         <Image source={icons[iconName]} style={{ height:24,width:24,justifyContent: 'center', alignItems: 'center'}}
                   className= 'w-full opacity-50' resizeMode="contain" />
-        <Text className="pl-4 text-base font-semibold">{message}</Text>
+        <Text className="pl-4 text-base font-semibold mr-1">{message}</Text>
         </View>
         <CustomButton title="OK" handlePress={onClose} containerStyles={`mt-4 w-full h-8  ${backgroundColor}`}  textStyles='text-base'/>
       </View>

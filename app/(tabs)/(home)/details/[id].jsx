@@ -232,6 +232,13 @@ const Details = () => {
     setModalAskForTurnVisible(true);
   }
 
+  // giveTurnToFriend
+  // giveTurnToFriend 8087, 86
+  // api: /turn
+  const giveTurnToFriend = () => {
+    console.log("Hel")
+  }
+
   const handlePlayGame = () => {
     if (userTurns <= 0) {
       Alert.alert("Thông báo", "Bạn đã hết lượt chơi, vui lòng thêm lượt hoặc quay lại sau!");
@@ -341,6 +348,8 @@ const Details = () => {
 
                     <CustomButton title={"Xin lượt từ bạn bè"}  containerStyles={'w-full bg-white border border-primary my-2'} textStyles={'text-black font-pmedium'}
                         handlePress={askForTurnFromFriend} icon={"friends"} iconStyle={'w-8 h-6'}/>
+                    <CustomButton title={"Tặng lượt cho bạn bè"}  containerStyles={'w-full bg-white border border-primary my-2'} textStyles={'text-black font-pmedium'}
+                        handlePress={giveTurnToFriend} icon={"turn1"} iconStyle={'w-8 h-6'}/>
                     <CustomButton title={"Chia sẻ Facebook"}  containerStyles={'w-full bg-white border border-primary my-2'} textStyles={'text-black font-pmedium'}
                         handlePress={askForTurnFacebook} icon={"facebook"}/>
                     

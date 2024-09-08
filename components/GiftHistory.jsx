@@ -6,7 +6,8 @@ const GiftHistory = ({
     username,
     isReceived,
     give_time,
-    itemName
+    itemName,
+    amount=1,
 }) => {
   return (
     <View className='flex-row '>
@@ -20,9 +21,9 @@ const GiftHistory = ({
 
         <View className="flex flex-col pl-2 pr-6 justify-center">
             {isReceived ? (
-                <Text className="text-base font-pmedium">Bạn đã nhận từ {username} một mảnh ghép {itemName}</Text>
+                <Text className="text-base font-pmedium">Bạn đã nhận từ {username} {" " + amount + " "} mảnh ghép {itemName}</Text>
             ) : (
-                <Text className="text-base font-pmedium">Bạn đã tặng cho {username} một mảnh ghép {itemName}</Text>
+                <Text className="text-base font-pmedium">Bạn đã tặng cho {username} {" " + amount + " "} mảnh ghép {itemName}</Text>
             )}
             <Text className="text-base font-pregular text-gray-500">{give_time}</Text>
         </View>

@@ -33,6 +33,7 @@ export const callApiUseVoucher =    async (code,userId) => {
             voucherCode: code,
             winnerIds: [userId]
         }
+        console.log("Reuq: ",requestBody);
         const response = await api.post(`/api/v1/vouchers/gifts`, requestBody);
         return response.data;
     } catch (error) {

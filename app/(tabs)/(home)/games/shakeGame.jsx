@@ -123,8 +123,7 @@ const ShakeGame = () => {
   const askForTurnFromFriend = () => {
     setModalTurnVisible(false);
     setModalAskForTurnVisible(true);
-  }
-
+  }  
 
   const sendRequestTurn = () => {
     if(option === 'Mã ID') {
@@ -287,9 +286,6 @@ const ShakeGame = () => {
                             </View>
                             <CustomButton title='Chơi ngay' containerStyles={'w-full my-4'} handlePress={() => {setModalGameVisible(true)}}/>
                             <Text className="text-base text-orange-900 font-pmedium">Bạn còn {turn} lượt lắc</Text>
-                            <TouchableOpacity onPress={() => setModalTurnVisible(true)}>
-                                <Text className="text-base text-primary underline font-psemibold">Thêm lượt ngay</Text>
-                            </TouchableOpacity>
                         </View>
                     </View>
                 </View>

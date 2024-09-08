@@ -61,13 +61,13 @@ const History = () => {
                     <View className="flex">
                     {giftlog?.sendHistory?.map((history,index) => (
                             <View key={index} className="mt-2 pr-3">
-                                <GiftHistory username={history.receiverName} isReceived={false} 
+                                <GiftHistory username={history.receiverName} isReceived={false} amount={history.amount} 
                                     give_time={convertDataToOutputString(history.giveTime)} itemName={history.item.itemName}/>
                             </View>
                         ))}
                         {giftlog?.receiveHistory?.map((history,index) => (
                             <View key={index} className="mt-2 pr-3">
-                                <GiftHistory username={history.senderName} isReceived={true} 
+                                <GiftHistory username={history.senderName} isReceived={true} amount={history.amount} 
                                     give_time={convertDataToOutputString(history.giveTime)} itemName={history.item.itemName}/>
                             </View>
                         ))}
