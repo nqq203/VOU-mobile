@@ -25,20 +25,17 @@ import Notification from "../../../../components/Notification";
 import { callAPIGetPost,callApiGetUserTurns } from "../../../../api/events";
 import moment from "moment";
 import * as SecureStore from 'expo-secure-store';
-import { useQuery } from "react-query";
 import { callApiExchangeVoucher } from "../../../../api/voucher";
 import { Share,Platform } from "react-native";
 import * as Sharing from "expo-sharing";
 import * as FileSystem from "expo-file-system";
 import { callApiAddTurn } from "../../../../api/turn";
 
+
 const Details = () => {
-  // const {user} = useGlobalContext();
   const {id} = useLocalSearchParams();
   const [expanded, setExpanded] = useState(false);
-  // const [loading, setLoading] = useState(true);
 
-  const navigation = useNavigation();
   const handleToggle = () => {
     setExpanded(!expanded);
   };
@@ -119,12 +116,13 @@ const Details = () => {
         if (res.success) {
           setPost(res.metadata);
           console.log(post)
-          setModalVisible(res.metadata?.gameInfoDTO?.isVoucherCode);  
+          // setModalVisible(res.metadata?.gameInfoDTO?.isVoucherCode);  
           setListItems(res.metadata.inventoryInfo?.items);
           setQrCode(res.metadata.inventoryInfo.voucher_code);
         }
 
         if (user?.idUser) {
+          console.log("post:", post)
           const turnRes = await callApiGetUserTurns(user.idUser, post?.gameInfoDTO?.gameId); 
           if (turnRes.success) {
             setUserTurns(turnRes.metadata.turns); 
@@ -177,12 +175,13 @@ const Details = () => {
     const title = post.eventName;
     const message = "Tham gia ngay sự kiện " + title + " trên ứng dụng VOU \n" +
       "Cơ hội nhận được \"" + post.inventoryInfo?.voucher_name + "\" trị giá " + post.inventoryInfo?.voucher_price + "VND";
-    const url = post.imageUrl;
+    const url = post.imageUrl || "https://i.natgeofe.com/n/548467d8-c5f1-4551-9f58-6817a8d2c45e/NationalGeographic_2572187_square.jpg";
+
+    // Download the image
     const messageAndUrl = message.concat("\n\n").concat(url);
     try {
-      // Download the image and get the local URI
       const uri = await FileSystem.downloadAsync(url, FileSystem.cacheDirectory + "tmp.png");
-      console.log(uri.uri); // Prints the local image file URI
+      console.log( "URI:",uri.uri); // Prints the local image file URI
   
       // Share the content
       let result;
@@ -216,7 +215,7 @@ const Details = () => {
         setModalTurnVisible(false);
 
         const resultAdd = await callApiAddTurn(user.idUser,post?.gameInfoDTO?.gameId)
-        // console.log(resultAdd)
+        console.log("AddTurn; ",resultAdd.data)
         if(resultAdd.success){
           setTurnResult(resultAdd.message);
         }
@@ -420,6 +419,7 @@ const Details = () => {
                     <Ionicons name = 'calendar-clear-outline' size ={22} color = '#515151'/>
                     <Text className = 'text-black font-pregular text-base ml-2'>{moment(post.startDate).format('DD/MM/YYYY')} - {moment(post.endDate).format('DD/MM/YYYY')}</Text>
                   </View>
+                  {post.gameInfoDTO?.gameType === 'shake-game' ? (
                   <View className = 'flex-row items-center justify-between  pl-2'>
                     <View className = 'flex-row items-center'>
                       <Ionicons name = 'play-circle-sharp' size ={20 } color = '#515151'/>
@@ -429,6 +429,17 @@ const Details = () => {
                       <Text className = 'text-primary font-psemibold text-base underline'>Thêm lượt</Text>
                     </TouchableOpacity>
                   </View>
+                  ) : 
+                  (
+                    <View className = 'flex-row items-center justify-between  pl-2'>
+                      <View className = 'flex-row items-center'>
+                        <Ionicons name = 'time' size ={20 } color = '#515151'/>
+                        <Text className = 'text-black font-pregular text-base ml-2'>Thời gian chơi: {moment(post?.gameInfoDTO?.startedAt).utcOffset(420, true).format('HH:mm:ss DD/MM/YYYY') + " "}
+                    </Text>
+                      </View>
+                     
+                    </View>
+                  )}
               </View>
 
               <View className='my-3'>
@@ -444,7 +455,19 @@ const Details = () => {
                   style={{ borderWidth: 0.3, borderStyle: 'dashed', borderRadius: 1 }}
                 ></View>
               </View>
-
+              {post.brandId && post.brandId.length > 1 ? (
+                <View className='flex-col space-y-1 mb-2'>
+                  <Text className='font-psemibold text-lg leading-6 tracking-wide text-primary'>
+                    Hợp tác
+                  </Text>
+                  <Text className='text-base font-pregular'>Sự kiện có sự tham gia của các brand: {post.brandId.slice(1).map((brand) => brand.nameBrand).join(", ")}
+                  </Text>
+                </View>
+              ) : (
+                <></>
+              )}
+             
+                
               {/* Noi dung game */}
               <View className='flex-col space-y-1'>
               <Text className='font-psemibold text-lg leading-6 tracking-wide text-primary'>

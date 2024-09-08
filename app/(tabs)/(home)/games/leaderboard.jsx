@@ -142,7 +142,7 @@ const Leaderboard = () => {
                 await callApiUseVoucher(voucherResult.idVoucher, user?.idUser);
               }
             } catch (error) {
-              console.error("Error fetching or using voucher:", error);
+              console.log("Error fetching or using voucher:", error);
             }
             
           } else {

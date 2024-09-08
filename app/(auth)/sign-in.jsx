@@ -4,7 +4,7 @@ import { Link, router } from "expo-router";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { View, Text, ScrollView, Dimensions, Alert, TouchableOpacity } from "react-native";
 import { useNavigation } from '@react-navigation/native';
-import { FooterAuth, FormField ,HeaderAuth} from "../../components";
+import { FooterAuth, FormField ,HeaderAuth, Notification} from "../../components";
 import { useGlobalContext } from "../../context/GlobalProvider";
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import { callApiLogin } from "../../api/user";
@@ -22,14 +22,17 @@ const SignIn = () => {
   const [onConfirm, setOnConfirm] = useState(() => () => {});
 
   
-  // const showDialog = (title, message, onConfirmCallback) => {
-  //   setDialogTitle(title);
-  //   setDialogMessage(message);
-  //   setOnConfirm(() => onConfirmCallback);
-  //   setDialogVisible(true);
-  // };
+  const showDialog = (title, message, onConfirmCallback) => {
+    setDialogTitle(title);
+    setDialogMessage(message);
+    setOnConfirm(() => onConfirmCallback);
+    setDialogVisible(true);
+  };
   const submit = async () => {
     if (form.username === "" || form.password === "") {
+      setDialogVisible(true);
+      showDialog(false, 'Please fill in all fields', () => {});
+      return;
     }
     
     
@@ -60,11 +63,15 @@ const SignIn = () => {
         router.push('/home');
       }
       else{
-        Alert.alert("Error", result.message);
+        setDialogVisible(true);
+        showDialog(false, result.message, () => {});
+        // Alert.alert("Error", result.message);
       }
     } catch (error) {
+      setDialogVisible(true);
+      console.log("Err: ", error);
+      showDialog(false, error.message, () => {});
       // showDialog(false, error.message, () => {});
-      console.log("Result: ",error);
      
       
     } finally {
@@ -125,13 +132,12 @@ const SignIn = () => {
           <FooterAuth text="New member?" textLink="Sign up" url="/sign-up" />
         </View>
       </ScrollView>
-      {/* <Notification
-        visible={dialogVisible}
-        onClose={() => setDialogVisible(false)}
-        isSuccess={dialogTitle}
-        message={dialogMessage}
-        
-    /> */}
+      {dialogVisible && <Notification
+      visible={dialogVisible}
+      onClose={() => setDialogVisible(false)}
+      isSuccess={dialogTitle}
+      message={dialogMessage}
+    ></Notification>}
     </SafeAreaView>
   );
 };

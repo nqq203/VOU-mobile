@@ -56,7 +56,7 @@ const Home = () => {
         }
         return [];
       } catch (error) {
-        console.error("Error during API calls:", error);
+        console.log("Error during API calls:", error);
         return [];
       }
     },
@@ -102,10 +102,10 @@ const Home = () => {
           <View className="flex-row justify-between">
             <View className="">
               <Text className={`text-xl text-primary font-bold leading-8`}>
-                HI, {user?.fullName}
+                Chào, {user?.fullName}
               </Text>
               <Text className="text-md border-spacing-1 font-normal text-black">
-                Let's play the game!
+                Cùng tham gia sự kiện nào
               </Text>
             </View>
             <NotiButton />

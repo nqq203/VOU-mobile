@@ -52,36 +52,27 @@ const SignUp = () => {
 
 
   const validateEmail = (email) => {
-    // Simple regex for email validation
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     return emailRegex.test(email);
   };
   
   const submit = async () => {
+    console.log("Form: ",form);
     if ( form.email === "" || form.password === ""|| form.phoneNumber === "" || form.username === "") {
-      Alert.alert("Error", "Please fill in all fields");
+      setDialogVisible(true);
+      showDialog(false, 'Please fill in all fields', () => {});
+      // Alert.alert("Error", "Please fill in all fields");
     }
     if (!validateEmail(form.email)) {
-      // showDialog(false, 'Invalid email format', () => {});
+      setDialogVisible(true);
+      showDialog(false, 'Invalid email format', () => {});
       
-      Alert.alert("Error", "Invalid email format");
+      // Alert.alert("Error", "Invalid email format");
       return; 
     }
 
     setSubmitting(true);
 
-
-  //   const user ={
-  //     email: form.email,
-  //     password: form.password,
-  //     fullName: form.fullName,
-  //     phoneNumber: form.phoneNumber,
-  //     username: form.username,
-  //     role: 'PLAYER'
-  //   }
-  //   signUpMutation.mutate(user);
-  
-  // }
 
     try {
       const user ={
@@ -95,19 +86,23 @@ const SignUp = () => {
       
       const result = await callApiCreateAccount(user);
       console.log("Ho: ",result);
-      if (result?.success && result.success === false){
-        Alert.alert("Error", result.message);
+
+      if (result?.success && result.success === true && result?.code === 201){
+        setUser(result);
+        setIsLogged(true);
+        router.replace("/verify-otp", { username: form.username });
+      }
+      else{
+        setDialogVisible(true);
+        showDialog(false, result?.message, () => {});
+        // Alert.alert("Error", result.message);
         return;
       }
-      setUser(result);
-      setIsLogged(true);
-      // await AsyncStorage.setItem('username', form.username);
-
-      router.replace("/verify-otp", { username: form.username });
     } catch (error) {
-      // showDialog(false, error.message, () => {});    
+      setDialogVisible(true);
+      showDialog(false, error.message, () => {});    
       console.log(error);
-      Alert.alert("Error", error.message);
+      // Alert.alert("Error", error.message);
     } finally {
       setSubmitting(false);
     }
@@ -175,7 +170,7 @@ const SignUp = () => {
             </TouchableOpacity>
           </View>
         </View>
-       {/* <FooterAuth text="Already a member?" textLink="Sign in" url="/sign-in" /> */}
+       <FooterAuth text="Already a member?" textLink="Sign in" url="/sign-in" />
       </View>
     </ScrollView>
     {dialogVisible && <Notification

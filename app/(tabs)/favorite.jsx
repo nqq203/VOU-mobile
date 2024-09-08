@@ -55,7 +55,7 @@ const Favorite = () => {
 
         return [];
       } catch (error) {
-        console.error("Error fetching favorite events:", error);
+        console.log("Error fetching favorite events:", error);
         return [];
       }
     },

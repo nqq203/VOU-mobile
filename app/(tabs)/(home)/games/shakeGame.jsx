@@ -102,7 +102,7 @@ const ShakeGame = () => {
         }
         setShowResult(true); 
       } catch (error) {
-        console.error('Error calling ShakeGame API:', error);
+        console.log('Error calling ShakeGame API:', error);
       }
     }
 
