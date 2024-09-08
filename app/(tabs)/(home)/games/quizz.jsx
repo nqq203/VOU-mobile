@@ -11,6 +11,7 @@ import { images } from "../../../../constants";
 import { Modalize } from 'react-native-modalize';
 import Icon from 'react-native-vector-icons/FontAwesome6';
 
+import { Audio } from 'expo-av';
 
 const QuizScreen = () => {
   const router = useRouter()
@@ -25,6 +26,7 @@ const QuizScreen = () => {
   const [highlightedOption, setHighlightedOption] = useState(null); 
   const { sendData, question, result, score } = useSocket(room, username);
   const [checkAnswer, setCheckAnswer] = useState(false);
+  const [sound, setSound] = useState();
 
   const openSheet = useCallback(() => {
     modalizeRef.current?.open(); 
@@ -35,15 +37,36 @@ const QuizScreen = () => {
     }, 5000);
   }, []);
 
+  const playSound = async (url) => {
+    try {
+      if (sound) {
+        await sound.unloadAsync();
+      }
+      if (url === null) {
+        return;
+      }
+      console.log('Playing sound:', url);
+      const { sound: newSound } = await Audio.Sound.createAsync(
+        { uri: url }
+      );
+      setSound(newSound);
+      await newSound.playAsync();
+    } catch (error) {
+      console.log('Error playing sound:', error);
+    }
+  };
 
   useEffect(() => {
     console.log("Hello")
     console.log(question)
     if (question) {
-      console.log("Received question effect:", question);
+      console.log("Received question effect:", question?.radioUrl);
       // setTimer(15);
       setTimeStartQuestion(new Date());
       setCurrentQuestion(question);
+
+      playSound(question?.radioUrl);
+    
       setSelectedAnswerIndex(null);
       setHighlightedOption(null); 
       setCheckAnswer(null)
@@ -65,7 +88,6 @@ const QuizScreen = () => {
       console.log("Score:", score);
     }
   }, [question, router, result, room, username, score, openSheet]);
-
 
  
   const handleAnswerSelection = (index) => {

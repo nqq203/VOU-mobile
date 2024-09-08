@@ -10,8 +10,8 @@ import {
   ScrollView,
   TouchableOpacity,
   TextInput,
-  Modal,
   AppState
+  Modal, ActivityIndicator
 } from "react-native";
 import { CustomButton, HeaderAuth, Loader} from "../../../../components";
 import { icons } from "../../../../constants";
@@ -22,7 +22,7 @@ import Voucher from "../../../../components/Voucher";
 import {images} from "../../../../constants";
 import Dropdown from "../../../../components/Dropdown";
 import Notification from "../../../../components/Notification";
-import { callAPIGetPost } from "../../../../api/events";
+import { callAPIGetPost,callApiGetUserTurns } from "../../../../api/events";
 import moment from "moment";
 import * as SecureStore from 'expo-secure-store';
 import { useQuery } from "react-query";
@@ -111,26 +111,37 @@ const Details = () => {
 
   const [post, setPost] = useState({});
   useEffect(() => {
-  const fetchPost = async () => {
+    const fetchPostAndTurns = async () => {
+      setIsLoading(true); 
+      setIsFetchingTurns(true); 
       try {
         const res = await callAPIGetPost(id);
-        if (res.success){
-          // console.log("Dtaa",res);
+        if (res.success) {
           setPost(res.metadata);
           setListItems(res.metadata.inventoryInfo?.items);
           setQrCode(res.metadata.inventoryInfo.voucher_code);
-          setTurns(res.metadata.turns || 10);
+        }
+
+        if (user?.idUser) {
+          const turnRes = await callApiGetUserTurns(user.idUser, post?.gameInfoDTO?.gameId); 
+          if (turnRes.success) {
+            setUserTurns(turnRes.metadata.turns); 
+          }
+          else {
+            setUserTurns(0);
+            console.log(turnRes.message)
+          }
         }
       } catch (error) {
-        console.log("Error",error);
+        console.log("Error fetching post or turns:", error);
+      } finally {
+        setIsLoading(false); 
+        setIsFetchingTurns(false);
       }
     };
-    fetchPost();
-    const timer = setTimeout(() => {
-      setLoading(false)
-    }, 3000);
-    return () => clearTimeout(timer);
-  }, []);
+    fetchPostAndTurns();
+  }, [id, user]);
+
 
   // Exchange gift form
   const submit = async () => {
@@ -142,7 +153,6 @@ const Details = () => {
           setCanExchangeVoucher(true)
         }
         else{
-          // Alert.alert("Error", result.message);
           setIsExchangeError(true);
           console.log("Error",result.message);
         }
@@ -151,7 +161,14 @@ const Details = () => {
         console.log("Result: ",error);
       }
   }
-
+  if (isLoading || isFetchingTurns) {
+    return (
+      <SafeAreaView className="bg-white flex-1 justify-center items-center">
+        <ActivityIndicator size="large" color="#EA661C" />
+        <Text>Loading...</Text>
+      </SafeAreaView>
+    );
+  }
   
   const askForTurnFacebook = async () => {
     // title, message, url, image
@@ -214,6 +231,16 @@ const Details = () => {
     setModalAskForTurnVisible(true);
   }
 
+  const handlePlayGame = () => {
+    if (userTurns <= 0) {
+      Alert.alert("Thông báo", "Bạn đã hết lượt chơi, vui lòng thêm lượt hoặc quay lại sau!");
+    } else {
+      router.push({
+        pathname: "/games/shakeGame",
+        params: { gameId: post?.gameInfoDTO?.gameId, username: user.username },
+      });
+    }
+  };
   const sendRequestTurn = () => {
     if(option === 'Mã ID') {
         form.typeOfInfo = 'id'
@@ -393,8 +420,8 @@ const Details = () => {
                   </View>
                   <View className = 'flex-row items-center justify-between  pl-2'>
                     <View className = 'flex-row items-center'>
-                      <Ionicons name = 'play-circle-sharp' size ={23 } color = '#515151'/>
-                      <Text className = 'text-black font-pregular text-base ml-2'>Lượt chơi: {turns}</Text>
+                      <Ionicons name = 'play-circle-sharp' size ={20 } color = '#515151'/>
+                      <Text className = 'text-grey-700 font-pregular text-base ml-2'>Lượt chơi: {userTurns|| 0}</Text>
                     </View>
                     <TouchableOpacity onPress={() => {setModalTurnVisible(true)}}>
                       <Text className = 'text-primary font-psemibold text-base underline'>Thêm lượt</Text>
@@ -423,13 +450,21 @@ const Details = () => {
               </Text>
 
                 <TouchableOpacity onPress={handleToggle}>
-                  <Text className=' font-pegular text-base leading-5 tracking-wide'>
-                    {expanded 
-                      ? (post.gameInfoDTO?.gameType === 'shake-game' ? shakeGameDescription : quizGameDescription)
-                      : (post.gameInfoDTO?.gameType === 'shake-game' ? shakeGameDescription.substring(0,130)+"..." : quizGameDescription.substring(0,130)+"...")
-                    }
-                  </Text>
 
+                {post.gameInfoDTO?.gameType === 'shake-game' ? (
+                <Text className=' font-pegular text-base leading-5 tracking-wide'>
+                  {expanded 
+                    ? 'Lắc Xu là game tương tác, trong đó người dùng lắc điện thoại để nhận các vật phẩm ngẫu nhiên như xu, quà, hoặc điểm thưởng. Các vật phẩm thu thập được có thể dùng để đổi lấy phần thưởng hấp dẫn, tạo cảm giác hứng thú và hồi hộp khi chơi.'
+                    : 'Lắc Xu là game tương tác, trong đó người dùng lắc điện thoại để nhận các vật phẩm ngẫu nhiên như xu, quà, hoặc điểm thưởng. Các vật phẩm thu thập được có thể dùng để đổi lấy phần thưởng hấp dẫn,...'}
+                </Text>
+                ) : (
+                  <Text className=' font-pegular text-base leading-5 tracking-wide'>
+                  {expanded 
+                    ? 'Quiz là game tương tác, nơi người dùng cùng xem livestream và trả lời các câu hỏi trong thời gian thực. Người chơi tham gia qua thiết bị cá nhân, cạnh tranh với nhau bằng cách chọn câu trả lời đúng nhanh nhất, tạo nên trải nghiệm học hỏi và giải trí trực tiếp.'
+                    : 'Quiz là game tương tác, nơi người dùng cùng xem livestream và trả lời các câu hỏi trong thời gian thực. Người chơi tham gia qua thiết bị cá nhân,...'}
+                </Text>
+                )
+              }
                   <Text className='text-grey-500 text-right font-pregular text-sm leading-6 underline tracking-wide'>
                     {expanded ? 'Thu gọn' : 'Xem thêm'}
                   </Text>

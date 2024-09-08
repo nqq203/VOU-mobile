@@ -1,85 +1,109 @@
-import React, { useEffect, useState } from "react";
+import React, { useState, useCallback } from "react";
 import { SafeAreaView } from "react-native-safe-area-context";
 import {
   Text,
   View,
   Dimensions,
   ScrollView,
+  RefreshControl,
+  ActivityIndicator,
 } from "react-native";
 import * as SecureStore from 'expo-secure-store';
 import { FormField, SearchInput, Loader } from "../../../components";
 import { router, usePathname } from "expo-router";
+import { usePathname, router } from "expo-router";
 import CardEvent from "../../../components/CardEvent";
 import NotiButton from "../../../components/NotiButton";
 import { useQuery } from "react-query";
-import { callAPIGetEvents } from "../../../api/events";
-import { useNavigation } from '@react-navigation/native';
-import { useCallback } from 'react';
+import { callAPIGetEvents, callApiGetFavoriteVouchers } from "../../../api/events";
 import { useFocusEffect } from '@react-navigation/native';
 
 const Home = () => {
-  const [posts, setPosts] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [refreshing, setRefreshing] = useState(false);
-  const pathname = usePathname();
-  
   const [user, setUser] = useState(null);
-  const navigate = useNavigation();
+  const [refreshing, setRefreshing] = useState(false);
+  const [isFocusRefetching, setIsFocusRefetching] = useState(false);
+  const [isInitialLoading, setIsInitialLoading] = useState(true);
+  const pathname = usePathname();
 
-  useFocusEffect(
-    useCallback(() => {
-      // Your refresh logic here
-      console.log('Screen is focused and refreshed');
-      setLoading(true);
-      fetchPosts();
-
-        
-      return () => {
-        // Optional cleanup if needed when screen loses focus
-      };
-    }, [])
-  );
-
-  const fetchUser = async () => {
+  const fetchUser = useCallback(async () => {
     try {
-      let user = await SecureStore.getItemAsync("user");
-      if (user) {
-        user = JSON.parse(user);
-        setUser(user);
+      const userString = await SecureStore.getItemAsync("user");
+      if (userString) {
+        const parsedUser = JSON.parse(userString);
+        setUser(parsedUser);
       }
     } catch (error) {
       console.log(error);
     }
-  };
+  }, []);
 
-  const fetchPosts = async () => {
-    try {
-      const res = await callAPIGetEvents();
-      if (res.success){
-        // console.log(res);
-        setPosts(res.metadata);
+  const { data: posts, isLoading, refetch } = useQuery(
+    ["home", user?.idUser],
+    async () => {
+      if (!user?.idUser) return [];
+      try {
+        const [eventsRes, favoritesRes] = await Promise.all([
+          callAPIGetEvents(),
+          callApiGetFavoriteVouchers(user.idUser)
+        ]);
+        if (eventsRes.success && favoritesRes.success) {
+          const events = eventsRes.metadata || [];
+          const favorites = favoritesRes.metadata || [];
+          const mergedEvents = events.map(event => ({
+            ...event,
+            isFav: favorites.some(fav => fav.idEvent === event.idEvent)
+          }));
+          console.log("Merged Data:", JSON.stringify(mergedEvents, null, 2));
+          return mergedEvents;
+        }
+        if (eventsRes.code === 401 || favoritesRes.code === 401) {
+          await SecureStore.deleteItemAsync("user");
+          await SecureStore.deleteItemAsync("token");
+          router.replace("/login");
+          return [];
+        }
+      } catch (error) {
+        console.error("Error fetching posts or favorites:", error);
+        return [];
       }
-      if (res.code === 401) {
-        await SecureStore.deleteItemAsync("user");  
-        await SecureStore.deleteItemAsync("token");  
-        navigate("/login");
-      }
-    } catch (error) {
-      
-    } finally {
-      setLoading(false);
+    },
+    {
+      enabled: !!user?.idUser, // Ensure the query only runs if user.idUser is available
+      onSuccess: () => setIsInitialLoading(false), // Stop the initial loading state when success
+      onError: () => setIsInitialLoading(false),
     }
-  };
+  );
+  
 
-  useEffect(() => {
-    fetchUser();
-    fetchPosts();
-  }, [navigate]);
+  const onRefresh = useCallback(async () => {
+    setRefreshing(true);
+    await refetch();
+    setRefreshing(false);
+  }, [refetch]);
 
+  useFocusEffect(
+    useCallback(() => {
+      console.log('Screen is focused and refreshed');
+      fetchUser();
+      if (user?.idUser) {
+        setIsFocusRefetching(true);
+        refetch().finally(() => setIsFocusRefetching(false));
+      }
+      return () => {
+        // Cleanup function if needed
+      };
+    }, [fetchUser, refetch, user?.idUser])
+  );
+
+  const isDataLoading = isLoading || isFocusRefetching || isInitialLoading; 
 
   return (
     <SafeAreaView className="bg-bg w-full">
-      <ScrollView>
+      <ScrollView
+        refreshControl={
+          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+        }
+      >
         <View
           className="bg-bg w-full flex-col space-y-2 px-4 my-3"
           style={{
@@ -99,7 +123,6 @@ const Home = () => {
                 Cùng tham gia sự kiện ngay thôi!
               </Text>
             </View>
-
             <NotiButton />
           </View>
           <View className={`w-full mt-4`}>
@@ -107,9 +130,18 @@ const Home = () => {
           </View>
           <View className="flex-col w-full space-y-4">
             <Text className="text-xl font-bold">Sự kiện mới nhất</Text>
-            {posts.length > 0 && posts.map((item,index) => (
-              <CardEvent key={index} item={item}/>
-            ))}
+            {isDataLoading ? (
+              <View className = 'flex-col items-center self-center'>
+                <ActivityIndicator size="large" color="#EA661C" />
+                <Text className = "self-center" style={{ marginTop: 20 }}>Loading...</Text>
+              </View>
+            ) : posts?.length > 0 ? (
+              posts.map((item, index) => (
+                <CardEvent key={index} item={item} isFav={item.isFav} />
+              ))
+            ) : (
+              <Text>No events found.</Text>
+            )}
           </View>
           </>
         )}

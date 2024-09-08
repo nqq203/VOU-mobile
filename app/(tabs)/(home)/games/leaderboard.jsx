@@ -5,10 +5,10 @@ import { HeaderAuth, CustomButton, Voucher } from '../../../../components';
 import { useLocalSearchParams, useRouter } from "expo-router";
 import moment from "moment";
 import Ionicons from 'react-native-vector-icons/Ionicons';
-
+import { images } from "../../../../constants";
 import * as SecureStore from 'expo-secure-store';
 const { callApiGetVouchers, callApiUseVoucher } = require('../../../../api/voucher');
-import { images } from "../../../../constants";
+
 
 // Leaderboard item component
 const LeaderboardItem = ({ rank, name, points, avatar }) => (
@@ -138,9 +138,8 @@ const Leaderboard = () => {
               const voucherResult = await callApiGetVouchers(eventId);
               console.log("Voucher: ", voucherResult);
               setVoucher(voucherResult);
-
-              if (voucherResult.data && voucherResult.data.length > 0) {
-                await callApiUseVoucher(voucherResult.data[0].idVoucher, user?.idUser);
+              if (voucherResult) {
+                await callApiUseVoucher(voucherResult.idVoucher, user?.idUser);
               }
             } catch (error) {
               console.error("Error fetching or using voucher:", error);
@@ -205,10 +204,10 @@ const Leaderboard = () => {
                   <Text className="text-xl font-pbold text-center text-primary">CHÚC MỪNG</Text>
                   <Text className="text-xl font-pbold text-center text-primary">BẠN ĐÃ NHẬN ĐƯỢC</Text>
                   <Voucher 
-                    isOnline={voucher?.voucher_type === "online"}
-                    voucherName={voucher?.voucher_name}
-                    voucherExpire={voucher?.expiration_date}
-                    voucherImg={voucher?.ImageUrl} 
+                    isOnline={voucher?.voucher_type  === "online" ? true : false}
+                    voucherName={ voucher?.voucher_name}
+                    voucherImg={ voucher?.voucher_image}
+                    voucherExpire={voucher.expiration_date}
                     containerStyle={'my-6'}
                   />
 

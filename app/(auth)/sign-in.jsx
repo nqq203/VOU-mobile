@@ -1,11 +1,10 @@
-import { useState } from "react";
-// import AsyncStorage from '@react-native-async-storage/async-storage';
+import React, { useState } from 'react';
 import * as SecureStore from 'expo-secure-store';
 import { Link, router } from "expo-router";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { View, Text, ScrollView, Dimensions, Alert, TouchableOpacity } from "react-native";
 import { useNavigation } from '@react-navigation/native';
-import { FooterAuth, FormField ,HeaderAuth, Notification} from "../../components";
+import { FooterAuth, FormField ,HeaderAuth} from "../../components";
 import { useGlobalContext } from "../../context/GlobalProvider";
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import { callApiLogin } from "../../api/user";
@@ -31,11 +30,10 @@ const SignIn = () => {
   // };
   const submit = async () => {
     if (form.username === "" || form.password === "") {
-      // showDialog(false, 'Please fill in all fields', () => {});
     }
-
+    
+    
     setSubmitting(true);
-    // let result = null;
     try {
       const data = {
         username: form.username,
@@ -74,7 +72,6 @@ const SignIn = () => {
     }
   };
 
-  
   return (
     <SafeAreaView className="bg-bg h-full">
       <ScrollView >

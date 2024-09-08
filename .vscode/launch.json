@@ -1,0 +1,13 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "C/C++ Runner: Debug Session",
+      "type": "lldb",
+      "request": "launch",
+      "args": [],
+      "cwd": "/Users/user/Practice/VOU/VOU-mobile",
+      "program": "/Users/user/Practice/VOU/VOU-mobile/build/Debug/outDebug"
+    }
+  ]
+}

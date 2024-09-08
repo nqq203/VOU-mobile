@@ -34,4 +34,23 @@ export const callAPIFav = async (idEvent, idUser) => {
     console.log('Response status:', error.response.status);
     return error.response.data;
   }
+};
+export const callApiGetFavoriteVouchers = async (userId) => {
+  try {
+    console.log("Get: ",userId)
+    const response = await api.get(`/api/v1/favourite-events?id_player=${userId}`);
+    return response.data;
+  } catch (error) {
+    return error.response.data;
+  }
+};
+
+export const callApiGetUserTurns = async (idPlayer, idGame) => {
+  try{
+    console.log("Payload: ", idPlayer, idGame);
+    const response = await api.get(`/api/v1/game/${idGame}/players/${idPlayer}/turns`)
+    return response.data;
+  } catch (error) {
+    return error.response.data;
+  }
 }
