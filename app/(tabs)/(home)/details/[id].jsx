@@ -9,8 +9,8 @@ import {
   Dimensions,
   ScrollView,
   TouchableOpacity,
-  TextInput,
-  AppState
+  TextInput,Alert,
+  AppState,
   Modal, ActivityIndicator
 } from "react-native";
 import { CustomButton, HeaderAuth, Loader} from "../../../../components";
@@ -31,15 +31,12 @@ import { Share,Platform } from "react-native";
 import * as Sharing from "expo-sharing";
 import * as FileSystem from "expo-file-system";
 import { callApiAddTurn } from "../../../../api/turn";
-import { cacheDirectory, downloadAsync } from "expo-file-system";
-import { useCallback } from 'react';
-import { useFocusEffect } from '@react-navigation/native';
 
 const Details = () => {
   // const {user} = useGlobalContext();
   const {id} = useLocalSearchParams();
   const [expanded, setExpanded] = useState(false);
-  const [loading, setLoading] = useState(true);
+  // const [loading, setLoading] = useState(true);
 
   const navigation = useNavigation();
   const handleToggle = () => {
@@ -93,6 +90,10 @@ const Details = () => {
     };
   }, []);
 
+  const [post, setPost] = useState({});
+  const [isLoading, setIsLoading] = useState(true); 
+  const [userTurns, setUserTurns] = useState(0); 
+  const [isFetchingTurns, setIsFetchingTurns] = useState(true);
   useEffect(() => {
     const fetchUser = async () => {
       try {
@@ -109,7 +110,6 @@ const Details = () => {
     fetchUser();
   }, []);
 
-  const [post, setPost] = useState({});
   useEffect(() => {
     const fetchPostAndTurns = async () => {
       setIsLoading(true); 
@@ -118,6 +118,8 @@ const Details = () => {
         const res = await callAPIGetPost(id);
         if (res.success) {
           setPost(res.metadata);
+          console.log(post)
+          setModalVisible(res.metadata?.gameInfoDTO?.isVoucherCode);  
           setListItems(res.metadata.inventoryInfo?.items);
           setQrCode(res.metadata.inventoryInfo.voucher_code);
         }
@@ -396,9 +398,9 @@ const Details = () => {
               minHeight: Dimensions.get("window").height - 50,
             }}
           >
-          {loading ? (
+          {/* {loading ? (
             <Loader isLoading={loading} />
-          ) : (
+          ) : ( */}
             <>
             <View className = {`flex-row items-center justify-center  w-full h-12 absolute top-4 left-4 z-10`}>
               <TouchableOpacity className = {`bg-white w-12 h-12 items-center justify-center absolute left-0 rounded-xl shadow-md border border-gray-100 `} 
@@ -595,7 +597,7 @@ const Details = () => {
               </View>
             </View>
             </>  
-          )}
+          {/* )} */}
           </View>
         </ScrollView>
       </SafeAreaView>

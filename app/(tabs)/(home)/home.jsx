@@ -9,20 +9,18 @@ import {
   ActivityIndicator,
 } from "react-native";
 import * as SecureStore from 'expo-secure-store';
-import { FormField, SearchInput, Loader } from "../../../components";
-import { router, usePathname } from "expo-router";
+import { SearchInput } from "../../../components";
 import { usePathname, router } from "expo-router";
 import CardEvent from "../../../components/CardEvent";
 import NotiButton from "../../../components/NotiButton";
 import { useQuery } from "react-query";
 import { callAPIGetEvents, callApiGetFavoriteVouchers } from "../../../api/events";
 import { useFocusEffect } from '@react-navigation/native';
-
 const Home = () => {
   const [user, setUser] = useState(null);
   const [refreshing, setRefreshing] = useState(false);
   const [isFocusRefetching, setIsFocusRefetching] = useState(false);
-  const [isInitialLoading, setIsInitialLoading] = useState(true);
+  const [isInitialLoading, setIsInitialLoading] = useState(true); // Add this to track the initial loading state
   const pathname = usePathname();
 
   const fetchUser = useCallback(async () => {
@@ -37,6 +35,7 @@ const Home = () => {
     }
   }, []);
 
+  // UseQuery with logging to see the state of loading
   const { data: posts, isLoading, refetch } = useQuery(
     ["home", user?.idUser],
     async () => {
@@ -44,37 +43,31 @@ const Home = () => {
       try {
         const [eventsRes, favoritesRes] = await Promise.all([
           callAPIGetEvents(),
-          callApiGetFavoriteVouchers(user.idUser)
+          callApiGetFavoriteVouchers(user.idUser),
         ]);
         if (eventsRes.success && favoritesRes.success) {
           const events = eventsRes.metadata || [];
           const favorites = favoritesRes.metadata || [];
-          const mergedEvents = events.map(event => ({
+          const mergedEvents = events.map((event) => ({
             ...event,
-            isFav: favorites.some(fav => fav.idEvent === event.idEvent)
+            isFav: favorites.some((fav) => fav.idEvent === event.idEvent),
           }));
-          console.log("Merged Data:", JSON.stringify(mergedEvents, null, 2));
           return mergedEvents;
         }
-        if (eventsRes.code === 401 || favoritesRes.code === 401) {
-          await SecureStore.deleteItemAsync("user");
-          await SecureStore.deleteItemAsync("token");
-          router.replace("/login");
-          return [];
-        }
+        return [];
       } catch (error) {
-        console.error("Error fetching posts or favorites:", error);
+        console.error("Error during API calls:", error);
         return [];
       }
     },
     {
       enabled: !!user?.idUser, // Ensure the query only runs if user.idUser is available
       onSuccess: () => setIsInitialLoading(false), // Stop the initial loading state when success
-      onError: () => setIsInitialLoading(false),
+      onError: () => setIsInitialLoading(false), // Stop the initial loading state when error occurs
     }
   );
-  
 
+  // Refresh function
   const onRefresh = useCallback(async () => {
     setRefreshing(true);
     await refetch();
@@ -83,19 +76,15 @@ const Home = () => {
 
   useFocusEffect(
     useCallback(() => {
-      console.log('Screen is focused and refreshed');
       fetchUser();
       if (user?.idUser) {
         setIsFocusRefetching(true);
         refetch().finally(() => setIsFocusRefetching(false));
       }
-      return () => {
-        // Cleanup function if needed
-      };
     }, [fetchUser, refetch, user?.idUser])
   );
 
-  const isDataLoading = isLoading || isFocusRefetching || isInitialLoading; 
+  const isDataLoading = isLoading || isFocusRefetching || isInitialLoading; // Track both isLoading and initial loading
 
   return (
     <SafeAreaView className="bg-bg w-full">
@@ -110,17 +99,13 @@ const Home = () => {
             minHeight: Dimensions.get("window").height - 50,
           }}
         >
-        {loading ? (
-          <Loader isLoading={loading} />
-        ) : (
-          <>
           <View className="flex-row justify-between">
             <View className="">
-              <Text className={`text-lg text-primary font-pbold leading-8`}>
+              <Text className={`text-xl text-primary font-bold leading-8`}>
                 HI, {user?.fullName}
               </Text>
-              <Text className="text-md border-spacing-1 font-pregular text-black">
-                Cùng tham gia sự kiện ngay thôi!
+              <Text className="text-md border-spacing-1 font-normal text-black">
+                Let's play the game!
               </Text>
             </View>
             <NotiButton />
@@ -131,9 +116,11 @@ const Home = () => {
           <View className="flex-col w-full space-y-4">
             <Text className="text-xl font-bold">Sự kiện mới nhất</Text>
             {isDataLoading ? (
-              <View className = 'flex-col items-center self-center'>
+              <View className="flex-col items-center self-center">
                 <ActivityIndicator size="large" color="#EA661C" />
-                <Text className = "self-center" style={{ marginTop: 20 }}>Loading...</Text>
+                <Text className="self-center" style={{ marginTop: 20 }}>
+                  Loading...
+                </Text>
               </View>
             ) : posts?.length > 0 ? (
               posts.map((item, index) => (
@@ -143,8 +130,6 @@ const Home = () => {
               <Text>No events found.</Text>
             )}
           </View>
-          </>
-        )}
         </View>
       </ScrollView>
     </SafeAreaView>
