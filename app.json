@@ -19,13 +19,15 @@
       "supportsTablet": true,
       "config": {
         "usesNonExemptEncryption": false
-      }
+      },
+      "bundleIdentifier": "y"
     },
     "android": {
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#ffffff"
-      }
+      },
+      "package": "com.tramtramne.VOUmobile"
     },
     "web": {
       "favicon": "./assets/favicon.png"
@@ -39,10 +41,14 @@
           "faceIDPermission": "Allow $(PRODUCT_NAME) to access your Face ID biometric data."
         }
       ]
-      
     ],
-    "assets": [
-      "./assets/fonts/"
-    ]
+    "extra": {
+      "router": {
+        "origin": false
+      },
+      "eas": {
+        "projectId": "ee370f33-99ee-45eb-adf5-055d28a698c5"
+      }
+    }
   }
 }

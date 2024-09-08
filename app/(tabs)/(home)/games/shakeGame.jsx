@@ -14,12 +14,13 @@ import { images } from '../../../../constants';
 import Dropdown from '../../../../components/Dropdown';
 import * as SecureStore from 'expo-secure-store';
 import {callApiShakeGame} from '../../../../api/games';
+import {callApiGetUserTurns} from "../../../../api/events";
 
 const ShakeGame = () => {
-    const { gameId, username } = useLocalSearchParams();
+    const { gameId, username ,idUser} = useLocalSearchParams();
   const [showResult, setShowResult] = useState(false);
   const [modalGameVisible, setModalGameVisible] = useState(8);
-  const [turn, setTurn] = useState(10);
+  const [turn, setTurn] = useState(0);
   const [hasTurnLeft, setHasTurnLeft] = useState(true);
   const [hasItem, setHasItem] = useState(false);
   const [isShaking, setIsShaking] = useState(false);
@@ -36,7 +37,7 @@ const ShakeGame = () => {
     typeOfInfo: '',
     info:'',
   })
-  const [user, setUser] = useState();
+  const [user, setUser] = useState()
 
   useEffect(() => {
     const fetchUser = async () => {
@@ -51,6 +52,29 @@ const ShakeGame = () => {
       }
     };
     fetchUser();
+
+    const fetchTurn = async () => {
+      try {
+        const idUser = user?.idUser
+        console.log(gameId);
+
+        const response = await callApiGetUserTurns(idUser, gameId);
+        console.log(response);
+        if (response.success) {
+          if (response?.metadata) {
+            setTurn(response.metadata.turns);
+            setHasTurnLeft(response.metadata.turns > 0);
+          } else {
+            setTurn(0);
+            setHasTurnLeft(false);
+          }
+        }
+      } catch (error) {
+        console.log(error);
+
+      }
+    };
+    fetchTurn();
 
     let subscription;
     const startAccelerometer = async () => {

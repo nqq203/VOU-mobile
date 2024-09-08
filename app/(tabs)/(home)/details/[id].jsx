@@ -119,19 +119,22 @@ const Details = () => {
           // setModalVisible(res.metadata?.gameInfoDTO?.isVoucherCode);  
           setListItems(res.metadata.inventoryInfo?.items);
           setQrCode(res.metadata.inventoryInfo.voucher_code);
-        }
 
-        if (user?.idUser) {
-          console.log("post:", post)
-          const turnRes = await callApiGetUserTurns(user.idUser, post?.gameInfoDTO?.gameId); 
-          if (turnRes.success) {
-            setUserTurns(turnRes.metadata.turns); 
+          if (user?.idUser !== null) {
+            console.log("post:", post)
+            
+            const turnRes = await callApiGetUserTurns(user.idUser, res.metadata?.gameInfoDTO?.gameId); 
+            if (turnRes.success) {
+              setUserTurns(turnRes.metadata.turns); 
+            }
+            else {
+              setUserTurns(0);
+              console.log(turnRes.message)
+            }
           }
-          else {
-            setUserTurns(0);
-            console.log(turnRes.message)
-          }
-        }
+        } 
+
+        
       } catch (error) {
         console.log("Error fetching post or turns:", error);
       } finally {
@@ -550,7 +553,7 @@ const Details = () => {
                      textStyles='' 
                      handlePress={() => router.push({
                        pathname: "/games/shakeGame",
-                       params: { gameId: post?.gameInfoDTO?.gameId, username: user.username },
+                       params: { gameId: post?.gameInfoDTO?.gameId, username: user.username , idUser: user.idUser},
                      })}
                    />
                    
