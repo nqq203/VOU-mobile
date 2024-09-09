@@ -75,6 +75,7 @@ const Details = () => {
   useEffect(() => {
     const handleAppStateChange = async (nextAppState) => {
       if (nextAppState === 'active') {
+        console.log('active')
         if(turnResult != "") {
           setDialogTitle("success");
           setDialogMessage(turnResult);          
@@ -122,20 +123,30 @@ const Details = () => {
           // setModalVisible(res.metadata?.gameInfoDTO?.isVoucherCode);  
           setListItems(res.metadata.inventoryInfo?.items);
           setQrCode(res.metadata.inventoryInfo.voucher_code);
-        }
 
-        if (user?.idUser) {
-          console.log("post:", post)
-          const turnRes = await callApiGetUserTurns(user.idUser, post?.gameInfoDTO?.gameId); 
-          console.log("Turn res: ",turnRes)
-          if (turnRes.success) {
-            setUserTurns(turnRes.metadata.turns); 
+          if (user?.idUser !== null) {
+            console.log("post:", res.metadata?.gameInfoDTO)
+            
+            const turnRes = await callApiGetUserTurns(user.idUser, res.metadata?.gameInfoDTO?.gameId);
+            console.log("turnRes:", turnRes) 
+            if (turnRes.success) {
+              
+                setUserTurns(turnRes.metadata.turns); 
+              
+            }
+            else {
+              if (turnRes?.message ==='Không tìm thấy lượt chơi')
+                {
+                  setUserTurns(10)
+                }
+                else{
+              setUserTurns(0)}
+              console.log(turnRes.message)
+            }
           }
-          else {
-            setUserTurns(0);
-            console.log(turnRes.message)
-          }
-        }
+        } 
+
+        
       } catch (error) {
         console.log("Error fetching post or turns:", error);
       } finally {
@@ -210,7 +221,9 @@ const Details = () => {
         );
       }
 
+
       if (result.action === Share.sharedAction) {
+        console.log("Shareing")
         if (result.activityType) {
           console.log('Shared via activity:', result.activityType);
         } else {
@@ -590,7 +603,7 @@ const Details = () => {
                      textStyles='' 
                      handlePress={() => router.push({
                        pathname: "/games/shakeGame",
-                       params: { gameId: post?.gameInfoDTO?.gameId, username: user.username },
+                       params: { gameId: post?.gameInfoDTO?.gameId, username: user.username , idUser: user.idUser},
                      })}
                    />
                    

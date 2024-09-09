@@ -46,6 +46,7 @@ const SignIn = () => {
 
       setIsLogged(true);
       if (result.success === false && result.code === 401 && result.message === 'Tài khoản chưa được xác thực. Hãy xác thực OTP để đăng nhập!') {
+        setForm({ username: '', password: '' });
         navigation.navigate('verify-otp',{ username: form.username });
       }
       
@@ -65,14 +66,11 @@ const SignIn = () => {
       else{
         setDialogVisible(true);
         showDialog(false, result.message, () => {});
-        // Alert.alert("Error", result.message);
       }
     } catch (error) {
       setDialogVisible(true);
       console.log("Err: ", error);
-      showDialog(false, error.message, () => {});
-      // showDialog(false, error.message, () => {});
-     
+      showDialog(false, error.message, () => {});     
       
     } finally {
       setSubmitting(false);
@@ -93,10 +91,10 @@ const SignIn = () => {
           <View className='mt-32 mx-6'>
 
             <Text className={`text-lg text-black font-pbold leading-8`}>
-            Sign in
+            Đăng nhập
             </Text>
             <Text className="text-md border-spacing-1 font-pregular text-gray-500 mt-1 ">
-            Welcome back
+            Chào mừng bạn trở lại
             </Text>
             <View className = 'mt-3'>
               <FormField
@@ -120,7 +118,7 @@ const SignIn = () => {
                 href="/forgot-password"
                 className="text-lg font-psemibold text-secondary" >
               <Text className="text-sm underline font-pmedium text-grey-900 text-center" style = {{  alignItems: 'center',justifyContent: 'center', }}>
-                Forgot Password?
+                Quên mật khẩu?
               </Text>
               </Link>
 
@@ -129,7 +127,7 @@ const SignIn = () => {
               </TouchableOpacity>
             </View>
           </View>
-          <FooterAuth text="New member?" textLink="Sign up" url="/sign-up" />
+          <FooterAuth text="Bạn là thành viên mới?" textLink="Đăng ký" url="/sign-up" />
         </View>
       </ScrollView>
       {dialogVisible && <Notification

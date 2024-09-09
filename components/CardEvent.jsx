@@ -36,7 +36,7 @@ const CardEvent = ({
     const value = !item.isFavorite;
     item.isFavorite = value;
     setisFavorite(value);
-    await callAPIFav(id,user?.idUser );
+    await callAPIFav(id,user?.idUser, user?.username);
   };
 
   const styles = StyleSheet.create({

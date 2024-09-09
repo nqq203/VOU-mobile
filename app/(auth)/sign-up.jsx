@@ -121,13 +121,13 @@ const SignUp = () => {
       >
 
         <HeaderAuth />
-        <View className='mt-14 mx-6'>
+        <View className='mt-4 mx-6'>
 
           <Text className={`text-lg text-black font-pbold leading-8`}>
-          Sign up
+          Đăng ký
           </Text>
           <Text className="text-md border-spacing-1 font-pregular text-gray-500 mt-1 ">
-          Welcome to VOU
+          Chào mừng bạn tới VOU
           </Text>
           <View className = ''>
             <FormField
@@ -140,8 +140,8 @@ const SignUp = () => {
             <FormField
               value={form.phoneNumber}
               handleChangeText={(e) => setForm({ ...form, phoneNumber: e })}
-              placeholder={"Phone Number"}
-              keyboardType="email-address"
+              placeholder={"Số điện thoại"}
+              keyboardType="phone-pad"
               icon="phone"
             />
             <FormField
@@ -162,7 +162,7 @@ const SignUp = () => {
 
           <View className="flex pt-5 flex-column  ">
             <Text className="text-sm font-normal text-grey-900 text-center" style = {{  alignItems: 'center',justifyContent: 'center', }}>
-            By signing up you agree with our Terms of Use
+            Xác nhận đồng ý với các điều khoản dịch vụ của chúng tôi
             </Text>
            
             <TouchableOpacity className = 'flex-col items-center justify-center text-white w-16 rounded-full h-16 bg-primary self-end mt-4' onPress={submit}>
@@ -170,7 +170,7 @@ const SignUp = () => {
             </TouchableOpacity>
           </View>
         </View>
-       <FooterAuth text="Already a member?" textLink="Sign in" url="/sign-in" />
+       <FooterAuth text="Đã có tài khoản?" textLink="Đăng nhập" url="/sign-in" />
       </View>
     </ScrollView>
     {dialogVisible && <Notification

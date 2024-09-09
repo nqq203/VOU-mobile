@@ -130,6 +130,7 @@ const Leaderboard = () => {
             try {
               const voucherResult = await callApiGetVouchers(eventId);
               setVoucher(voucherResult);
+              console.log(voucherResult);
               if (voucherResult) {
                 await callApiUseVoucher(voucherResult.voucher_code, user?.idUser);
               }
@@ -198,7 +199,7 @@ const Leaderboard = () => {
                   <Voucher 
                     isOnline={voucher?.voucher_type  === "online" ? true : false}
                     voucherName={ voucher?.voucher_name}
-                    voucherImg={ voucher?.voucher_image}
+                    voucherImg={ voucher?.imageUrl}
                     voucherExpire={voucher.expiration_date}
                     containerStyle={'my-6'}
                   />

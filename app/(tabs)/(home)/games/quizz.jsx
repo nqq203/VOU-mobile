@@ -50,6 +50,7 @@ const QuizScreen = () => {
         { uri: url }
       );
       setSound(newSound);
+      await newSound.setIsLoopingAsync(false);  
       await newSound.playAsync();
     } catch (error) {
       console.log('Error playing sound:', error);
@@ -193,7 +194,7 @@ const QuizScreen = () => {
             </View>
           </View>
 
-          <Modalize ref={modalizeRef} snapPoint={300}>
+          <Modalize ref={modalizeRef} snapPoint={300} >
             <View className='pl-6 flex-col items-center justify-center m-[10px] bg-bg rounded-2xl px-2 py-2 font-medium text-10 space-x-2'>
               
               <Icon name="ranking-star" size={40} color={"#EA661C"} /> 

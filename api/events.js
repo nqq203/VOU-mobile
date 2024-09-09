@@ -24,10 +24,11 @@ export const callAPIGetPost = async (id) => {
   }
 }
 
-export const callAPIFav = async (idEvent, idUser) => {
+export const callAPIFav = async (idEvent, idUser, username) => {
   try {
-    const response = await api.post(`/api/v1/favourite-events/${idEvent}/users/${idUser}`);
-    // console.log('response: ', response.data);
+    console.log("Payload: ", idEvent, idUser, username);
+    const response = await api.post(`/api/v1/favourite-events/${idEvent}/users/${idUser}/${username}`);
+    console.log('response: ', response.data);
     return response.data;
   } catch (error) {
     console.log('Response callAPIFav:', error.response.data);

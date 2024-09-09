@@ -127,7 +127,7 @@ const Home = () => {
                 <CardEvent key={index} item={item} isFav={item.isFav} />
               ))
             ) : (
-              <Text>No events found.</Text>
+              <Text className="text-base font-pregular">Chưa có sự kiện mới</Text>
             )}
           </View>
         </View>
