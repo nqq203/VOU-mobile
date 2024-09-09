@@ -29,7 +29,7 @@ import { callApiExchangeVoucher } from "../../../../api/voucher";
 import { Share,Platform } from "react-native";
 import * as Sharing from "expo-sharing";
 import * as FileSystem from "expo-file-system";
-import { callApiAddTurn } from "../../../../api/turn";
+import { callApiAddTurn, callApiGiveTurn } from "../../../../api/turn";
 
 
 const Details = () => {
@@ -55,12 +55,15 @@ const Details = () => {
   const [turns, setTurns] = useState(10);
   const [turnResult, setTurnResult] = useState("")
 
-  const listOptions = ['Mã ID', 'Email', 'Số điện thoại']
-  const [option, setOption] = useState('')
+  const listOptions = ['Mã ID', 'Email', 'Tên tài khoản']
+  const [option, setOption] = useState(listOptions[0])
   const [form, setForm] = useState({
     typeOfInfo: '',
     info:'',
   })
+  const [isAskingForTurn, setIsAskingForTurn] = useState(false);
+
+  const [turnInfo, setTurnInfo] = useState("")
   const [user, setUser] = useState();
   const shakeGameDescription = "Lắc Xu là game tương tác, trong đó người dùng lắc điện thoại để nhận các vật phẩm ngẫu nhiên như xu, quà, hoặc điểm thưởng. Các vật phẩm thu thập được có thể dùng để đổi lấy phần thưởng hấp dẫn, tạo cảm giác hứng thú và hồi hộp khi chơi."
   const quizGameDescription = "Quiz là game tương tác, nơi người dùng cùng xem livestream và trả lời các câu hỏi trong thời gian thực. Người chơi tham gia qua thiết bị cá nhân, cạnh tranh với nhau bằng cách chọn câu trả lời đúng nhanh nhất, tạo nên trải nghiệm học hỏi và giải trí trực tiếp."
@@ -124,6 +127,7 @@ const Details = () => {
         if (user?.idUser) {
           console.log("post:", post)
           const turnRes = await callApiGetUserTurns(user.idUser, post?.gameInfoDTO?.gameId); 
+          console.log("Turn res: ",turnRes)
           if (turnRes.success) {
             setUserTurns(turnRes.metadata.turns); 
           }
@@ -228,15 +232,18 @@ const Details = () => {
   }
 
   const askForTurnFromFriend = () => {
+    console.log("Send noti to friend")
+    setIsAskingForTurn(true);
     setModalTurnVisible(false);
     setModalAskForTurnVisible(true);
   }
 
   // giveTurnToFriend
-  // giveTurnToFriend 8087, 86
-  // api: /turn
   const giveTurnToFriend = () => {
-    console.log("Hel")
+    console.log("Give turn to friend")
+    setIsAskingForTurn(false);
+    setModalTurnVisible(false);
+    setModalAskForTurnVisible(true);
   }
 
   const handlePlayGame = () => {
@@ -249,30 +256,63 @@ const Details = () => {
       });
     }
   };
-  const sendRequestTurn = () => {
-    if(option === 'Mã ID') {
-        form.typeOfInfo = 'id'
-    } else if(option === 'Email'){
-        form.typeOfInfo = 'email'
-    } else if(option === 'Số điện thoại'){
-        form.typeOfInfo = 'phone'
-    }
 
-    if( form.info === '' || form.typeOfInfo === ''){
-        setIsTurnError(true);
-        return;
+  const sendRequestTurn = async () => {
+    if( turnInfo === '' || option === ''){
+      setIsTurnError(true);
+      return;
     }
-
-    console.log(form);
-    setModalAskForTurnVisible(false);
-    setModalTurnVisible(true);
-    setForm({
-        typeOfInfo: '',
-        info:'',
-        itemName: '',
-        amount: '',
-    })    
     setIsTurnError(false);
+
+    let typeInfo = 'id'
+    if(option === 'Email'){
+      typeInfo = 'email'
+    } else if(option === 'Tên tài khoản'){
+      typeInfo = 'username'
+    }
+
+    if(isAskingForTurn){
+      // code gửi noti xin lượt 
+      console.log("1_Typpe: ",typeInfo);
+      console.log("Info: ",turnInfo);
+    } else {
+      // code tặng lượt cho bạn bè
+       
+      console.log("2_Typpe: ",typeInfo);
+      console.log("Info: ",turnInfo);
+      
+      const turnData = {
+        username: typeInfo === 'username' ? turnInfo : null,
+        email: typeInfo === 'email' ? turnInfo : null,
+        receiverId: typeInfo === 'id' ? turnInfo : null,
+        senderId: user.idUser,
+        idGame: post?.gameInfoDTO?.gameId,
+        turns: 1
+      }
+      console.log(turnData)
+
+      const result = await callApiGiveTurn(turnData)
+      console.log("Give turn to friens; ",result)
+      if(result.success){
+        // setUserTurns(userTurns-1);
+
+        setDialogTitle("success");
+        setDialogMessage(result.message);
+        setDialogVisible(true)
+      } else {
+        setDialogTitle("");
+        setDialogMessage("Tặng lượt không thành công");
+        setDialogVisible(true)
+      }
+      
+    }
+
+    setModalAskForTurnVisible(false);
+    setTurnInfo("");
+    setOption(listOptions[0]);
+    // setDialogTitle("success");
+    // setDialogMessage("Gửi/Tặng lượt thành công");
+    // setDialogVisible(true)
   }
 
 
@@ -357,7 +397,7 @@ const Details = () => {
             </View>
         </Modal>
 
-        {/* Modal ask for turn  from friends */}
+        {/* Modal ask for turn from friends */}
         <Modal 
             visible={modalAskForTurnVisible} 
             transparent={true}
@@ -382,8 +422,8 @@ const Details = () => {
                     <TextInput
                         placeholder='Nhập nội dung'
                         placeholderTextColor={'#949494'}
-                        value={form.info}
-                        onChange={(e) => setForm({...form, info: e.nativeEvent.text})}
+                        value={turnInfo}
+                        onChange={(e) => setTurnInfo(e.nativeEvent.text)}
                         className="h-[48px] mt-2 mb-6 p-2 rounded-md border border-gray-200 w-full text-base font-pmedium "
                     />
 
