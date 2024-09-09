@@ -55,3 +55,12 @@ export const callApiGetUserTurns = async (idPlayer, idGame) => {
     return error.response.data;
   }
 }
+
+export const callApiGetNoti = async (username) => {
+  try{
+    const response = await api.get(`/api/v1/game/notification?username=${username}`);
+    return response.data;
+  } catch (error) {
+    return error.response.data;
+  }
+}

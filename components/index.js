@@ -11,6 +11,7 @@ import HeaderAuth from "./HeaderAuth";
 import Notification from "./Notification";
 import Voucher from "./Voucher";
 import AnimatedImage from "./AnimatedImage";
+import EventNotification from "./EventNotification";
 export {
   VideoCard,
   FormField,
@@ -21,6 +22,6 @@ export {
   FooterAuth,
   HeaderAuth,
   AnimatedImage,
-  Notification,
+  Notification,EventNotification,
   Voucher
 };

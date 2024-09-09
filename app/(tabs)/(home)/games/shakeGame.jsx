@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, SafeAreaView, ScrollView, 
+import { View, Text, SafeAreaView,  
     Dimensions, TouchableOpacity, Modal, TextInput, Vibration,
     ImageBackground, Image, 
     Alert} from 'react-native';
@@ -7,15 +7,12 @@ import { Accelerometer } from 'expo-sensors';
 import { useLocalSearchParams } from "expo-router";
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import { HeaderAuth, CustomButton } from '../../../../components';
-import GiftHistory from '../../../../components/GiftHistory';
 import Item from '../../../../components/item';
-import { router } from 'expo-router';
 import { images } from '../../../../constants';
 import Dropdown from '../../../../components/Dropdown';
 import * as SecureStore from 'expo-secure-store';
-import {callApiShakeGame} from '../../../../api/games';
+import {callApiShakeGame,callApiAskForTurn} from '../../../../api/games';
 import {callApiGetUserTurns} from "../../../../api/events";
-
 const ShakeGame = () => {
     const { gameId, username ,idUser} = useLocalSearchParams();
   const [showResult, setShowResult] = useState(false);
@@ -50,7 +47,6 @@ const ShakeGame = () => {
         console.log(gameId);
 
         const response = await callApiGetUserTurns(idUser, gameId);
-        console.log(response);
         if (response.success) {
           if (response?.metadata) {
             setTurn(response.metadata.turns);
@@ -82,7 +78,7 @@ const ShakeGame = () => {
     return () => {
       subscription && subscription.remove();
     };
-  }, [user?.id]);
+  }, [user?.idUser]);
 
   useEffect(() => {
     const { x, y, z } = shakeData;
@@ -142,7 +138,7 @@ const ShakeGame = () => {
     setModalAskForTurnVisible(true);
   }  
 
-  const sendRequestTurn = () => {
+  const sendRequestTurn = async () => {
     if(option === 'Mã ID') {
       form.typeOfInfo = 'id'
     } else if(option === 'Email'){
@@ -155,6 +151,8 @@ const ShakeGame = () => {
       setIsError(true);
       return;
     }
+    
+    
 
     console.log(form);
     setModalAskForTurnVisible(false);

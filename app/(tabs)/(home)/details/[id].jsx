@@ -30,7 +30,7 @@ import { Share,Platform } from "react-native";
 import * as Sharing from "expo-sharing";
 import * as FileSystem from "expo-file-system";
 import { callApiAddTurn, callApiGiveTurn } from "../../../../api/turn";
-
+import {callApiAskForTurn} from "../../../../api/games";
 
 const Details = () => {
   const {id} = useLocalSearchParams();
@@ -223,8 +223,7 @@ const Details = () => {
 
 
       if (result.action === Share.sharedAction) {
-        console.log("Shareing")
-        if (result.activityType) {
+          if (result.activityType) {
           console.log('Shared via activity:', result.activityType);
         } else {
           console.log('Shared without specifying an activity');
@@ -232,7 +231,7 @@ const Details = () => {
         setModalTurnVisible(false);
 
         const resultAdd = await callApiAddTurn(user.idUser,post?.gameInfoDTO?.gameId)
-        console.log("AddTurn; ",resultAdd.data)
+        console.log("AddTurn; ",resultAdd)
         if(resultAdd.success){
           setTurnResult(resultAdd.message);
         }
@@ -246,6 +245,7 @@ const Details = () => {
 
   const askForTurnFromFriend = () => {
     console.log("Send noti to friend")
+
     setIsAskingForTurn(true);
     setModalTurnVisible(false);
     setModalAskForTurnVisible(true);
@@ -277,28 +277,23 @@ const Details = () => {
     }
     setIsTurnError(false);
 
-    let typeInfo = 'id'
-    if(option === 'Email'){
-      typeInfo = 'email'
-    } else if(option === 'Tên tài khoản'){
-      typeInfo = 'username'
-    }
-
     if(isAskingForTurn){
       // code gửi noti xin lượt 
-      console.log("1_Typpe: ",typeInfo);
       console.log("Info: ",turnInfo);
+
+      if (user?.username)
+        {
+          console.log(form, user.username);
+           await callApiAskForTurn({sender: user.username, receiver: turnInfo});
+        }
     } else {
       // code tặng lượt cho bạn bè
-       
-      console.log("2_Typpe: ",typeInfo);
       console.log("Info: ",turnInfo);
       
       const turnData = {
-        username: typeInfo === 'username' ? turnInfo : null,
-        email: typeInfo === 'email' ? turnInfo : null,
-        receiverId: typeInfo === 'id' ? turnInfo : null,
-        senderId: user.idUser,
+        username: turnInfo,
+        email: null,
+        receiverId: null,
         idGame: post?.gameInfoDTO?.gameId,
         turns: 1
       }
@@ -422,15 +417,13 @@ const Details = () => {
                         <Ionicons name='close' size={28} color={'gray'} />
                     </TouchableOpacity>
                     <Text className="text-2xl font-psemibold">Thông tin bạn bè</Text>
-                    <Text className="text-base text-gray-500 text-center">Chọn mã ID/Email/Số điện thoại và điền thông tin tương ứng để gửi đến đúng người nhé</Text>
+                    <Text className="text-base text-gray-500 text-center">Nhập username để gửi đến đúng người nhé</Text>
                     {isTurnError ? (
                         <Text className="text-base text-red text-center mt-3">Thông tin chưa hợp lệ. Vui lòng kiểm tra lại</Text>
                     ) : null}
 
-                    <View className='relative w-full h-[72px]'>
-                        <View className='absolute z-20 w-full h-full'>
-                            <Dropdown listItems={listOptions} setItem={setOption} customStyle={'mt-5'}/>
-                        </View>
+                    <View className='relative w-full'>
+                        <Text className="text-lg font-pregular mt-2">Username</Text>
                     </View>
                     <TextInput
                         placeholder='Nhập nội dung'

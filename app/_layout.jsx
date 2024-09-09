@@ -31,7 +31,7 @@ const RootLayout = () => {
   });
 
   const [signIn, setSignIn] = useState(false);
-
+  
   useEffect(() => {
     const checkSignInStatus = async () => {
       const token = await SecureStore.getItemAsync('token');
@@ -62,7 +62,6 @@ const RootLayout = () => {
               <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
               <Stack.Screen name="index" options={{ headerShown: true }} />
               <Stack.Screen name="(auth)" options={{ headerShown: false }} />
-              <Stack.Screen name="notification" options={{ headerShown: false }} />
             </Stack>
 
         </GlobalProvider>

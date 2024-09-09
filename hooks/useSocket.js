@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useState } from "react";
 import io from "socket.io-client";
 
-const SOCKET_BASE_URL = "http://172.20.10.11:8085";
+const SOCKET_BASE_URL = "http://172.20.10.5:8085";
 // const SOCKET_BASE_URL = "http://10.8.20.66:8085";
 // const SOCKET_BASE_URL = "http://localhost:8085";
 
@@ -25,7 +25,8 @@ export const useSocket = (room, username) => {
   const [result, setResult] = useState("");
   const [score, setScore] = useState("");
   const [endGame, setEndGame] = useState(0);
-
+  const [event, setEvent] = useState(null);
+  const [turn, setTurn ] = useState(null)
   useEffect(() => {
     console.log('Info: ', username, room);
     const s = io(SOCKET_BASE_URL, {
@@ -89,8 +90,22 @@ export const useSocket = (room, username) => {
     s.on("game_end", (res) => {
       setEndGame(res);
     });
+
+    s.on("event_notification",(message)=>{
+      console.log("event_notification: ",message);
+      const hi = JSON.parse(message)
+      console.log("hi: ",typeof(hi))
+      console.log("hihi:",hi?.message )
+      setEvent(hi);
+    })
+
+    s.on("turn_notification",(message)=>{
+      console.log("turn_notification",message);
+      setTurn(message);
+    })
+    
+
   }, [room, username]);
-  
 
   const sendData = useCallback(
     (payload) => {
@@ -107,5 +122,5 @@ export const useSocket = (room, username) => {
     },
     [socket, isConnected, room, username]
   );
-  return { socketResponse, isConnected, sendData, allUsers ,gameStarted, question, result, score, endGame };
+  return { socketResponse, isConnected, sendData, allUsers ,gameStarted, question, result, score, endGame ,event, turn};
 };

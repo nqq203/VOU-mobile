@@ -10,18 +10,18 @@ import {
 } from "react-native";
 import * as SecureStore from 'expo-secure-store';
 import { SearchInput } from "../../../components";
-import { usePathname, router } from "expo-router";
 import CardEvent from "../../../components/CardEvent";
 import NotiButton from "../../../components/NotiButton";
 import { useQuery } from "react-query";
 import { callAPIGetEvents, callApiGetFavoriteVouchers } from "../../../api/events";
 import { useFocusEffect } from '@react-navigation/native';
+
 const Home = () => {
   const [user, setUser] = useState(null);
   const [refreshing, setRefreshing] = useState(false);
   const [isFocusRefetching, setIsFocusRefetching] = useState(false);
   const [isInitialLoading, setIsInitialLoading] = useState(true); // Add this to track the initial loading state
-  const pathname = usePathname();
+  
 
   const fetchUser = useCallback(async () => {
     try {

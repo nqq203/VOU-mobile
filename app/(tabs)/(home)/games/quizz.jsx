@@ -3,10 +3,9 @@ import React, { useState, useEffect,useRef ,useCallback} from "react";
 import { Pressable, Text, SafeAreaView, View, Dimensions, 
   StyleSheet,Image ,ActivityIndicator, ImageBackground} from "react-native";
 import { useLocalSearchParams, useRouter } from "expo-router";
-import { CustomButton, HeaderAuth } from "../../../../components";
+import {  HeaderAuth } from "../../../../components";
 import { useSocket } from "../../../../hooks/useSocket";
 import { CountdownCircleTimer } from 'react-native-countdown-circle-timer'
-import {AnimatedImage} from '../../../../components';
 import { images } from "../../../../constants";
 import { Modalize } from 'react-native-modalize';
 import Icon from 'react-native-vector-icons/FontAwesome6';
@@ -83,6 +82,7 @@ const QuizScreen = () => {
     }
     
     if (score) {
+      // if ()
       openSheet();
       setIsLoading(false);
       setShowModalize(true);
