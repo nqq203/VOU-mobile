@@ -294,6 +294,7 @@ const Details = () => {
         username: turnInfo,
         email: null,
         receiverId: null,
+        senderId: user.idUser,
         idGame: post?.gameInfoDTO?.gameId,
         turns: 1
       }
